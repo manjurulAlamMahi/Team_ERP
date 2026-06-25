@@ -36,6 +36,10 @@ class PermissionsTableSeeder extends Seeder
             ['name' => 'team_create', 'guard_name' => 'web'],
             ['name' => 'team_edit', 'guard_name' => 'web'],
             ['name' => 'team_delete', 'guard_name' => 'web'],
+            ['name' => 'client_message_type_list', 'guard_name' => 'web'],
+            ['name' => 'client_message_type_create', 'guard_name' => 'web'],
+            ['name' => 'client_message_type_edit', 'guard_name' => 'web'],
+            ['name' => 'client_message_type_delete', 'guard_name' => 'web'],
         ];
 
         foreach ($permissions as $permission) {

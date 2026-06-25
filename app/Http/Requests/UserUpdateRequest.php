@@ -67,6 +67,15 @@ class UserUpdateRequest extends FormRequest
                     $validator->errors()->add('reporting_to', 'Reporting manager must be an Operation Manager.');
                 }
             }
+
+            $role = $this->input('role');
+            if (in_array($role, ['Leader', 'Co Leader', 'Stack Lead'], true)
+                && User::hasConflictingTeamRole($role, $this->input('team_id'), $this->input('stack_id'), $this->input('id'))) {
+                $message = $role === 'Stack Lead'
+                    ? 'This stack already has a Stack Lead in the selected team.'
+                    : "This team already has a {$role}.";
+                $validator->errors()->add('role', $message);
+            }
         });
     }
 

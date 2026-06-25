@@ -59,82 +59,6 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-3 col-form-label">Official Email</label>
-                        <div class="col-9">
-                            <input type="email" class="form-control form-control-sm @error('official_email') is-invalid @enderror"
-                                   name="official_email" value="{{ old('official_email') }}" placeholder="Optional">
-                            @error('official_email')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-3 col-form-label">Whatsapp Number</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control form-control-sm @error('whatsapp') is-invalid @enderror"
-                                   name="whatsapp" value="{{ old('whatsapp') }}" placeholder="01XXXXXXXXX">
-                            @error('whatsapp')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-3 col-form-label">Phone Number</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control form-control-sm @error('phone') is-invalid @enderror"
-                                   name="phone" value="{{ old('phone') }}" placeholder="Optional">
-                            @error('phone')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-3 col-form-label">Address</label>
-                        <div class="col-9">
-                            <textarea name="address" class="form-control form-control-sm @error('address') is-invalid @enderror" rows="2">{{ old('address') }}</textarea>
-                            @error('address')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-3 col-form-label">Telegram</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control form-control-sm @error('telegram') is-invalid @enderror"
-                                   name="telegram" value="{{ old('telegram') }}" placeholder="Optional">
-                            @error('telegram')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-3 col-form-label">Github</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control form-control-sm @error('github') is-invalid @enderror"
-                                   name="github" value="{{ old('github') }}" placeholder="Optional">
-                            @error('github')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-3 col-form-label">Discord</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control form-control-sm @error('discord') is-invalid @enderror"
-                                   name="discord" value="{{ old('discord') }}" placeholder="Optional">
-                            @error('discord')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
                         <label class="col-3 col-form-label">Role</label>
                         <div class="col-9">
                             <select id="role-select" name="role" class="form-control form-control-sm @error('role') is-invalid @enderror">
@@ -361,3 +285,7 @@
         </div>
     </div>
 @endsection
+
+
+
+

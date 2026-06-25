@@ -76,7 +76,7 @@
                     <span> Inbox </span>
                 </a>
             </li>
-            @if (Auth::user()->hasRole('Leader'))
+            @if (Auth::user()->team_id)
                 <li class="side-nav-title mt-2">Manage Team</li>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarManageTeam" aria-expanded="false" aria-controls="sidebarManageTeam"
@@ -93,9 +93,49 @@
                             <li>
                                 <a href="{{ route('leader.my.team') }}">My Team</a>
                             </li>
-                            <li>
-                                <a href="{{ route('leader.add.member') }}">Add Member</a>
-                            </li>
+                            @if (Auth::user()->hasRole('Leader'))
+                                <li>
+                                    <a href="{{ route('leader.add.member') }}">Add Member</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+            @endif
+            @if (Auth::user()->team_id)
+                <li class="side-nav-title mt-2">Client Messages</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarClientMessages" aria-expanded="false" aria-controls="sidebarClientMessages"
+                        class="side-nav-link {{ Route::is('client.message.*') ? 'active' : '' }}">
+                        <i class="ri-customer-service-2-line"></i>
+                        <span> Client Messages </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarClientMessages">
+                        <ul class="side-nav-second-level">
+                            @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
+                                <li>
+                                    <a href="{{ route('client.message.create') }}">Send Message</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('client.message.my.list') }}">My Messages</a>
+                                </li>
+                            @endif
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
+                                @php
+                                    $pendingClientMessageCount = \App\Models\ClientMessage::where('team_id', Auth::user()->team_id)->where('status', 'pending')->count();
+                                @endphp
+                                <li>
+                                    <a href="{{ route('client.message.review.list') }}">Pending Review
+                                        @if ($pendingClientMessageCount > 0)
+                                            <span class="badge bg-danger float-end">{{ $pendingClientMessageCount > 9 ? '9+' : $pendingClientMessageCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('client.message.review.history') }}">Review History</a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
@@ -141,7 +181,7 @@
                 </div>
             </li>
 
-            @canany(['setting_events', 'setting_admin', 'setting_roleManagement', 'user_request', 'user_list', 'user_create', 'community_list', 'team_list'])
+            @canany(['setting_events', 'setting_admin', 'setting_roleManagement', 'user_request', 'user_list', 'user_create', 'community_list', 'team_list', 'client_message_type_list', 'client_message_type_create'])
             <li class="side-nav-title mt-2">Administrator</li>
 
             {{-- Organization Control --}}
@@ -163,6 +203,32 @@
                             @can('team_list')
                                 <li>
                                     <a href="{{ route('team.list') }}">Teams</a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </li>
+            @endcanany
+
+            {{-- Client Message Types --}}
+            @canany(['client_message_type_list', 'client_message_type_create'])
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarClientMessageTypes" aria-expanded="false" aria-controls="sidebarClientMessageTypes"
+                        class="side-nav-link">
+                        <i class="ri-file-list-3-line"></i>
+                        <span> Client Message Types </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarClientMessageTypes">
+                        <ul class="side-nav-second-level">
+                            @can('client_message_type_list')
+                                <li>
+                                    <a href="{{ route('client.message.type.list') }}">Message Types</a>
+                                </li>
+                            @endcan
+                            @can('client_message_type_create')
+                                <li>
+                                    <a href="{{ route('client.message.type.create') }}">Add Type</a>
                                 </li>
                             @endcan
                         </ul>

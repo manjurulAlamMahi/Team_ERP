@@ -25,9 +25,6 @@ class UserStoreRequest extends FormRequest
             'username' => 'required|string|max:255|unique:users,username',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'official_email' => 'nullable|email|unique:users,official_email',
-            'whatsapp' => 'required|string|max:20|unique:users,whatsapp',
-            'phone' => 'nullable|string|unique:users,phone|regex:/^[0-9]{10,15}$/',
             'password' => 'required|min:6|confirmed',
             'role' => 'required|exists:roles,name',
             'team_id' => 'nullable|exists:teams,id',
@@ -64,6 +61,20 @@ class UserStoreRequest extends FormRequest
                     $validator->errors()->add('reporting_to', 'Reporting manager must be an Operation Manager.');
                 }
             }
+
+            $role = $this->input('role');
+            if (in_array($role, ['Leader', 'Co Leader', 'Stack Lead'], true)
+                && User::hasConflictingTeamRole($role, $this->input('team_id'), $this->input('stack_id'))) {
+                $message = $role === 'Stack Lead'
+                    ? 'This stack already has a Stack Lead in the selected team.'
+                    : "This team already has a {$role}.";
+                $validator->errors()->add('role', $message);
+            }
+
+            if ($role === 'Probation' && $this->filled('probation_end_date')
+                && \Carbon\Carbon::parse($this->input('probation_end_date'))->lt(now()->startOfDay())) {
+                $validator->errors()->add('probation_end_date', 'This probation end date has already passed, so the member is not in probation.');
+            }
         });
     }
 
@@ -78,12 +89,6 @@ class UserStoreRequest extends FormRequest
             'email.required' => 'The email field is required.',
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'This email is already registered.',
-            'official_email.email' => 'Please enter a valid official email address.',
-            'official_email.unique' => 'This official email is already registered.',
-            'whatsapp.required' => 'The whatsapp number field is required.',
-            'whatsapp.unique' => 'This whatsapp number is already registered.',
-            'phone.unique' => 'This phone number is already registered.',
-            'phone.regex' => 'The phone number must be 10-15 digits long.',
             'password.min' => 'Password must be at least 6 characters.',
             'password.confirmed' => 'Password confirmation does not match.',
             'role.required' => 'Please select a role.',

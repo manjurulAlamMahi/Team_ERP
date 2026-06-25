@@ -117,7 +117,7 @@
                         <label class="col-3 col-form-label">Whatsapp Number</label>
                         <div class="col-9">
                             <input type="text" class="form-control form-control-sm @error('whatsapp') is-invalid @enderror"
-                                   name="whatsapp" value="{{ old('whatsapp') }}" placeholder="01XXXXXXXXX">
+                                   name="whatsapp" value="{{ old('whatsapp') }}" placeholder="Optional">
                             @error('whatsapp')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror

@@ -140,4 +140,47 @@ class User extends Authenticatable implements MustVerifyEmail
             ->orWhere('receiver_id', $this->id);
     }
 
+    /**
+     * Whether $teamId already has another user holding $role (one Leader,
+     * one Co Leader, and one Stack Lead per stack, per team).
+     */
+    public static function hasConflictingTeamRole(string $role, ?int $teamId, ?int $stackId = null, ?int $excludeId = null): bool
+    {
+        if (!$teamId || !in_array($role, ['Leader', 'Co Leader', 'Stack Lead'], true)) {
+            return false;
+        }
+
+        $query = static::role($role)->where('team_id', $teamId);
+
+        if ($role === 'Stack Lead') {
+            $query->where('stack_id', $stackId);
+        }
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->exists();
+    }
+
+    /**
+     * Leader/Co Leader manage the whole team; Stack Lead is scoped to their own stack.
+     */
+    public function canBeManagedBy(User $actor): bool
+    {
+        if ($actor->id === $this->id || $actor->team_id !== $this->team_id) {
+            return false;
+        }
+
+        if ($actor->hasAnyRole(['Leader', 'Co Leader'])) {
+            return true;
+        }
+
+        if ($actor->hasRole('Stack Lead')) {
+            return $actor->stack_id !== null && $actor->stack_id === $this->stack_id;
+        }
+
+        return false;
+    }
+
 }

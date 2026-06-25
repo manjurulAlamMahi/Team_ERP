@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\ClientMessageController;
+use App\Http\Controllers\Admin\ClientMessageTypeController;
 use App\Http\Controllers\Admin\CommunityController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
@@ -81,7 +83,34 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::get('/leader/add-member', 'createMember')->name('leader.add.member');
         Route::post('/leader/store-member', 'storeMember')->name('leader.store.member');
         Route::post('/leader/member-status', 'updateMemberStatus')->name('leader.member.status');
+        Route::post('/leader/member-info', 'updateMemberInfo')->name('leader.member.info');
         Route::post('/leader/member-role', 'updateMemberRole')->name('leader.member.role');
+        Route::post('/leader/member-password', 'updateMemberPassword')->name('leader.member.password');
+    });
+
+    Route::controller(ClientMessageTypeController::class)->group(function () {
+        Route::get('/client-message-type-list', 'list')->name('client.message.type.list');
+        Route::get('/create-client-message-type', 'create')->name('client.message.type.create');
+        Route::post('/store-client-message-type', 'store')->name('client.message.type.store');
+        Route::get('/client-message-type-edit/{id}', 'edit')->name('client.message.type.edit');
+        Route::post('/update-client-message-type', 'update')->name('client.message.type.update');
+        Route::get('/client-message-type-status', 'status')->name('client.message.type.status');
+        Route::post('/client-message-type-delete', 'destroy')->name('client.message.type.destroy');
+    });
+
+    Route::controller(ClientMessageController::class)->group(function () {
+        Route::get('/client-message/create', 'createForm')->name('client.message.create');
+        Route::post('/client-message/store', 'store')->name('client.message.store');
+        Route::get('/client-message/my-list', 'myList')->name('client.message.my.list');
+        Route::get('/client-message/my/{id}', 'myShow')->name('client.message.my.show');
+        Route::get('/client-message/review', 'reviewList')->name('client.message.review.list');
+        Route::get('/client-message/review-history', 'reviewHistory')->name('client.message.review.history');
+        Route::get('/client-message/review/{id}', 'reviewShow')->name('client.message.review.show');
+        Route::get('/client-message/{id}/edit', 'edit')->name('client.message.edit');
+        Route::post('/client-message/update', 'update')->name('client.message.update');
+        Route::post('/client-message/destroy', 'destroy')->name('client.message.destroy');
+        Route::post('/client-message/approve', 'approve')->name('client.message.approve');
+        Route::post('/client-message/reject', 'reject')->name('client.message.reject');
     });
 
     Route::controller(CommunityController::class)->group(function () {
