@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\LeaderController;
 use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TeamController;
+use App\Http\Controllers\Admin\TodayPlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -111,6 +112,44 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/client-message/destroy', 'destroy')->name('client.message.destroy');
         Route::post('/client-message/approve', 'approve')->name('client.message.approve');
         Route::post('/client-message/reject', 'reject')->name('client.message.reject');
+    });
+
+    Route::controller(TodayPlanController::class)->group(function () {
+        // Submitter: plan items
+        Route::get('/today-plan/create', 'createForm')->name('today.plan.create');
+        Route::post('/today-plan/store', 'store')->name('today.plan.store');
+        Route::get('/today-plan/{id}/edit', 'edit')->name('today.plan.edit');
+        Route::post('/today-plan/update', 'update')->name('today.plan.update');
+        Route::post('/today-plan/destroy', 'destroy')->name('today.plan.destroy');
+
+        // Everyone: My Plans / Today's Tasks
+        Route::get('/today-plan/my-plans', 'myPlans')->name('today.plan.my.plans');
+        Route::post('/today-plan/toggle-complete', 'toggleComplete')->name('today.plan.toggle.complete');
+
+        // Everyone: personal tasks
+        Route::post('/today-plan/personal/store', 'storePersonalTask')->name('today.plan.personal.store');
+        Route::post('/today-plan/personal/destroy', 'destroyPersonalTask')->name('today.plan.personal.destroy');
+
+        // Leader: review planned items
+        Route::get('/today-plan/review', 'reviewList')->name('today.plan.review.list');
+        Route::get('/today-plan/review-history', 'reviewHistory')->name('today.plan.review.history');
+        Route::get('/today-plan/review/{id}', 'reviewShow')->name('today.plan.review.show');
+        Route::post('/today-plan/approve', 'approve')->name('today.plan.approve');
+        Route::post('/today-plan/reject', 'reject')->name('today.plan.reject');
+
+        // Leader: assign tasks directly
+        Route::post('/today-plan/assign/store', 'storeAssigned')->name('today.plan.assign.store');
+        Route::get('/today-plan/assigned/{id}/edit', 'editAssigned')->name('today.plan.assigned.edit');
+        Route::post('/today-plan/assigned/update', 'updateAssigned')->name('today.plan.assigned.update');
+        Route::post('/today-plan/assigned/destroy', 'destroyAssigned')->name('today.plan.assigned.destroy');
+
+        // Leader: team dashboard
+        Route::get('/today-plan/dashboard', 'dashboard')->name('today.plan.dashboard');
+        Route::get('/today-plan/dashboard/{userId}', 'memberDetail')->name('today.plan.member.detail');
+
+        // Leader: completion verification
+        Route::post('/today-plan/verify', 'verifyComplete')->name('today.plan.verify');
+        Route::post('/today-plan/reopen', 'reopenTask')->name('today.plan.reopen');
     });
 
     Route::controller(CommunityController::class)->group(function () {

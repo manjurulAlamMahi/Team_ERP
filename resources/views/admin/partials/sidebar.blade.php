@@ -140,6 +140,50 @@
                     </div>
                 </li>
             @endif
+            @if (Auth::user()->team_id)
+                <li class="side-nav-title mt-2">Today's Plan</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarTodayPlan" aria-expanded="false" aria-controls="sidebarTodayPlan"
+                        class="side-nav-link {{ Route::is('today.plan.*') ? 'active' : '' }}">
+                        <i class="ri-calendar-todo-line"></i>
+                        <span> Today's Plan </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarTodayPlan">
+                        <ul class="side-nav-second-level">
+                            @if (Auth::user()->hasAnyRole(['Co Leader', 'Stack Lead', 'Member', 'Probation']))
+                                <li>
+                                    <a href="{{ route('today.plan.create') }}">Submit Plan</a>
+                                </li>
+                            @endif
+                            <li>
+                                <a href="{{ route('today.plan.my.plans') }}">My Plans</a>
+                            </li>
+                            @if (Auth::user()->hasRole('Leader'))
+                                @php
+                                    $pendingTodayPlanCount = \App\Models\TodayPlanTask::where('team_id', Auth::user()->team_id)
+                                        ->where('source', 'planned')
+                                        ->where('status', 'pending')
+                                        ->count();
+                                @endphp
+                                <li>
+                                    <a href="{{ route('today.plan.review.list') }}">Pending Review
+                                        @if ($pendingTodayPlanCount > 0)
+                                            <span class="badge bg-danger float-end">{{ $pendingTodayPlanCount > 9 ? '9+' : $pendingTodayPlanCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('today.plan.review.history') }}">Review History</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('today.plan.dashboard') }}">Team Dashboard</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+            @endif
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" href="#sidebarCharts" aria-expanded="false" aria-controls="sidebarCharts"
                     class="side-nav-link">
