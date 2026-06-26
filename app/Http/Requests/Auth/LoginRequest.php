@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -42,27 +43,27 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $credentials = $this->only('password', 'remember');
-
         $identifier = $this->get('username') ?? $this->get('email') ?? $this->get('phone');
 
-        if ($identifier) {
-            $credentials['username'] = $identifier;
-            if (! Auth::attempt($credentials)) {
-                RateLimiter::hit($this->throttleKey());
+        $user = $identifier
+            ? User::where('username', $identifier)
+                ->orWhere('email', $identifier)
+                ->orWhere('employee_id', $identifier)
+                ->first()
+            : null;
 
-                throw ValidationException::withMessages([
-                    'username' => trans('auth.failed'),
-                ]);
-            }
-            Session::put('online_' . Auth::id(), true);
-        } else {
+        if (! $user || ! Auth::attempt([
+            'username' => $user->username,
+            'password' => $this->string('password'),
+        ], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'username' => trans('auth.failed'),
             ]);
         }
+
+        Session::put('online_' . Auth::id(), true);
 
         RateLimiter::clear($this->throttleKey());
     }

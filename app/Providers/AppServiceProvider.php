@@ -190,6 +190,19 @@ class AppServiceProvider extends ServiceProvider
 
 
             // ================================================================
+            // Profile completeness ===========================================
+            // =================================================================
+
+            $profileComplete = true;
+            if (Auth::check()) {
+                $authUser = Auth::user();
+                $profileComplete = filled($authUser->phone)
+                    && filled($authUser->address)
+                    && filled($authUser->designation)
+                    && filled($authUser->dob);
+            }
+
+            // ================================================================
             // Pass variables to all views ===============================
             // =================================================================
 
@@ -198,6 +211,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('greetings', $greetings);
             $view->with('eventMessages', $eventMessages);
             $view->with('upcomingEvents', $upcomingEvents);
+            $view->with('profileComplete', $profileComplete);
         });
     }
 }

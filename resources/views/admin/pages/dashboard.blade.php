@@ -5,6 +5,77 @@
 
 @section('content')
 
+    @if (!($profileComplete ?? true))
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span><i class="ri-error-warning-line"></i> Your profile is incomplete. Please add your phone,
+                        address, designation, and date of birth.</span>
+                    <a href="{{ route('profile.index') }}" class="btn btn-sm btn-warning">Complete Profile</a>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (isset($team))
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h4 class="header-title mb-0">
+                            <i class="ri-team-line"></i> {{ $team->name }}
+                            <span class="badge bg-primary ms-1">{{ $totalMembers }} Members</span>
+                        </h4>
+                        <div>
+                            @foreach ($stackBreakdown as $stackName => $count)
+                                <span class="badge bg-secondary me-1">{{ $stackName }}: {{ $count }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Stack</th>
+                                        <th>Today's Plan</th>
+                                        <th>Issue Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($teamOverview as $row)
+                                        @php
+                                            $planBadge = match ($row['plan_status']) {
+                                                'approved' => ['success', 'Approved'],
+                                                'pending' => ['warning', 'Pending Review'],
+                                                'rejected' => ['danger', 'Rejected'],
+                                                default => ['secondary', 'Not Submitted'],
+                                            };
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $row['user']->name }}</td>
+                                            <td>{{ $row['user']->stack->name ?? 'Unassigned' }}</td>
+                                            <td><span class="badge bg-{{ $planBadge[0] }}">{{ $planBadge[1] }}</span>
+                                            </td>
+                                            <td>
+                                                @if ($row['has_open_issue'])
+                                                    <span class="badge bg-danger">Open Issue</span>
+                                                @else
+                                                    <span class="badge bg-success">Clear</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row">
         <!-- Welcome -->
         <div class="col-lg-5">

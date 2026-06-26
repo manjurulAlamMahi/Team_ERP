@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\QuickAccessMenu;
+use App\Models\Team;
+use App\Models\TodayPlanTask;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
@@ -13,7 +17,47 @@ class DashboardController extends Controller
     // Index
     public function index()
     {
-        return view('admin.pages.dashboard');
+        $data = [];
+        $user = Auth::user();
+
+        if ($user->team_id) {
+            $team = Team::find($user->team_id);
+            $members = User::where('team_id', $team->id)->with('stack')->orderBy('name')->get();
+
+            $planRows = TodayPlanTask::where('team_id', $team->id)
+                ->where('source', 'planned')
+                ->whereDate('plan_date', today())
+                ->get()
+                ->groupBy('user_id');
+
+            $issueUserIds = DB::table('daily_issue_responsibles')
+                ->join('daily_issues', 'daily_issues.id', '=', 'daily_issue_responsibles.daily_issue_id')
+                ->where('daily_issues.team_id', $team->id)
+                ->where('daily_issues.status', 'pending')
+                ->pluck('daily_issue_responsibles.user_id')
+                ->unique();
+
+            $data['team'] = $team;
+            $data['totalMembers'] = $members->count();
+            $data['stackBreakdown'] = $members->groupBy(fn ($m) => $m->stack->name ?? 'Unassigned')->map->count();
+            $data['teamOverview'] = $members->map(function (User $member) use ($planRows, $issueUserIds) {
+                $rows = $planRows->get($member->id, collect());
+                $planStatus = match (true) {
+                    $rows->contains('status', 'pending') => 'pending',
+                    $rows->contains('status', 'approved') => 'approved',
+                    $rows->isNotEmpty() => 'rejected',
+                    default => 'not_submitted',
+                };
+
+                return [
+                    'user' => $member,
+                    'plan_status' => $planStatus,
+                    'has_open_issue' => $issueUserIds->contains($member->id),
+                ];
+            });
+        }
+
+        return view('admin.pages.dashboard', $data);
     }
     public function inbox()
     {

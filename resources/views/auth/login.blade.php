@@ -114,7 +114,8 @@
                                     <div class="mb-3">
                                         <label for="emailaddress" class="form-label"><i>User Name</i></label>
                                         <input value="{{ old('username') }}" class="form-control" name="username"
-                                            type="text" id="emailaddress" placeholder="Enter your username/email">
+                                            type="text" id="emailaddress"
+                                            placeholder="Username / Email / Employee ID">
                                         <strong class="text-danger">{{ $errors->first('username') }}</strong>
                                     </div>
                                     <div class="mb-3">
