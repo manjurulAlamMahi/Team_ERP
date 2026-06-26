@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\ClientMessageController;
 use App\Http\Controllers\Admin\ClientMessageTypeController;
 use App\Http\Controllers\Admin\CommunityController;
+use App\Http\Controllers\Admin\DailyIssueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -150,6 +151,20 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         // Leader: completion verification
         Route::post('/today-plan/verify', 'verifyComplete')->name('today.plan.verify');
         Route::post('/today-plan/reopen', 'reopenTask')->name('today.plan.reopen');
+    });
+
+    Route::controller(DailyIssueController::class)->group(function () {
+        Route::get('/daily-issue/create', 'createForm')->name('daily.issue.create');
+        Route::post('/daily-issue/store', 'store')->name('daily.issue.store');
+        Route::get('/daily-issue/{id}/edit', 'edit')->name('daily.issue.edit');
+        Route::post('/daily-issue/update', 'update')->name('daily.issue.update');
+        Route::post('/daily-issue/destroy', 'destroy')->name('daily.issue.destroy');
+        Route::get('/daily-issue/list', 'list')->name('daily.issue.list');
+        Route::get('/daily-issue/completed', 'completedList')->name('daily.issue.completed');
+        Route::post('/daily-issue/complete', 'markComplete')->name('daily.issue.complete');
+        Route::post('/daily-issue/reverse', 'reverseComplete')->name('daily.issue.reverse');
+        Route::post('/daily-issue/comment/store', 'storeComment')->name('daily.issue.comment.store');
+        Route::get('/daily-issue/{id}/comments', 'comments')->name('daily.issue.comments');
     });
 
     Route::controller(CommunityController::class)->group(function () {

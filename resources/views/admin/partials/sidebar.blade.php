@@ -184,6 +184,41 @@
                     </div>
                 </li>
             @endif
+            @if (Auth::user()->team_id)
+                <li class="side-nav-title mt-2">Daily Issue</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarDailyIssue" aria-expanded="false" aria-controls="sidebarDailyIssue"
+                        class="side-nav-link {{ Route::is('daily.issue.*') ? 'active' : '' }}">
+                        <i class="ri-alert-line"></i>
+                        <span> Daily Issue </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarDailyIssue">
+                        <ul class="side-nav-second-level">
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+                                <li>
+                                    <a href="{{ route('daily.issue.create') }}">Add Issue</a>
+                                </li>
+                            @endif
+                            @php
+                                $pendingDailyIssueCount = \App\Models\DailyIssue::where('team_id', Auth::user()->team_id)
+                                    ->where('status', 'pending')
+                                    ->count();
+                            @endphp
+                            <li>
+                                <a href="{{ route('daily.issue.list') }}">View Issues
+                                    @if ($pendingDailyIssueCount > 0)
+                                        <span class="badge bg-danger float-end">{{ $pendingDailyIssueCount > 9 ? '9+' : $pendingDailyIssueCount }}</span>
+                                    @endif
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('daily.issue.completed') }}">Completed Issues</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            @endif
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" href="#sidebarCharts" aria-expanded="false" aria-controls="sidebarCharts"
                     class="side-nav-link">
