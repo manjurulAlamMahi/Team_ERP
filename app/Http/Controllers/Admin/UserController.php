@@ -271,9 +271,14 @@ class UserController extends Controller
         }
 
         $receiverId = $request->id;
-        $authUserId = Auth::id();
+        $authUser = Auth::user();
+        $authUserId = $authUser->id;
 
         $conversationId = implode('-', [min($authUserId, $receiverId), max($authUserId, $receiverId)]);
+
+        if (!Chat::where('conversation_id', $conversationId)->exists() && !$authUser->canMessage($user)) {
+            return redirect()->route('dashboard.inbox')->withErrors(['message' => 'You are not allowed to message this user.']);
+        }
 
         $chat = Chat::create([
             'sender_id'       => $authUserId,

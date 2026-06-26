@@ -4,25 +4,23 @@
 @section('quickAccessicon', 'ri-customer-service-2-line')
 
 @section('content')
+    @include('admin.pages.client-message.partials._submission-header')
+
     <div class="row">
         <div class="col-lg-6">
-            <div class="card card-body">
-                <h5 class="mb-3 text-uppercase bg-light p-2">
-                    <i class="ri-customer-service-2-line"></i> Submission
-                </h5>
-                @include('admin.pages.client-message.partials._submission')
+            @include('admin.pages.client-message.partials._submission-info')
+            @include('admin.pages.client-message.partials._submission-message')
 
-                @if ($clientMessage->status === 'pending')
-                    <div class="mt-3 d-flex gap-2">
-                        <button type="button" class="btn btn-success" onclick="approveMessage({{ $clientMessage->id }})">
-                            <i class="ri-check-line"></i> Approve
-                        </button>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                            <i class="ri-close-line"></i> Reject
-                        </button>
-                    </div>
-                @endif
-            </div>
+            @if ($clientMessage->status === 'pending')
+                <div class="mb-3 d-flex gap-2">
+                    <button type="button" class="btn btn-success" onclick="approveMessage({{ $clientMessage->id }})">
+                        <i class="ri-check-line"></i> Approve
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="ri-close-line"></i> Reject
+                    </button>
+                </div>
+            @endif
         </div>
         <div class="col-lg-6">
             <div class="card card-body">
@@ -33,6 +31,8 @@
             </div>
         </div>
     </div>
+
+    @include('admin.pages.client-message.partials._file-preview-modal')
 
     <div class="mt-3">
         <a href="{{ route('client.message.review.list') }}" class="btn btn-light">

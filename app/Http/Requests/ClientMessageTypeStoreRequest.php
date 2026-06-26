@@ -16,6 +16,8 @@ class ClientMessageTypeStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255|unique:client_message_types,name',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:1024',
+            'short_description' => 'nullable|string|max:255',
             'format' => 'required|string',
             'restriction' => 'required|string',
             'mandatory' => 'required|string',

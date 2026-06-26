@@ -16,12 +16,27 @@ class ChatController extends Controller
     use AjaxResponse;
     public function sendMessage(Request $request)
     {
-        $receiverId = $request->receiver_id;
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+            'message'     => 'required|string',
+        ]);
+
+        $sender = Auth::user();
+        $receiverId = (int) $request->receiver_id;
+
+        abort_if($receiverId === $sender->id, 403, 'You cannot message yourself.');
+
         // Generate a unique conversation id based on the two user ids
-        $conversationId = implode('-', [min(Auth::user()->id, $receiverId), max(Auth::user()->id, $receiverId)]);
+        $conversationId = implode('-', [min($sender->id, $receiverId), max($sender->id, $receiverId)]);
+
+        // Existing conversations stay open for replies; new ones need permission.
+        if (!Chat::where('conversation_id', $conversationId)->exists()) {
+            $receiver = User::findOrFail($receiverId);
+            abort_unless($sender->canMessage($receiver), 403, 'You are not allowed to message this user.');
+        }
 
         $chat = Chat::create([
-            'sender_id'       => Auth::user()->id,
+            'sender_id'       => $sender->id,
             'receiver_id'     => $receiverId,
             'message'         => $request->message,
             'conversation_id' => $conversationId,
@@ -71,7 +86,8 @@ class ChatController extends Controller
 
     public function getUsers(Request $request)
     {
-        $authUserId = Auth::id();
+        $authUser = Auth::user();
+        $authUserId = $authUser->id;
 
         $data['contact_users'] = User::whereHas('sentChats', function ($query) use ($authUserId) {
             $query->where('receiver_id', $authUserId);
@@ -115,7 +131,10 @@ class ChatController extends Controller
             ->whereDoesntHave('receivedChats', function ($query) use ($authUserId) {
                 $query->where('sender_id', $authUserId);
             })
-            ->get();
+            ->with('roles')
+            ->get()
+            ->filter(fn (User $user) => $authUser->canMessage($user))
+            ->values();
 
 
         return $this->success($data, 'Data Fetch Success', 200);

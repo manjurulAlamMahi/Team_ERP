@@ -23,6 +23,8 @@ class ClientMessageTypeUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique('client_message_types', 'name')->ignore($this->id),
             ],
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:1024',
+            'short_description' => 'nullable|string|max:255',
             'format' => 'required|string',
             'restriction' => 'required|string',
             'mandatory' => 'required|string',

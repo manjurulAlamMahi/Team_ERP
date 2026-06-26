@@ -164,6 +164,43 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Whether $this user may start a new inbox conversation with $target.
+     * Existing conversations stay open both ways (replies are always allowed)
+     * regardless of this check; this only gates who can initiate a chat.
+     */
+    public function canMessage(User $target): bool
+    {
+        if ($this->id === $target->id) {
+            return false;
+        }
+
+        if ($this->is_admin || $target->is_admin) {
+            return true;
+        }
+
+        $thisIsManager = $this->hasRole('Operation Manager');
+        $targetIsManager = $target->hasRole('Operation Manager');
+
+        if ($thisIsManager) {
+            return $this->community_id !== null && $this->community_id === $target->community_id;
+        }
+
+        if ($targetIsManager) {
+            return $this->hasRole('Leader') && $this->community_id !== null && $this->community_id === $target->community_id;
+        }
+
+        if (!$this->team_id || !$target->team_id || $this->team_id !== $target->team_id) {
+            return false;
+        }
+
+        if ($this->hasRole('Probation') && $target->hasRole('Leader')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Leader/Co Leader manage the whole team; Stack Lead is scoped to their own stack.
      */
     public function canBeManagedBy(User $actor): bool

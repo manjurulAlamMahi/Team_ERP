@@ -12,6 +12,8 @@ class ClientMessageType extends Model
 
     protected $fillable = [
         'name',
+        'icon',
+        'short_description',
         'format',
         'restriction',
         'mandatory',

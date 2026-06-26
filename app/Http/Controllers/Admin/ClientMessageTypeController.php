@@ -34,7 +34,13 @@ class ClientMessageTypeController extends Controller
 
     public function store(ClientMessageTypeStoreRequest $request)
     {
-        ClientMessageType::create($request->only(['name', 'format', 'restriction', 'mandatory', 'status']));
+        $data = $request->only(['name', 'short_description', 'format', 'restriction', 'mandatory', 'status']);
+
+        if ($request->hasFile('icon')) {
+            $data['icon'] = $this->storeIcon($request->file('icon'));
+        }
+
+        ClientMessageType::create($data);
 
         return redirect()->route('client.message.type.list')->with('success', 'Client message type created successfully.');
     }
@@ -51,7 +57,16 @@ class ClientMessageTypeController extends Controller
     public function update(ClientMessageTypeUpdateRequest $request)
     {
         $type = ClientMessageType::findOrFail($request->id);
-        $type->update($request->only(['name', 'format', 'restriction', 'mandatory', 'status']));
+        $data = $request->only(['name', 'short_description', 'format', 'restriction', 'mandatory', 'status']);
+
+        if ($request->hasFile('icon')) {
+            if ($type->icon && file_exists(public_path($type->icon))) {
+                unlink(public_path($type->icon));
+            }
+            $data['icon'] = $this->storeIcon($request->file('icon'));
+        }
+
+        $type->update($data);
 
         return redirect()->route('client.message.type.list')->with('success', 'Client message type updated successfully.');
     }
@@ -88,5 +103,14 @@ class ClientMessageTypeController extends Controller
         $type->delete();
 
         return $this->success([], 'Client message type deleted successfully', 200);
+    }
+
+    private function storeIcon($icon): string
+    {
+        $directory = 'client-message-types/icons';
+        $filename = time() . '_' . uniqid() . '.' . $icon->getClientOriginalExtension();
+        $icon->move(public_path($directory), $filename);
+
+        return $directory . '/' . $filename;
     }
 }

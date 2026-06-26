@@ -1,0 +1,1401 @@
+{
+  "info": {
+    "_postman_id": "16d9a762-756c-40b3-9d5f-fdc1964fa006",
+    "name": "Pallyup",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48842982"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "POST User Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"linktechbd.mahi@gmail.com\",\n  \"password\": \"Password123\",\n  \"password_confirmation\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user-signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"linktechbd.mahi@gmail.com\",\n  \"otp\": \"269862\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/verify-email",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "verify-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/resend-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resend-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST User Signin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"linktechbd.mahi@gmail.com\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user-signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-signin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"linktechbd.mahi@gmail.com\",\n  \"otp\": \"625060\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/verify-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "verify-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"linktechbd.mahi@gmail.com\",\n  \"reset_token\": \"Fgp9Wf1zP7SXzOuNXB9XJQzQ05D8Y2H36V6LcxlySawk7rQgJM6V23WwnZTJFLMi\",\n  \"password\": \"NewPassword123\",\n  \"password_confirmation\": \"NewPassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Store User FCM Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"android_12345\",\n  \"token\": \"FCM_TOKEN_HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/store-user-fcm-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "store-user-fcm-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Delete User FCM Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"android_12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/delete-user-fcm-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "delete-user-fcm-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Delete Account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/delete-account",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "delete-account"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST User Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user-logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Setup Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"dob\": \"2000-01-01\",\n  \"gender\": \"male\",\n  \"country\": \"Bangladesh\",\n  \"latitude\": 23.8103,\n  \"longitude\": 90.4125\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/setup-profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "setup-profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "GET User Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/user-profile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "user-profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Update User Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "John Doe",
+                      "type": "text"
+                    },
+                    {
+                      "key": "email",
+                      "value": "john@example.com",
+                      "type": "text"
+                    },
+                    {
+                      "key": "phone",
+                      "value": "+8801700000000",
+                      "type": "text"
+                    },
+                    {
+                      "key": "address",
+                      "value": "Dhaka",
+                      "type": "text"
+                    },
+                    {
+                      "key": "location",
+                      "value": "Bangladesh",
+                      "type": "text"
+                    },
+                    {
+                      "key": "avatar",
+                      "type": "file",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-user-profile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-user-profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Change User Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"current_password\":\"123456\",\n  \"new_password\":\"12345678\",\n  \"new_password_confirmation\":\"12345678\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/change-user-password",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "change-user-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Delete User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\":\"123456\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user-delete",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "user-delete"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Basic Info",
+          "item": [
+            {
+              "name": "POST Update Basic Info",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "John Doe",
+                      "type": "text"
+                    },
+                    {
+                      "key": "location",
+                      "value": "Dhaka",
+                      "type": "text"
+                    },
+                    {
+                      "key": "bio",
+                      "value": "About me...",
+                      "type": "text"
+                    },
+                    {
+                      "key": "interests[]",
+                      "value": "Travel",
+                      "type": "text"
+                    },
+                    {
+                      "key": "interests[]",
+                      "value": "Music",
+                      "type": "text"
+                    },
+                    {
+                      "key": "avatar",
+                      "type": "file",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-basic-info",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-basic-info"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Gallery",
+          "item": [
+            {
+              "name": "GET Gallery",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/gallery",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "gallery"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Upload Gallery Image",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/gallery/upload",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "gallery",
+                    "upload"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE Gallery Image",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/gallery/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "gallery",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Dating Preferences",
+          "item": [
+            {
+              "name": "GET Dating Preferences",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/dating-preferences",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "dating-preferences"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Update Dating Preferences",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"is_active\": true,\n  \"max_distance\": 50,\n  \"min_age\": 18,\n  \"max_age\": 35\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-dating-preferences",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-dating-preferences"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Profile Setup",
+          "item": [
+            {
+              "name": "POST Update Profile Setup",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "showcase_page",
+                      "value": "1",
+                      "type": "text"
+                    },
+                    {
+                      "key": "nickname",
+                      "value": "Johnny",
+                      "type": "text"
+                    },
+                    {
+                      "key": "country",
+                      "value": "Bangladesh",
+                      "type": "text"
+                    },
+                    {
+                      "key": "city",
+                      "value": "Dhaka",
+                      "type": "text"
+                    },
+                    {
+                      "key": "about",
+                      "value": "About me",
+                      "type": "text"
+                    },
+                    {
+                      "key": "media",
+                      "type": "file",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-profile-setup",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-profile-setup"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Identity & Location",
+          "item": [
+            {
+              "name": "POST Update Identity Location",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nickname\":\"John\",\n  \"dob\":\"2000-01-01\",\n  \"full_name\":\"John Doe\",\n  \"relationship_status\":\"single\",\n  \"gender\":\"male\",\n  \"email\":\"john@example.com\",\n  \"location\":\"Dhaka\",\n  \"country\":\"Bangladesh\",\n  \"address_1\":\"Road 1\",\n  \"address_2\":\"House 10\",\n  \"connections_view\":true\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-identity-location",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-identity-location"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Visual Info",
+          "item": [
+            {
+              "name": "GET Visual Info",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/visual-info",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "visual-info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Update Visual Info",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\":\"I love traveling and photography\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-visual-info",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-visual-info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Upload Visual Photo",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "photo",
+                      "type": "file",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/visual-info/upload-photo",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "visual-info",
+                    "upload-photo"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Appearance & Lifestyle",
+          "item": [
+            {
+              "name": "POST Update Appearance Lifestyle",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"height\":\"5ft 10in\",\n  \"occupation\":\"Software Engineer\",\n  \"education\":\"Bachelor Degree\",\n  \"lifestyle_habits\":\"active\",\n  \"body_type\":\"Athletic\",\n  \"ethnicity\":\"Asian\",\n  \"religious_beliefs\":\"Muslim\",\n  \"languages\":[\"English\",\"Bangla\"]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-appearance-lifestyle",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-appearance-lifestyle"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Interests & Personality",
+          "item": [
+            {
+              "name": "POST Update Interests Personality",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hobbies\":[\"Travel\",\"Music\"],\n  \"personality_traits\":[\"Funny\",\"Honest\"],\n  \"pet_preference\":\"loves_pets\",\n  \"political_views\":\"moderate\",\n  \"family_plans\":\"want_kids\",\n  \"children_status\":\"no_kids\",\n  \"prompt_question\":\"My ideal weekend?\",\n  \"prompt_answer\":\"Traveling with friends\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-interests-personality",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-interests-personality"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Matching Criteria",
+          "item": [
+            {
+              "name": "POST Update Matching Criteria",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"relationship_goal\":\"long_term\",\n  \"deal_breakers\":\"Smoking\",\n  \"partner_preferences\":\"Kind, honest and family oriented\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/update-matching-criteria",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "update-matching-criteria"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Profile View",
+      "item": [
+        {
+          "name": "GET Basic Info",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/basic-info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "basic-info"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Gallery",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/gallery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "gallery"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Identity Location",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/identity-location",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "identity-location"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Visual Info",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/visual-info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "visual-info"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Appearance Lifestyle",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/appearance-lifestyle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "appearance-lifestyle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Interests Personality",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/interests-personality",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "interests-personality"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Matching Criteria",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/matching-criteria",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "matching-criteria"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Knowledge Base",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/{{user_id}}/knowledge-base",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{user_id}}",
+                "knowledge-base"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -28,6 +28,7 @@
                     <thead>
                         <tr>
                             <th>Sl</th>
+                            <th>Icon</th>
                             <th>Name</th>
                             <th>Format</th>
                             <th>Restriction</th>
@@ -42,6 +43,13 @@
                         @foreach ($types as $key => $item)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
+                                <td>
+                                    @if ($item->icon)
+                                        <img src="{{ asset($item->icon) }}" alt="" style="max-height: 32px;">
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->name }}</td>
                                 <td>{{ \Illuminate\Support\Str::limit(strip_tags($item->format), 40) }}</td>
                                 <td>{{ \Illuminate\Support\Str::limit(strip_tags($item->restriction), 40) }}</td>

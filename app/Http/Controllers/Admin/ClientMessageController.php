@@ -107,7 +107,7 @@ class ClientMessageController extends Controller
     {
         $user = $this->submitterUser();
 
-        $message = ClientMessage::with(['type', 'attachments', 'reviewer'])
+        $message = ClientMessage::with(['type', 'attachments', 'reviewer', 'submitter.stack'])
             ->where('submitted_by', $user->id)
             ->findOrFail($id);
 
@@ -215,7 +215,7 @@ class ClientMessageController extends Controller
     {
         $team = $this->reviewerTeam();
 
-        $message = ClientMessage::with(['type', 'submitter', 'reviewer', 'attachments'])
+        $message = ClientMessage::with(['type', 'submitter.stack', 'reviewer', 'attachments'])
             ->forTeam($team->id)
             ->findOrFail($id);
 
