@@ -3,81 +3,69 @@
 @section('title', 'My Team')
 @section('quickAccessicon', 'ri-team-line')
 
-@push('style')
-    <link href="{{ asset('admin') }}/assets/vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('admin') }}/assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" type="text/css" />
-@endpush
-
 @section('content')
     <div class="row">
-        <div class="col-lg-12 m-auto">
-            <div class="card card-body">
-                <h5 class="mb-3 text-uppercase bg-light p-2">
-                    <i class="ri-team-line"></i> {{ $team->name }} Team Members
-                </h5>
-
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
-                    <thead>
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Employee Name</th>
-                            <th>Role</th>
-                            <th>Stack</th>
-                            <th>Email</th>
-                            <th>Joining Date</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($users as $user)
-                            @php $canManage = $user->canBeManagedBy($actor); @endphp
-                            <tr>
-                                <td>{{ $user->employee_id }}</td>
-                                <td>{{ $user->name }}</td>
-                                <td>
-                                    @if ($canManage)
-                                        <select class="form-select form-select-sm role-select" data-id="{{ $user->id }}" data-previous="{{ $user->getRoleNames()->first() }}" style="width: 130px;">
-                                            @foreach (['Co Leader', 'Stack Lead', 'Member', 'Probation'] as $allowedRole)
-                                                <option value="{{ $allowedRole }}" {{ $user->getRoleNames()->first() === $allowedRole ? 'selected' : '' }}>
-                                                    {{ $allowedRole }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    @else
-                                        {{ $user->getRoleNames()->first() ?? 'N/A' }}
-                                    @endif
-                                </td>
-                                <td>{{ $user->stack->name ?? 'N/A' }}</td>
-                                <td>{{ $user->email }}</td>
-                                <td>{{ $user->joining_date }}</td>
-                                <td>
-                                    <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ ucfirst($user->status) }}</span>
-                                </td>
-                                <td>
-                                    @if ($canManage)
-                                        <button type="button" class="btn btn-sm btn-outline-secondary open-edit-modal"
-                                                data-id="{{ $user->id }}"
-                                                data-employee_id="{{ $user->employee_id }}"
-                                                data-username="{{ $user->username }}"
-                                                data-name="{{ $user->name }}"
-                                                data-email="{{ $user->email }}"
-                                                data-phone="{{ $user->phone }}"
-                                                data-whatsapp="{{ $user->whatsapp }}"
-                                                data-joining_date="{{ $user->joining_date }}"
-                                                data-probation_end_date="{{ $user->probation_end_date }}">Edit</button>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="toggleStatus({{ $user->id }})">Change Status</button>
-                                    @endif
-                                    @if ($actor->hasRole('Leader'))
-                                        <button type="button" class="btn btn-sm btn-outline-warning open-password-modal" data-id="{{ $user->id }}" data-name="{{ $user->name }}">Change Password</button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-lg-12">
+            <h5 class="mb-3 text-uppercase bg-light p-2">
+                <i class="ri-team-line"></i> {{ $team->name }} Team Members
+            </h5>
         </div>
+
+        @foreach ($users as $user)
+            @php $canManage = $user->canBeManagedBy($actor); @endphp
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="mb-0">{{ $user->name }}</h5>
+                                <small class="text-muted">ID: {{ $user->employee_id }}</small>
+                            </div>
+                            <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ ucfirst($user->status) }}</span>
+                        </div>
+
+                        <div class="mb-2">
+                            @if ($canManage)
+                                <select class="form-select form-select-sm role-select" data-id="{{ $user->id }}" data-previous="{{ $user->getRoleNames()->first() }}">
+                                    @foreach (['Co Leader', 'Stack Lead', 'Member', 'Probation'] as $allowedRole)
+                                        <option value="{{ $allowedRole }}" {{ $user->getRoleNames()->first() === $allowedRole ? 'selected' : '' }}>
+                                            {{ $allowedRole }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <span class="badge bg-light text-dark border">{{ $user->getRoleNames()->first() ?? 'N/A' }}</span>
+                            @endif
+                        </div>
+
+                        <ul class="list-unstyled mb-3 fs-13">
+                            <li class="mb-1"><i class="ri-stack-line text-muted me-1"></i> {{ $user->stack->name ?? 'N/A' }}</li>
+                            <li class="mb-1"><i class="ri-mail-line text-muted me-1"></i> {{ $user->email }}</li>
+                            <li class="mb-1"><i class="ri-calendar-line text-muted me-1"></i> Joined {{ $user->joining_date }}</li>
+                        </ul>
+
+                        <div class="d-flex flex-wrap gap-1">
+                            @if ($canManage)
+                                <button type="button" class="btn btn-sm btn-outline-secondary open-edit-modal"
+                                        data-id="{{ $user->id }}"
+                                        data-employee_id="{{ $user->employee_id }}"
+                                        data-username="{{ $user->username }}"
+                                        data-name="{{ $user->name }}"
+                                        data-email="{{ $user->email }}"
+                                        data-phone="{{ $user->phone }}"
+                                        data-whatsapp="{{ $user->whatsapp }}"
+                                        data-joining_date="{{ $user->joining_date }}"
+                                        data-probation_end_date="{{ $user->probation_end_date }}">Edit</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="toggleStatus({{ $user->id }})">Change Status</button>
+                            @endif
+                            @if ($actor->hasRole('Leader'))
+                                <button type="button" class="btn btn-sm btn-outline-warning open-password-modal" data-id="{{ $user->id }}" data-name="{{ $user->name }}">Change Password</button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 
     @if ($actor->hasRole('Leader'))
@@ -164,12 +152,6 @@
 @endsection
 
 @push('script')
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/js/pages/demo.datatable-init.js"></script>
-
     <script>
         function toggleStatus(id) {
             $.ajax({

@@ -65,25 +65,25 @@
 </style>
 
 <style>
-    /* Submenu (dropdown) active items: color text only, keep background transparent */
-    .side-nav .side-nav-second-level .menuitem-active>a,
-    .side-nav .side-nav-third-level .menuitem-active>a,
-    .side-nav .side-nav-forth-level .menuitem-active>a {
-        background: transparent !important;
-        color: var(--ct-menu-item-active-color) !important;
+    /* The sidebar's menu.js adds class "active" to whichever <a> matches the current URL, and
+       class "menuitem-active" to that link's parent <li> (and to every ancestor toggle <li>
+       for nested dropdowns). So ".menuitem-active>a" alone covers the active leaf link inside
+       a dropdown AND the toggle row of any dropdown that contains it - same full brand-colored
+       background + white text as a top-level active link, so it's unmistakable what's selected. */
+    .side-nav .menuitem-active>a,
+    .side-nav .menuitem-active>a:active,
+    .side-nav .menuitem-active>a:focus,
+    .side-nav .menuitem-active>a:hover {
+        background: var(--ct-menu-item-active-bg) !important;
+        color: #fff !important;
+        border-radius: 4px;
     }
 
-    .side-nav .side-nav-second-level .menuitem-active>a:active,
-    .side-nav .side-nav-second-level .menuitem-active>a:focus,
-    .side-nav .side-nav-second-level .menuitem-active>a:hover,
-    .side-nav .side-nav-third-level .menuitem-active>a:active,
-    .side-nav .side-nav-third-level .menuitem-active>a:focus,
-    .side-nav .side-nav-third-level .menuitem-active>a:hover,
-    .side-nav .side-nav-forth-level .menuitem-active>a:active,
-    .side-nav .side-nav-forth-level .menuitem-active>a:focus,
-    .side-nav .side-nav-forth-level .menuitem-active>a:hover {
-        background: transparent !important;
-        color: var(--ct-menu-item-active-color) !important;
+    /* Soft hover highlight on dropdown links so they feel interactive even before they're active */
+    .side-nav-second-level a:not(.active):hover,
+    .side-nav-third-level a:not(.active):hover,
+    .side-nav-forth-level a:not(.active):hover {
+        background: rgba(0, 171, 12, 0.08);
     }
 
     /* Dropdown (submenu) items: add breathing room so consecutive links don't feel glued together */
@@ -124,34 +124,35 @@
 </style>
 
 <style>
-    /* Brand color override: green palette (#6FCF97 / #1F6F5F / #ffffff) replacing the default theme blue */
+    /* Brand color override: #00AB0C replacing the default theme blue */
     :root,
     [data-bs-theme=light] {
-        --ct-primary: #6FCF97;
-        --ct-blue: #6FCF97;
-        --ct-indigo: #6FCF97;
-        --ct-primary-rgb: 111, 207, 151;
-        --ct-primary-text-emphasis: #1F6F5F;
-        --ct-primary-bg-subtle: #e8f7ee;
-        --ct-primary-border-subtle: #b7e4c7;
+        --ct-primary: #00AB0C;
+        --ct-blue: #00AB0C;
+        --ct-indigo: #00AB0C;
+        --ct-primary-rgb: 0, 171, 12;
+        --ct-primary-text-emphasis: #00780a;
+        --ct-primary-bg-subtle: #e6f7e6;
+        --ct-primary-border-subtle: #b3e0b6;
+        --ct-menu-item-active-bg: #00AB0C;
     }
 
     html[data-menu-color=light] {
-        --ct-menu-item-hover-color: #1F6F5F;
-        --ct-menu-item-active-color: #1F6F5F;
-        --ct-help-box-bg: #1F6F5F;
+        --ct-menu-item-hover-color: #00AB0C;
+        --ct-menu-item-active-color: #00AB0C;
+        --ct-help-box-bg: #00AB0C;
     }
 
     html[data-menu-color=brand] {
-        --ct-menu-bg: linear-gradient(135deg, #6FCF97 0%, #1F6F5F 60%);
+        --ct-menu-bg: linear-gradient(135deg, #00AB0C 0%, #00780a 60%);
     }
 
     html[data-topbar-color=light] {
-        --ct-topbar-item-hover-color: #1F6F5F;
+        --ct-topbar-item-hover-color: #00AB0C;
     }
 
     html[data-topbar-color=brand] {
-        --ct-topbar-bg: #1F6F5F;
+        --ct-topbar-bg: #00AB0C;
     }
 </style>
 

@@ -129,83 +129,9 @@
                 </li>
             @endcanany
 
-            {{-- Users Management --}}
-            @canany(['user_request', 'user_list', 'user_create'])
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarUsersManagement" aria-expanded="false" aria-controls="sidebarUsersManagement"
-                        class="side-nav-link">
-                        <i class="ri-user-settings-fill"></i>
-                        <span> Users Management</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarUsersManagement">
-                        <ul class="side-nav-second-level">
-                            @can('user_request')
-                                <li>
-                                    <a href="{{ route('user.request') }}">User Request <span
-                                            class="badge bg-success float-end">{{ App\Models\User::where('is_request', true)->count() > 9 ? '9+' : App\Models\User::where('is_request', true)->count() }}</span></a>
-                                </li>
-                            @endcan
-                            @can('user_list')
-                                <li>
-                                    <a href="{{ route('user.list') }}">Users List</a>
-                                </li>
-                            @endcan
-                            @can('user_create')
-                                <li>
-                                    <a href="{{ route('user.create') }}">Create User</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </div>
-                </li>
-            @endcanany
+            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead', 'Member', 'Probation']))
+                <li class="side-nav-title mt-2">Teams</li>
 
-            {{-- Site Setting --}}
-            @canany(['setting_events', 'setting_admin', 'setting_roleManagement'])
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#siteSetting" aria-expanded="false" aria-controls="sidebarPages"
-                        class="side-nav-link">
-                        <i class="ri-settings-5-fill"></i>
-                        <span> Site Setting </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="siteSetting">
-                        <ul class="side-nav-second-level">
-                            @can('setting_events')
-                                <li>
-                                    <a href="{{ route('events.index') }}">Events Entry</a>
-                                </li>
-                            @endcan
-                            @can('setting_admin')
-                                <li>
-                                    <a href="{{ route('setting.admin') }}">Admin Setting</a>
-                                </li>
-                            @endcan
-                            @can('setting_mail')
-                                <li>
-                                    <a href="{{ route('setting.mail') }}">Mail Setting</a>
-                                </li>
-                            @endcan
-                            @can('setting_roleManagement')
-                                <li>
-                                    <a href="{{ route('role.index') }}">Roles</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('role.index') }}">Permissions</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </div>
-                </li>
-
-            @endcanany
-
-
-
-            <li class="side-nav-title mt-2">Teams</li>
-
-            @if (Auth::user()->team_id)
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarManageTeam" aria-expanded="false" aria-controls="sidebarManageTeam"
                         class="side-nav-link {{ Route::is('leader.*') ? 'active' : '' }}">
@@ -229,9 +155,7 @@
                         </ul>
                     </div>
                 </li>
-            @endif
 
-            @if (Auth::user()->team_id)
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarClientMessages" aria-expanded="false" aria-controls="sidebarClientMessages"
                         class="side-nav-link {{ Route::is('client.message.*') ? 'active' : '' }}">
@@ -267,9 +191,7 @@
                         </ul>
                     </div>
                 </li>
-            @endif
 
-            @if (Auth::user()->team_id)
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarTodayPlan" aria-expanded="false" aria-controls="sidebarTodayPlan"
                         class="side-nav-link {{ Route::is('today.plan.*') ? 'active' : '' }}">
@@ -311,9 +233,7 @@
                         </ul>
                     </div>
                 </li>
-            @endif
 
-            @if (Auth::user()->team_id)
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarDailyIssue" aria-expanded="false" aria-controls="sidebarDailyIssue"
                         class="side-nav-link {{ Route::is('daily.issue.*') ? 'active' : '' }}">
@@ -392,6 +312,77 @@
             --}}
 
              <li class="side-nav-title mt-2">Setting</li>
+
+            {{-- User Management --}}
+            @canany(['user_request', 'user_list', 'user_create'])
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarUserManagement" aria-expanded="false" aria-controls="sidebarUserManagement"
+                        class="side-nav-link">
+                        <i class="ri-user-settings-line"></i>
+                        <span> User Management </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarUserManagement">
+                        <ul class="side-nav-second-level">
+                            @can('user_request')
+                                <li>
+                                    <a href="{{ route('user.request') }}">User Request <span
+                                            class="badge bg-success float-end">{{ App\Models\User::where('is_request', true)->count() > 9 ? '9+' : App\Models\User::where('is_request', true)->count() }}</span></a>
+                                </li>
+                            @endcan
+                            @can('user_list')
+                                <li>
+                                    <a href="{{ route('user.list') }}">Users List</a>
+                                </li>
+                            @endcan
+                            @can('user_create')
+                                <li>
+                                    <a href="{{ route('user.create') }}">Create User</a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </li>
+            @endcanany
+
+            {{-- Site Setting --}}
+            @canany(['setting_events', 'setting_admin', 'setting_mail', 'setting_roleManagement'])
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarSiteSetting" aria-expanded="false" aria-controls="sidebarSiteSetting"
+                        class="side-nav-link">
+                        <i class="ri-settings-4-line"></i>
+                        <span> Site Setting </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarSiteSetting">
+                        <ul class="side-nav-second-level">
+                            @can('setting_events')
+                                <li>
+                                    <a href="{{ route('events.index') }}">Events Entry</a>
+                                </li>
+                            @endcan
+                            @can('setting_admin')
+                                <li>
+                                    <a href="{{ route('setting.admin') }}">Admin Setting</a>
+                                </li>
+                            @endcan
+                            @can('setting_mail')
+                                <li>
+                                    <a href="{{ route('setting.mail') }}">Mail Setting</a>
+                                </li>
+                            @endcan
+                            @can('setting_roleManagement')
+                                <li>
+                                    <a href="{{ route('role.index') }}">Roles</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('role.index') }}">Permissions</a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </li>
+            @endcanany
 
              <li class="side-nav-item">
                 <a href="{{ route('profile.index') }}" class="side-nav-link">

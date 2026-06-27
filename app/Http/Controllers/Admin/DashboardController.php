@@ -55,6 +55,11 @@ class DashboardController extends Controller
                     'has_open_issue' => $issueUserIds->contains($member->id),
                 ];
             });
+            $data['openIssueCount'] = $issueUserIds->count();
+            $data['pendingPlanCount'] = $planRows->filter(fn ($rows) => $rows->contains('status', 'pending'))->count();
+        } else {
+            $data['totalTeams'] = Team::count();
+            $data['totalOrgMembers'] = User::where('is_request', false)->count();
         }
 
         return view('admin.pages.dashboard', $data);

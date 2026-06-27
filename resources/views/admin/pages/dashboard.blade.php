@@ -17,65 +17,6 @@
         </div>
     @endif
 
-    @if (isset($team))
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h4 class="header-title mb-0">
-                            <i class="ri-team-line"></i> {{ $team->name }}
-                            <span class="badge bg-primary ms-1">{{ $totalMembers }} Members</span>
-                        </h4>
-                        <div>
-                            @foreach ($stackBreakdown as $stackName => $count)
-                                <span class="badge bg-secondary me-1">{{ $stackName }}: {{ $count }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div class="table-responsive">
-                            <table class="table table-striped mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Member</th>
-                                        <th>Stack</th>
-                                        <th>Today's Plan</th>
-                                        <th>Issue Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($teamOverview as $row)
-                                        @php
-                                            $planBadge = match ($row['plan_status']) {
-                                                'approved' => ['success', 'Approved'],
-                                                'pending' => ['warning', 'Pending Review'],
-                                                'rejected' => ['danger', 'Rejected'],
-                                                default => ['secondary', 'Not Submitted'],
-                                            };
-                                        @endphp
-                                        <tr>
-                                            <td>{{ $row['user']->name }}</td>
-                                            <td>{{ $row['user']->stack->name ?? 'Unassigned' }}</td>
-                                            <td><span class="badge bg-{{ $planBadge[0] }}">{{ $planBadge[1] }}</span>
-                                            </td>
-                                            <td>
-                                                @if ($row['has_open_issue'])
-                                                    <span class="badge bg-danger">Open Issue</span>
-                                                @else
-                                                    <span class="badge bg-success">Clear</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
     <div class="row">
         <!-- Welcome -->
         <div class="col-lg-5">
@@ -174,8 +115,7 @@
                     </div>
                 </div>
 
-                @can('dashboard_quickAccess')
-                    <div class="col-lg-6">
+                <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="header-title">Quick Access</h4>
@@ -211,10 +151,8 @@
                         </div>
                         <!-- end card-->
                     </div>
-                @endcan
 
-                @can('dashboard_todolist')
-                    <div class="col-lg-6">
+                <div class="col-lg-6">
                         <!-- Todo-->
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
@@ -245,15 +183,13 @@
                             </div> <!-- end .todoapp-->
                         </div> <!-- end card-->
                     </div>
-                @endcan
 
-                @can('dashboard_unreadMessages')
-                    @php
-                        $messages = App\Models\Chat::where('receiver_id', auth()->user()->id)
-                            ->where('read', false)
-                            ->get();
-                    @endphp
-                    @if ($messages->count() > 0)
+                @php
+                    $messages = App\Models\Chat::where('receiver_id', auth()->user()->id)
+                        ->where('read', false)
+                        ->get();
+                @endphp
+                @if ($messages->count() > 0)
                         <div class="col-lg-12">
                             <!-- Messages-->
                             <div class="card">
@@ -286,11 +222,125 @@
                             </div> <!-- end card-->
                         </div>
                     @endif
-                @endcan
 
             </div>
         </div>
         <!-- Welcome Ends -->
+        <div class="col-lg-7">
+                <div class="row">
+                    @if (isset($team))
+                        <div class="col-lg-3">
+                            <div class="card widget-icon-box text-bg-purple h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-uppercase fs-13 mt-0">Total Members</h5>
+                                            <h3 class="my-3">{{ $totalMembers }}</h3>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-team-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div> <!-- end col-->
+
+                        <div class="col-lg-3">
+                            <div class="card widget-icon-box text-bg-success h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-uppercase fs-13 mt-0">Today's Plans Submitted</h5>
+                                            <h3 class="my-3">{{ $teamOverview->whereIn('plan_status', ['approved', 'pending', 'rejected'])->count() }}</h3>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-calendar-todo-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div> <!-- end col-->
+
+                        <div class="col-lg-3">
+                            <div class="card widget-icon-box text-bg-pink h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-uppercase fs-13 mt-0">Pending Plan Reviews</h5>
+                                            <h3 class="my-3">{{ $pendingPlanCount }}</h3>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-hourglass-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div> <!-- end col-->
+
+                        <div class="col-lg-3">
+                            <div class="card widget-icon-box h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-muted text-uppercase fs-13 mt-0">Open Issues</h5>
+                                            <h3 class="my-3">{{ $openIssueCount }}</h3>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title text-bg-danger rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-alert-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div> <!-- end col-->
+                    @else
+                        <div class="col-lg-6">
+                            <div class="card widget-icon-box text-bg-purple h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-uppercase fs-13 mt-0">Total Teams</h5>
+                                            <h3 class="my-3">{{ $totalTeams }}</h3>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-briefcase-4-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div> <!-- end col-->
+
+                        <div class="col-lg-6">
+                            <div class="card widget-icon-box text-bg-success h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-uppercase fs-13 mt-0">Total Members</h5>
+                                            <h3 class="my-3">{{ $totalOrgMembers }}</h3>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-group-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div> <!-- end col-->
+                    @endif
+                </div>
+            </div>
+
+        {{-- Kept for future design reference, not currently used:
         @can('dashboard_anylisis')
             <div class="col-lg-7">
                 <div class="row">
@@ -442,6 +492,7 @@
                 </div>
             </div>
         @endcan
+        --}}
 
     </div>
 @endsection
