@@ -23,6 +23,13 @@ class NewUserSeeder extends Seeder
         Community::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
+        // Ensure `weekend` column is a string (some DBs may still have old enum type)
+        try {
+            DB::statement("ALTER TABLE `users` MODIFY `weekend` VARCHAR(20) DEFAULT 'friday'");
+        } catch (\Exception $e) {
+            // ignore if alter fails (column may not exist or already correct)
+        }
+
         // Ensure stacks used below exist
         $stackMap = [];
         $stacks = [
@@ -59,7 +66,11 @@ class NewUserSeeder extends Seeder
             );
 
             if (!empty($u['role'])) {
-                $user->assignRole($u['role']);
+                $roleName = $u['role'];
+                if ($roleName === 'OP') {
+                    $roleName = 'Operation Manager';
+                }
+                $user->assignRole($roleName);
             }
         }
 
@@ -99,7 +110,11 @@ class NewUserSeeder extends Seeder
             );
 
             if (!empty($m['role'])) {
-                $u->assignRole($m['role']);
+                $roleName = $m['role'];
+                if ($roleName === 'OP') {
+                    $roleName = 'Operation Manager';
+                }
+                $u->assignRole($roleName);
             }
         }
     }

@@ -73,11 +73,7 @@ return new class extends Migration
                 'terminated'
             ])->default('active');
 
-            $table->enum('weekend', [
-                'friday',
-                'saturday',
-                'sunday'
-            ])->default('friday');
+            $table->string('weekend', 20)->default('friday');
 
             // Address
             $table->text('address')->nullable();
