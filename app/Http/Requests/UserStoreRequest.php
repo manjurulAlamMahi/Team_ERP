@@ -16,52 +16,38 @@ class UserStoreRequest extends FormRequest
     public function rules(): array
     {
         $role = $this->input('role');
-
+        // Mandatory fields per new requirement: employee_id, username, name, email, password, role, stack
         $teamRoles = ['Leader', 'Co Leader', 'Stack Lead', 'Member', 'Probation'];
-        $noOrgRoles = ['GM', 'AGM', 'Admin'];
 
         $rules = [
-            'employee_id' => 'nullable|string|max:255|unique:users,employee_id',
+            'employee_id' => 'required|string|max:255|unique:users,employee_id',
             'username' => 'required|string|max:255|unique:users,username',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
             'role' => 'required|exists:roles,name',
+            'stack_id' => 'required|exists:stacks,id',
+            // Optional on creation; can be updated later in profile
             'team_id' => 'nullable|exists:teams,id',
             'community_id' => 'nullable|exists:communities,id',
-            'stack_id' => 'nullable|exists:stacks,id',
-            'joining_date' => 'required|date',
-            'probation_end_date' => 'required|date|after_or_equal:joining_date',
+            'joining_date' => 'nullable|date',
+            'probation_end_date' => 'nullable|date|after_or_equal:joining_date',
             'reporting_to' => 'nullable|exists:users,id',
         ];
 
         if (in_array($role, $teamRoles, true)) {
-            $rules['team_id'] = 'required|exists:teams,id';
+            $rules['team_id'] = 'nullable|exists:teams,id';
             $rules['stack_id'] = 'required|exists:stacks,id';
-            $rules['community_id'] = 'nullable';
         } elseif ($role === 'Operation Manager') {
-            $rules['community_id'] = 'required|exists:communities,id';
-            $rules['team_id'] = 'prohibited';
-        } elseif (in_array($role, $noOrgRoles, true)) {
-            $rules['community_id'] = 'prohibited';
-            $rules['team_id'] = 'prohibited';
+            $rules['community_id'] = 'nullable|exists:communities,id';
+            $rules['team_id'] = 'nullable|exists:teams,id';
         }
-
-        // Joining and probation dates are required for all roles per business rules
-
         return $rules;
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if ($this->filled('reporting_to')) {
-                $manager = User::find($this->input('reporting_to'));
-                if (!$manager || !$manager->hasRole('Operation Manager')) {
-                    $validator->errors()->add('reporting_to', 'Reporting manager must be an Operation Manager.');
-                }
-            }
-
             $role = $this->input('role');
             if (in_array($role, ['Leader', 'Co Leader', 'Stack Lead'], true)
                 && User::hasConflictingTeamRole($role, $this->input('team_id'), $this->input('stack_id'))) {
