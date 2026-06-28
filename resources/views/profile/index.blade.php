@@ -106,7 +106,7 @@
                             </a>
                         </li>
                         <li class="list-inline-item">
-                            <a @if (Auth::user()->gmail) href="https://mail.google.com/mail/?view=cm&fs=1&to={{ Auth::user()->gmail }}" target="_blank"
+                            <a @if (Auth::user()->official_email) href="https://mail.google.com/mail/?view=cm&fs=1&to={{ Auth::user()->official_email }}" target="_blank"
                                 @else href="javascript: void(0);" @endif
                                 class="social-list-item border-danger text-danger">
                                 <i class="ri-google-line"></i>
@@ -390,20 +390,6 @@
                                     </div>
                                 </div> <!-- end row -->
 
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="dob" class="form-label">Date Of Birth</label>
-                                            <input type="date" class="form-control @error('dob') is-invalid @enderror"
-                                                id="dob" name="dob"
-                                                value="{{ old('dob', Auth::user()->dob) }}">
-                                            @error('dob')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div> <!-- end row -->
-
                                 <h5 class="mb-3 text-uppercase bg-light p-2">
                                     <i class="ri-global-line me-1"></i> Social
                                 </h5>
@@ -434,11 +420,11 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="" class="form-label">Gmail</label>
+                                            <label for="official_email" class="form-label">Official Email</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="ri-google-line"></i></span>
-                                                <input type="text" class="form-control" name="gmail"
-                                                    placeholder="MailTo:" value="{{ old('gmail', Auth::user()->gmail) }}">
+                                                <input type="email" class="form-control" name="official_email"
+                                                    placeholder="MailTo:" value="{{ old('official_email', Auth::user()->official_email) }}">
                                             </div>
                                         </div>
                                     </div>

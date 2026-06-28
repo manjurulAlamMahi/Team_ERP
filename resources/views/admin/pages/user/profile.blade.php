@@ -92,7 +92,7 @@
                                 </a>
                             </li>
                             <li class="list-inline-item">
-                                <a @if ($user->gmail) href="https://mail.google.com/mail/?view=cm&fs=1&to={{ $user->gmail }}" target="_blank"
+                                <a @if ($user->official_email) href="https://mail.google.com/mail/?view=cm&fs=1&to={{ $user->official_email }}" target="_blank"
                                 @else href="javascript: void(0);" @endif
                                     class="social-list-item border-danger text-danger">
                                     <i class="ri-google-line"></i>
