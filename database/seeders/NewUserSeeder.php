@@ -53,8 +53,20 @@ class NewUserSeeder extends Seeder
         ];
 
         foreach ($topUsers as $u) {
+            $emp = $u['employee_id'] ?? null;
+
+            // Ensure unique employee id: if collision, generate next EMP-XXXX
+            if ($emp && User::withTrashed()->where('employee_id', $emp)->exists()) {
+                $lastEmployeeId = User::withTrashed()->orderByDesc('id')->value('employee_id');
+                $nextNumber = 1;
+                if ($lastEmployeeId && preg_match('/(\d+)$/', $lastEmployeeId, $m)) {
+                    $nextNumber = ((int) $m[1]) + 1;
+                }
+                $emp = 'EMP-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            }
+
             $user = User::firstOrCreate(
-                ['employee_id' => $u['employee_id']],
+                ['employee_id' => $emp],
                 [
                     'username' => $u['username'],
                     'name' => $u['name'],
@@ -91,8 +103,18 @@ class NewUserSeeder extends Seeder
         ];
 
         foreach ($members as $m) {
+            $emp = $m['employee_id'] ?? null;
+            if ($emp && User::withTrashed()->where('employee_id', $emp)->exists()) {
+                $lastEmployeeId = User::withTrashed()->orderByDesc('id')->value('employee_id');
+                $nextNumber = 1;
+                if ($lastEmployeeId && preg_match('/(\d+)$/', $lastEmployeeId, $mm)) {
+                    $nextNumber = ((int) $mm[1]) + 1;
+                }
+                $emp = 'EMP-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            }
+
             $u = User::firstOrCreate(
-                ['employee_id' => $m['employee_id']],
+                ['employee_id' => $emp],
                 [
                     'username' => $m['username'],
                     'name' => $m['name'],
