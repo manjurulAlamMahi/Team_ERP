@@ -103,7 +103,7 @@ class OperationManagerSeeder extends Seeder
 
         $nextNumber = 1;
 
-        if ($lastEmployeeId && preg_match('/EMP-(\d+)/', $lastEmployeeId, $matches)) {
+        if ($lastEmployeeId && preg_match('/(\d+)$/', $lastEmployeeId, $matches)) {
             $nextNumber = (int) $matches[1] + 1;
         }
 
