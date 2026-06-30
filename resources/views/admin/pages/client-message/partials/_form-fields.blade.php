@@ -31,16 +31,19 @@
         <div class="row">
             <div class="col-md-12">
                 <label class="form-label">Client's Last Message</label>
-                <div class="mb-2">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="last_message_type" id="lastMessageTypeImage"
+                <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
+                    <span class="text-muted small">Screenshot type:</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="last_message_type" id="lastMessageTypeImage"
                             value="image" {{ $lastMessageType === 'image' ? 'checked' : '' }} onchange="toggleLastMessageMode()">
-                        <label class="form-check-label" for="lastMessageTypeImage">Image</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="last_message_type" id="lastMessageTypeMultiple"
+                        <label class="btn btn-outline-secondary" for="lastMessageTypeImage">
+                            <i class="ri-image-line me-1"></i> Image
+                        </label>
+                        <input type="radio" class="btn-check" name="last_message_type" id="lastMessageTypeMultiple"
                             value="multiple" {{ $lastMessageType === 'multiple' ? 'checked' : '' }} onchange="toggleLastMessageMode()">
-                        <label class="form-check-label" for="lastMessageTypeMultiple">Multiple</label>
+                        <label class="btn btn-outline-secondary" for="lastMessageTypeMultiple">
+                            <i class="ri-gallery-line me-1"></i> Multiple
+                        </label>
                     </div>
                 </div>
 

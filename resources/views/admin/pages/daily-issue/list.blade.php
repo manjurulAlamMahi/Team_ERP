@@ -4,139 +4,177 @@
 @section('quickAccessicon', 'ri-alert-line')
 
 @push('style')
-    <link href="{{ asset('admin') }}/assets/vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet"
-        type="text/css" />
-    <link href="{{ asset('admin') }}/assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css"
-        rel="stylesheet" type="text/css" />
+    <style>
+        .issue-card { border-radius: 10px; transition: box-shadow 0.2s; }
+        .issue-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.10) !important; }
+
+        /* type colours */
+        .issue-card-critical  { background: #fff5f5; border-color: #dc3545 !important; }
+        .issue-card-urgent    { background: #fff8f8; border-color: #e07b80 !important; }
+        .issue-card-high      { background: #f0f5ff; border-color: #0d6efd !important; }
+        .issue-card-normal    { background: #f0fff4; border-color: #198754 !important; }
+
+        .issue-card-critical .issue-title  { color: #dc3545; }
+        .issue-card-urgent   .issue-title  { color: #c0434a; }
+        .issue-card-high     .issue-title  { color: #0d6efd; }
+        .issue-card-normal   .issue-title  { color: #198754; }
+
+        .issue-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        .issue-type-strip {
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+            flex-shrink: 0;
+        }
+        .strip-critical { background: #dc3545; }
+        .strip-urgent   { background: #e07b80; }
+        .strip-high     { background: #0d6efd; }
+        .strip-normal   { background: #198754; }
+    </style>
 @endpush
 
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card card-body">
-                <h5 class="mb-3 text-uppercase bg-light p-2 d-flex justify-content-between align-items-center">
-                    <span><i class="ri-alert-line"></i> Issues</span>
-                    @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
-                        <a href="{{ route('daily.issue.create') }}" class="btn btn-sm btn-success">
-                            <i class="ri-add-line"></i> Add Issue
-                        </a>
-                    @endif
-                </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
-                    <thead>
-                        <tr>
-                            <th style="width: 30px;">Done</th>
-                            <th>Date</th>
-                            <th>Client</th>
-                            <th>Profile</th>
-                            <th>Issue</th>
-                            <th>Type</th>
-                            <th>Responsible</th>
-                            <th>Created By</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $authUser = Auth::user(); @endphp
-                        @foreach ($issues as $issue)
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="form-check-input"
-                                        {{ $issue->isCompletableBy($authUser) ? '' : 'disabled' }}
-                                        onclick="markComplete({{ $issue->id }})">
-                                </td>
-                                <td>{{ $issue->issue_date->format('Y-m-d') }}</td>
-                                <td>{{ $issue->client_name }}</td>
-                                <td>{{ $issue->profile_name }}</td>
-                                <td>{{ $issue->issue }}</td>
-                                <td>
-                                    @php
-                                        $typeColor = match ($issue->type) {
-                                            'Critical' => 'danger',
-                                            'Urgent' => 'warning',
-                                            'High' => 'info',
-                                            default => 'secondary',
-                                        };
-                                    @endphp
-                                    <span class="badge bg-{{ $typeColor }}">{{ $issue->type }}</span>
-                                </td>
-                                <td>{{ $issue->responsibles->pluck('name')->join(', ') }}</td>
-                                <td>
-                                    {{ $issue->creator->name ?? 'N/A' }}
-                                    @if ($issue->last_edited_by)
-                                        <div class="text-muted small">Edited by {{ $issue->lastEditor->name ?? 'N/A' }}
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="javascript:void(0);"
-                                        onclick="openComments({{ $issue->id }}, {{ $issue->canCommentBy($authUser) ? 'true' : 'false' }})"
-                                        class="text-reset fs-16 px-1" title="Comments">
-                                        <i class="ri-chat-3-line"></i>
-                                    </a>
-                                    @if ($issue->isEditableBy($authUser))
-                                        <a href="{{ route('daily.issue.edit', $issue->id) }}" class="text-reset fs-16 px-1"
-                                            title="Edit">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                    @endif
-                                    @if ($issue->isDeletableBy($authUser))
-                                        <a href="javascript:void(0);" onclick="deleteIssue({{ $issue->id }})"
-                                            class="text-reset fs-16 px-1" title="Delete">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </a>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h5 class="mb-0"><i class="ri-alert-line me-1"></i> Issues</h5>
+        @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+            <a href="{{ route('daily.issue.create') }}" class="btn btn-sm btn-success">
+                <i class="ri-add-line me-1"></i> Add Issue
+            </a>
+        @endif
     </div>
+
+    @php $authUser = Auth::user(); @endphp
+
+    @if ($issues->isEmpty())
+        <div class="card card-body text-center text-muted py-5">
+            <i class="ri-checkbox-circle-line fs-1 d-block mb-2 text-success"></i>
+            <p class="mb-0 fs-15">No open issues. Everything looks good!</p>
+        </div>
+    @else
+        <div class="row g-3">
+            @foreach ($issues as $issue)
+                @php
+                    $typeKey = match ($issue->type) {
+                        'Critical' => 'critical',
+                        'Urgent'   => 'urgent',
+                        'High'     => 'high',
+                        default    => 'normal',
+                    };
+                    $badgeColor = match ($issue->type) {
+                        'Critical' => 'danger',
+                        'Urgent'   => 'danger',
+                        'High'     => 'primary',
+                        default    => 'success',
+                    };
+                    $badgeStyle = $issue->type === 'Urgent' ? 'opacity:.75;' : '';
+                @endphp
+                <div class="col-12" id="issue-card-wrap-{{ $issue->id }}">
+                    <div class="issue-card issue-card-{{ $typeKey }} card border d-flex flex-row overflow-hidden p-0">
+                        {{-- colour strip --}}
+                        <div class="issue-type-strip strip-{{ $typeKey }}"></div>
+
+                        <div class="card-body p-3 flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                {{-- Left: content --}}
+                                <div class="flex-grow-1">
+                                    {{-- Issue text --}}
+                                    <div class="issue-title fw-semibold fs-15 mb-1">{{ $issue->issue }}</div>
+
+                                    {{-- Client / Profile --}}
+                                    <div class="d-flex flex-wrap gap-3 text-muted small mb-2">
+                                        <span><i class="ri-user-3-line me-1"></i>{{ $issue->client_name }}</span>
+                                        <span><i class="ri-profile-line me-1"></i>{{ $issue->profile_name }}</span>
+                                        <span><i class="ri-calendar-line me-1"></i>{{ $issue->issue_date->format('d M Y') }}</span>
+                                    </div>
+
+                                    {{-- Badges row --}}
+                                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                                        <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}">{{ $issue->type }}</span>
+
+                                        @if ($issue->responsibles->isNotEmpty())
+                                            <span class="text-muted small">
+                                                <i class="ri-user-received-line me-1"></i>{{ $issue->responsibles->pluck('name')->join(', ') }}
+                                            </span>
+                                        @endif
+
+                                        <span class="text-muted small">
+                                            <i class="ri-user-add-line me-1"></i>{{ $issue->creator->name ?? 'N/A' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {{-- Right: checkbox + actions --}}
+                                <div class="d-flex flex-column align-items-end gap-2 ms-2 flex-shrink-0">
+                                    {{-- Three-dot dropdown --}}
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light px-2 py-1" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-more-2-fill"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                            <li>
+                                                <a class="dropdown-item"
+                                                    href="javascript:void(0);"
+                                                    onclick="openComments({{ $issue->id }}, {{ $issue->canCommentBy($authUser) ? 'true' : 'false' }})">
+                                                    <i class="ri-chat-3-line me-2 text-primary"></i> Comments
+                                                </a>
+                                            </li>
+                                            @if ($issue->isEditableBy($authUser))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('daily.issue.edit', $issue->id) }}">
+                                                        <i class="ri-edit-line me-2 text-secondary"></i> Edit
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if ($issue->isDeletableBy($authUser))
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                        href="javascript:void(0);" onclick="deleteIssue({{ $issue->id }})">
+                                                        <i class="ri-delete-bin-2-line me-2"></i> Delete
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+
+                                    {{-- Mark complete checkbox --}}
+                                    <div class="form-check mb-0" title="{{ $issue->isCompletableBy($authUser) ? 'Mark as done' : 'Not your issue to close' }}">
+                                        <input type="checkbox"
+                                            class="issue-checkbox form-check-input"
+                                            id="chk-{{ $issue->id }}"
+                                            {{ $issue->isCompletableBy($authUser) ? '' : 'disabled' }}
+                                            onclick="markComplete({{ $issue->id }})">
+                                        <label class="form-check-label small text-muted" for="chk-{{ $issue->id }}">Done</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 
     @include('admin.pages.daily-issue.partials._comments-modal')
 @endsection
 
 @push('script')
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="{{ asset('admin') }}/assets/vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js">
-    </script>
-    <script src="{{ asset('admin') }}/assets/js/pages/demo.datatable-init.js"></script>
-
     <script>
         function markComplete(id) {
             $.ajax({
                 url: "{{ route('daily.issue.complete') }}",
                 type: 'POST',
-                data: {
-                    id: id,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
+                data: { id: id, _token: '{{ csrf_token() }}' },
+                success: function (response) {
                     if (response.status) {
-                        Toast.fire({
-                            icon: 'success',
-                            title: response.message
-                        });
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
+                        $('#issue-card-wrap-' + id).fadeOut(300, function () { $(this).remove(); });
+                        Toast.fire({ icon: 'success', title: response.message });
                     } else {
-                        Toast.fire({
-                            icon: 'error',
-                            title: response.message
-                        });
+                        Toast.fire({ icon: 'error', title: response.message });
                         location.reload();
                     }
                 },
-                error: function() {
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Something Went Wrong'
-                    });
+                error: function () {
+                    Toast.fire({ icon: 'error', title: 'Something went wrong.' });
                     location.reload();
                 }
             });
@@ -147,31 +185,20 @@
                 icon: 'warning',
                 title: 'Delete this issue?',
                 showCancelButton: true,
+                confirmButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it',
-                cancelButtonText: 'Cancel'
-            }).then(function(result) {
+            }).then(function (result) {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: "{{ route('daily.issue.destroy') }}",
                         type: 'POST',
-                        data: {
-                            id: id,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
+                        data: { id: id, _token: '{{ csrf_token() }}' },
+                        success: function (response) {
                             if (response.status) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: response.message
-                                });
-                                setTimeout(function() {
-                                    location.reload();
-                                }, 1000);
+                                $('#issue-card-wrap-' + id).fadeOut(300, function () { $(this).remove(); });
+                                Toast.fire({ icon: 'success', title: response.message });
                             } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: response.message
-                                });
+                                Toast.fire({ icon: 'error', title: response.message });
                             }
                         }
                     });

@@ -9,6 +9,7 @@ use App\Models\DailyIssue;
 use App\Models\User;
 use App\Notifications\AdminNotification;
 use App\Traits\AjaxResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -134,21 +135,27 @@ class DailyIssueController extends Controller
         return view('admin.pages.daily-issue.list', compact('issues'));
     }
 
-    public function completedList()
+    public function completedList(Request $request)
     {
-        $user = $this->currentTeamUser();
+        $user   = $this->currentTeamUser();
+        $isLead = $user->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']);
+
+        $date = $request->filled('date') && $isLead
+            ? Carbon::parse($request->date)
+            : today();
 
         $query = DailyIssue::with(['responsibles', 'creator', 'completer'])
             ->forTeam($user->team_id)
-            ->completed();
+            ->completed()
+            ->whereDate('completed_at', $date);
 
-        if (!$user->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead'])) {
+        if (!$isLead) {
             $query->where('completed_by', $user->id);
         }
 
-        $issues = $query->latest()->get();
+        $issues = $query->latest('completed_at')->get();
 
-        return view('admin.pages.daily-issue.completed', compact('issues'));
+        return view('admin.pages.daily-issue.completed', compact('issues', 'date', 'isLead'));
     }
 
     public function markComplete(Request $request)

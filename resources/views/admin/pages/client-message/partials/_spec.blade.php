@@ -6,12 +6,12 @@
 
     <div class="accordion" id="specAccordion">
 
-        <div class="accordion-item border-primary mb-2">
+        <div class="accordion-item border-success mb-2">
             <h2 class="accordion-header" id="headingFormat">
                 <button class="accordion-button fw-medium" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapseFormat"
                     aria-expanded="true" aria-controls="collapseFormat">
-                    <i class="ri-shape-line text-primary me-2"></i> Format
+                    <i class="ri-shape-line text-success me-2"></i> Format
                     <small class="ms-2 text-muted fw-normal">How this message should be written or structured</small>
                 </button>
             </h2>
@@ -38,12 +38,12 @@
             </div>
         </div>
 
-        <div class="accordion-item border-warning mb-2">
+        <div class="accordion-item border-primary mb-2">
             <h2 class="accordion-header" id="headingMandatory">
                 <button class="accordion-button fw-medium" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapseMandatory"
                     aria-expanded="true" aria-controls="collapseMandatory">
-                    <i class="ri-checkbox-circle-line text-warning me-2"></i> Mandatory
+                    <i class="ri-checkbox-circle-line text-primary me-2"></i> Mandatory
                     <small class="ms-2 text-muted fw-normal">Must be present before approval</small>
                 </button>
             </h2>

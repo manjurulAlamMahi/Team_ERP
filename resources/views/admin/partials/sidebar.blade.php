@@ -132,66 +132,41 @@
             @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead', 'Member', 'Probation']))
                 <li class="side-nav-title mt-2">Teams</li>
 
+                {{-- 1. Daily Issue --}}
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarManageTeam" aria-expanded="false" aria-controls="sidebarManageTeam"
-                        class="side-nav-link {{ Route::is('leader.*') ? 'active' : '' }}">
-                        <i class="ri-team-line"></i>
-                        <span> Manage Team </span>
+                    <a data-bs-toggle="collapse" href="#sidebarDailyIssue" aria-expanded="false" aria-controls="sidebarDailyIssue"
+                        class="side-nav-link {{ Route::is('daily.issue.*') ? 'active' : '' }}">
+                        <i class="ri-alert-line"></i>
+                        <span> Daily Issue </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarManageTeam">
+                    <div class="collapse {{ Route::is('daily.issue.*') ? 'show' : '' }}" id="sidebarDailyIssue">
                         <ul class="side-nav-second-level">
-                            <li>
-                                <a href="{{ route('leader.team.stats') }}">Team Stats</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('leader.my.team') }}">My Team</a>
-                            </li>
-                            @if (Auth::user()->hasRole('Leader'))
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
                                 <li>
-                                    <a href="{{ route('leader.add.member') }}">Add Member</a>
+                                    <a href="{{ route('daily.issue.create') }}">Add Issue</a>
                                 </li>
                             @endif
+                            @php
+                                $pendingDailyIssueCount = \App\Models\DailyIssue::where('team_id', Auth::user()->team_id)
+                                    ->where('status', 'pending')
+                                    ->count();
+                            @endphp
+                            <li>
+                                <a href="{{ route('daily.issue.list') }}">View Issues
+                                    @if ($pendingDailyIssueCount > 0)
+                                        <span class="badge bg-danger float-end">{{ $pendingDailyIssueCount > 9 ? '9+' : $pendingDailyIssueCount }}</span>
+                                    @endif
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('daily.issue.completed') }}">Completed Issues</a>
+                            </li>
                         </ul>
                     </div>
                 </li>
 
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarClientMessages" aria-expanded="false" aria-controls="sidebarClientMessages"
-                        class="side-nav-link {{ Route::is('client.message.*') ? 'active' : '' }}">
-                        <i class="ri-customer-service-2-line"></i>
-                        <span> Client Messages </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarClientMessages">
-                        <ul class="side-nav-second-level">
-                            @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
-                                <li>
-                                    <a href="{{ route('client.message.create') }}">Send Message</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('client.message.my.list') }}">My Messages</a>
-                                </li>
-                            @endif
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                @php
-                                    $pendingClientMessageCount = \App\Models\ClientMessage::where('team_id', Auth::user()->team_id)->where('status', 'pending')->count();
-                                @endphp
-                                <li>
-                                    <a href="{{ route('client.message.review.list') }}">Pending Review
-                                        @if ($pendingClientMessageCount > 0)
-                                            <span class="badge bg-danger float-end">{{ $pendingClientMessageCount > 9 ? '9+' : $pendingClientMessageCount }}</span>
-                                        @endif
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('client.message.review.history') }}">Review History</a>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
-                </li>
-
+                {{-- 2. Daily Task --}}
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarDailyTask" aria-expanded="false" aria-controls="sidebarDailyTask"
                         class="side-nav-link {{ Route::is('daily.task.*') ? 'active' : '' }}">
@@ -222,35 +197,64 @@
                     </div>
                 </li>
 
+                {{-- 3. Client Messages --}}
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarDailyIssue" aria-expanded="false" aria-controls="sidebarDailyIssue"
-                        class="side-nav-link {{ Route::is('daily.issue.*') ? 'active' : '' }}">
-                        <i class="ri-alert-line"></i>
-                        <span> Daily Issue </span>
+                    <a data-bs-toggle="collapse" href="#sidebarClientMessages" aria-expanded="false" aria-controls="sidebarClientMessages"
+                        class="side-nav-link {{ Route::is('client.message.*') ? 'active' : '' }}">
+                        <i class="ri-customer-service-2-line"></i>
+                        <span> Client Messages </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarDailyIssue">
+                    <div class="collapse {{ Route::is('client.message.*') ? 'show' : '' }}" id="sidebarClientMessages">
                         <ul class="side-nav-second-level">
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+                            @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
                                 <li>
-                                    <a href="{{ route('daily.issue.create') }}">Add Issue</a>
+                                    <a href="{{ route('client.message.create') }}">Send Message</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('client.message.my.list') }}">My Messages</a>
                                 </li>
                             @endif
-                            @php
-                                $pendingDailyIssueCount = \App\Models\DailyIssue::where('team_id', Auth::user()->team_id)
-                                    ->where('status', 'pending')
-                                    ->count();
-                            @endphp
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
+                                @php
+                                    $pendingClientMessageCount = \App\Models\ClientMessage::where('team_id', Auth::user()->team_id)->where('status', 'pending')->count();
+                                @endphp
+                                <li>
+                                    <a href="{{ route('client.message.review.list') }}">Pending Review
+                                        @if ($pendingClientMessageCount > 0)
+                                            <span class="badge bg-danger float-end">{{ $pendingClientMessageCount > 9 ? '9+' : $pendingClientMessageCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('client.message.review.history') }}">Review History</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+
+                {{-- 4. Manage Team --}}
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarManageTeam" aria-expanded="false" aria-controls="sidebarManageTeam"
+                        class="side-nav-link {{ Route::is('leader.*') ? 'active' : '' }}">
+                        <i class="ri-team-line"></i>
+                        <span> Manage Team </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse {{ Route::is('leader.*') ? 'show' : '' }}" id="sidebarManageTeam">
+                        <ul class="side-nav-second-level">
                             <li>
-                                <a href="{{ route('daily.issue.list') }}">View Issues
-                                    @if ($pendingDailyIssueCount > 0)
-                                        <span class="badge bg-danger float-end">{{ $pendingDailyIssueCount > 9 ? '9+' : $pendingDailyIssueCount }}</span>
-                                    @endif
-                                </a>
+                                <a href="{{ route('leader.team.stats') }}">Team Stats</a>
                             </li>
                             <li>
-                                <a href="{{ route('daily.issue.completed') }}">Completed Issues</a>
+                                <a href="{{ route('leader.my.team') }}">My Team</a>
                             </li>
+                            @if (Auth::user()->hasRole('Leader'))
+                                <li>
+                                    <a href="{{ route('leader.add.member') }}">Add Member</a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
