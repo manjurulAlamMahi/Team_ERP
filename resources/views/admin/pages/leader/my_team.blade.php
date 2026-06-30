@@ -41,7 +41,27 @@
                         <ul class="list-unstyled mb-3 fs-13">
                             <li class="mb-1"><i class="ri-stack-line text-muted me-1"></i> {{ $user->stack->name ?? 'N/A' }}</li>
                             <li class="mb-1"><i class="ri-mail-line text-muted me-1"></i> {{ $user->email }}</li>
-                            <li class="mb-1"><i class="ri-calendar-line text-muted me-1"></i> Joined {{ $user->joining_date }}</li>
+                            @if ($user->official_email)
+                                <li class="mb-1"><i class="ri-google-line text-muted me-1"></i> {{ $user->official_email }}</li>
+                            @endif
+                            @if ($user->whatsapp)
+                                <li class="mb-1"><i class="ri-whatsapp-line text-muted me-1"></i> {{ $user->whatsapp }}</li>
+                            @endif
+                            @if ($user->telegram)
+                                <li class="mb-1"><i class="ri-telegram-line text-muted me-1"></i> {{ $user->telegram }}</li>
+                            @endif
+                            @if ($user->discord)
+                                <li class="mb-1"><i class="ri-discord-line text-muted me-1"></i> {{ $user->discord }}</li>
+                            @endif
+                            @if ($user->linkedin)
+                                <li class="mb-1"><i class="ri-linkedin-line text-muted me-1"></i>
+                                    <a href="{{ $user->linkedin }}" target="_blank" class="text-muted">LinkedIn</a>
+                                </li>
+                            @endif
+                            @if ($user->dob)
+                                <li class="mb-1"><i class="ri-cake-line text-muted me-1"></i> {{ \Carbon\Carbon::parse($user->dob)->format('d M Y') }}</li>
+                            @endif
+                            <li class="mb-1"><i class="ri-calendar-line text-muted me-1"></i> Joined {{ $user->joining_date ?? 'N/A' }}</li>
                         </ul>
 
                         <div class="d-flex flex-wrap gap-1">

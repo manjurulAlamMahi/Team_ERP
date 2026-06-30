@@ -169,9 +169,11 @@ class ProfileController extends Controller
             'facebook'       => 'nullable|url|max:255',
             'linkedin'       => 'nullable|url|max:255',
             'address'        => 'nullable|string',
-            'designation'    => 'nullable|string|max:255',
-            'dob'            => 'nullable|date',
-            'password'       => 'required',
+            'designation'       => 'nullable|string|max:255',
+            'dob'               => 'nullable|date',
+            'joining_date'      => 'nullable|date',
+            'probation_end_date' => 'nullable|date',
+            'password'          => 'required',
         ], [
             'name.required' => 'The name field is required.',
             'name.string' => 'The name must be a string.',
@@ -211,6 +213,8 @@ class ProfileController extends Controller
         $user->linkedin = $request->linkedin;
         $user->designation = $request->designation;
         $user->dob = $request->dob;
+        $user->joining_date = $request->joining_date;
+        $user->probation_end_date = $request->probation_end_date;
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;

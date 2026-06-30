@@ -65,7 +65,7 @@ class ClientMessageController extends Controller
         $user = $this->submitterUser();
         $team = Team::findOrFail($user->team_id);
 
-        $this->validatePayload($request, true);
+        $this->validatePayload($request);
 
         $type = ClientMessageType::active()->find($request->client_message_type_id);
         if (!$type) {
@@ -136,7 +136,7 @@ class ClientMessageController extends Controller
         $message = ClientMessage::where('submitted_by', $user->id)->findOrFail($request->id);
         abort_unless($message->isEditableBy($user), 403);
 
-        $this->validatePayload($request, false);
+        $this->validatePayload($request);
 
         $type = ClientMessageType::active()->find($request->client_message_type_id);
         if (!$type) {
@@ -280,14 +280,14 @@ class ClientMessageController extends Controller
         return $this->success($message, 'Message rejected successfully', 200);
     }
 
-    private function validatePayload(Request $request, bool $filesRequired): void
+    private function validatePayload(Request $request): void
     {
         $request->validate([
             'client_message_type_id' => ['required', 'exists:client_message_types,id'],
             'client_name' => ['required', 'string', 'max:255'],
             'profile_name' => ['required', 'string', 'max:255'],
             'last_message_type' => ['required', Rule::in(['image', 'multiple'])],
-            'last_message_files' => $filesRequired ? ['required', 'array', 'min:1'] : ['nullable', 'array'],
+            'last_message_files' => ['nullable', 'array'],
             'last_message_files.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:4096'],
             'their_message' => ['required', 'string'],
             'attachment_files' => ['nullable', 'array'],

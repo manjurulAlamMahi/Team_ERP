@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientMessage;
 use App\Models\QuickAccessMenu;
 use App\Models\Team;
 use App\Models\TodayPlanTask;
@@ -57,6 +58,17 @@ class DashboardController extends Controller
             });
             $data['openIssueCount'] = $issueUserIds->count();
             $data['pendingPlanCount'] = $planRows->filter(fn ($rows) => $rows->contains('status', 'pending'))->count();
+
+            $data['pendingClientMessageCount'] = $user->hasAnyRole(['Leader', 'Co Leader'])
+                ? ClientMessage::where('team_id', $team->id)->where('status', 'pending')->count()
+                : 0;
+
+            $data['myPendingIssueCount'] = DB::table('daily_issue_responsibles')
+                ->join('daily_issues', 'daily_issues.id', '=', 'daily_issue_responsibles.daily_issue_id')
+                ->where('daily_issues.team_id', $team->id)
+                ->where('daily_issues.status', 'pending')
+                ->where('daily_issue_responsibles.user_id', $user->id)
+                ->count();
         } else {
             $data['totalTeams'] = Team::count();
             $data['totalOrgMembers'] = User::where('is_request', false)->count();

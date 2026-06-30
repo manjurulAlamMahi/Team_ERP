@@ -40,10 +40,13 @@ class ResetPasswordNotification extends Notification
         $url = URL::route('newpassword', ['token' => $this->token]);
 
         return (new MailMessage)
-            ->subject('Reset Password Notification')
-            ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Update Password', $url) // Action button that links to the reset URL
-            ->line('If you did not request a password reset, no further action is required.');
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->replyTo(config('mail.from.address'), config('mail.from.name'))
+            ->subject('Reset Your Password — ' . config('app.name'))
+            ->greeting('Hello!')
+            ->line('We received a password reset request for the ' . config('app.name') . ' account associated with this email address.')
+            ->action('Reset Password', $url)
+            ->line('This link will expire shortly. If you did not request a password reset, no further action is required.');
     }
 
 

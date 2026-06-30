@@ -378,6 +378,31 @@
                                 </div> <!-- end row -->
 
                                 <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="joining_date" class="form-label">Joining Date</label>
+                                            <input type="date"
+                                                class="form-control @error('joining_date') is-invalid @enderror" id="joining_date"
+                                                name="joining_date" value="{{ old('joining_date', Auth::user()->joining_date) }}">
+                                            @error('joining_date')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="probation_end_date" class="form-label">End of Probation Date</label>
+                                            <input type="date"
+                                                class="form-control @error('probation_end_date') is-invalid @enderror" id="probation_end_date"
+                                                name="probation_end_date" value="{{ old('probation_end_date', Auth::user()->probation_end_date) }}">
+                                            @error('probation_end_date')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row">
                                     <div class="col-md-12">
                                         <div class="mb-3">
                                             <label for="address" class="form-label">Address</label>

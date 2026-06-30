@@ -17,6 +17,24 @@
         </div>
     @endif
 
+    @if (($myPendingIssueCount ?? 0) > 0)
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-danger d-flex align-items-center justify-content-between flex-wrap gap-2 shadow-sm" role="alert">
+                    <div>
+                        <i class="ri-alarm-warning-fill me-2 fs-18"></i>
+                        <strong>Hello, {{ Auth::user()->name }}!</strong>
+                        You have <strong>{{ $myPendingIssueCount }}</strong> open
+                        {{ Str::plural('issue', $myPendingIssueCount) }} assigned to you that need to be resolved <strong>ASAP</strong>.
+                    </div>
+                    <a href="{{ route('daily.issue.list') }}" class="btn btn-sm btn-danger">
+                        <i class="ri-arrow-right-line"></i> View Issues
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row">
         <!-- Welcome -->
         <div class="col-lg-5">
@@ -300,6 +318,22 @@
                                 </div> <!-- end card-body-->
                             </div> <!-- end card-->
                         </div> <!-- end col-->
+
+                        @if (($pendingClientMessageCount ?? 0) > 0)
+                        <div class="col-lg-12 mt-2">
+                            <a href="{{ route('client.message.review.list') }}" class="text-decoration-none">
+                                <div class="alert alert-warning d-flex align-items-center justify-content-between mb-0" role="alert">
+                                    <div>
+                                        <i class="ri-mail-send-line me-2 fs-18"></i>
+                                        <strong>Quick Review Needed:</strong>
+                                        You have <strong>{{ $pendingClientMessageCount }}</strong> client
+                                        {{ Str::plural('message', $pendingClientMessageCount) }} waiting for your review.
+                                    </div>
+                                    <span class="badge bg-warning text-dark fs-13 ms-3">Review Now &rarr;</span>
+                                </div>
+                            </a>
+                        </div>
+                        @endif
                     @else
                         <div class="col-lg-6">
                             <div class="card widget-icon-box text-bg-purple h-100">

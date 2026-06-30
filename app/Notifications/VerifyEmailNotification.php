@@ -37,11 +37,13 @@ class VerifyEmailNotification extends Notification
         $url = url('/email/verify/'.$notifiable->getKey().'/'.sha1($notifiable->email));
 
         return (new MailMessage)
-            ->subject('Verify Your Email')
-            ->greeting('Hello, ' . $notifiable->name)
-            ->line('Click the button below to verify your email:')
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->replyTo(config('mail.from.address'), config('mail.from.name'))
+            ->subject('Verify Your Email — ' . config('app.name'))
+            ->greeting('Hello, ' . $notifiable->name . '!')
+            ->line('Click the button below to verify your email address for ' . config('app.name') . ':')
             ->action('Verify Email', $url)
-            ->line('If you did not register, no further action is required.');
+            ->line('This link is unique to your account. If you did not create an account, no further action is required.');
     }
 
     /**

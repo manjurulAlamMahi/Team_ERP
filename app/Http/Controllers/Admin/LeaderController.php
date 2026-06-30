@@ -79,7 +79,6 @@ class LeaderController extends Controller
         $actor = $this->currentTeamUser();
         $users = User::with(['stack', 'roles'])
             ->where('team_id', $team->id)
-            ->where('id', '!=', Auth::id())
             ->where('is_request', false)
             ->get();
 
