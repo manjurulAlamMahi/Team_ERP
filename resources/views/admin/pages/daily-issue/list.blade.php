@@ -5,7 +5,11 @@
 
 @push('style')
     <style>
-        .issue-card { border-radius: 10px; transition: box-shadow 0.2s; }
+        .issue-card {
+            border-radius: 10px;
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
         .issue-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.10) !important; }
 
         /* type colours */
@@ -19,16 +23,35 @@
         .issue-card-high     .issue-title  { color: #0d6efd; }
         .issue-card-normal   .issue-title  { color: #198754; }
 
-        .issue-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        /* Strip — explicit border-radius so we don't need overflow-hidden on card */
         .issue-type-strip {
-            width: 4px;
-            border-radius: 4px 0 0 4px;
+            width: 5px;
             flex-shrink: 0;
+            border-radius: 9px 0 0 9px;
         }
         .strip-critical { background: #dc3545; }
         .strip-urgent   { background: #e07b80; }
         .strip-high     { background: #0d6efd; }
         .strip-normal   { background: #198754; }
+
+        /* Done checkbox — more prominent */
+        .issue-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            border: 2px solid #adb5bd;
+            border-radius: 6px;
+        }
+        .issue-checkbox:checked {
+            background-color: #198754;
+            border-color: #198754;
+            box-shadow: 0 0 0 3px rgba(25,135,84,.25);
+        }
+        .issue-checkbox:not(:disabled):hover {
+            border-color: #198754;
+            box-shadow: 0 0 0 3px rgba(25,135,84,.15);
+        }
+        .issue-checkbox:disabled { opacity: 0.35; cursor: not-allowed; }
     </style>
 @endpush
 
@@ -68,7 +91,7 @@
                     $badgeStyle = $issue->type === 'Urgent' ? 'opacity:.75;' : '';
                 @endphp
                 <div class="col-12" id="issue-card-wrap-{{ $issue->id }}">
-                    <div class="issue-card issue-card-{{ $typeKey }} card border d-flex flex-row overflow-hidden p-0">
+                    <div class="issue-card issue-card-{{ $typeKey }} card border d-flex flex-row p-0">
                         {{-- colour strip --}}
                         <div class="issue-type-strip strip-{{ $typeKey }}"></div>
 

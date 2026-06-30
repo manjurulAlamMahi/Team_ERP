@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClientMessage;
+use App\Models\DailyIssue;
+use App\Models\DailyTask;
 use App\Models\QuickAccessMenu;
 use App\Models\Team;
 use App\Models\TodayPlanTask;
@@ -62,6 +64,26 @@ class DashboardController extends Controller
             $data['pendingClientMessageCount'] = $user->hasAnyRole(['Leader', 'Co Leader'])
                 ? ClientMessage::where('team_id', $team->id)->where('status', 'pending')->count()
                 : 0;
+
+            // Personal dashboard widgets
+            $data['myTodayTasks'] = DailyTask::forUser($user->id)
+                ->forTeam($team->id)
+                ->forDate(today())
+                ->pending()
+                ->latest()
+                ->get();
+
+            $data['myPendingIssues'] = DailyIssue::with(['creator'])
+                ->forTeam($team->id)
+                ->pending()
+                ->whereHas('responsibles', fn ($q) => $q->where('user_id', $user->id))
+                ->latest()
+                ->get();
+
+            $data['myPendingClientMessages'] = ClientMessage::where('team_id', $team->id)
+                ->where('submitted_by', $user->id)
+                ->where('status', 'pending')
+                ->count();
 
             $data['myPendingIssueCount'] = DB::table('daily_issue_responsibles')
                 ->join('daily_issues', 'daily_issues.id', '=', 'daily_issue_responsibles.daily_issue_id')

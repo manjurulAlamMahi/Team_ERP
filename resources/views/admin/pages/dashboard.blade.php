@@ -529,6 +529,153 @@
         --}}
 
     </div>
+
+    {{-- ── Personal Dashboard Widgets (team members only) ─────────────────── --}}
+    @if (isset($team))
+    <div class="row g-3 mt-1">
+
+        {{-- Today's Tasks --}}
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                    <span class="fw-semibold fs-14"><i class="ri-task-line me-1"></i> Your Tasks Today</span>
+                    <span class="badge bg-white text-primary">{{ ($myTodayTasks ?? collect())->count() }}</span>
+                </div>
+                <div class="card-body p-0" style="max-height:260px;overflow-y:auto;">
+                    @forelse ($myTodayTasks ?? [] as $task)
+                        <div class="px-3 py-2 border-bottom d-flex align-items-start gap-2">
+                            <i class="ri-checkbox-blank-circle-line text-primary mt-1 flex-shrink-0 fs-13"></i>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-medium fs-13 text-truncate" title="{{ $task->plan_details }}">
+                                    {{ Str::limit($task->plan_details, 55) }}
+                                </div>
+                                <div class="text-muted" style="font-size:11px;">
+                                    {{ $task->client_name }} · {{ $task->profile_name }}
+                                    @if ($task->source !== 'self')
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-1">{{ $task->task_by_label }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-4">
+                            <i class="ri-checkbox-circle-line fs-2 d-block mb-1 text-success"></i>
+                            <span class="fs-13">No pending tasks today</span>
+                        </div>
+                    @endforelse
+                </div>
+                <div class="card-footer bg-transparent py-2 text-end">
+                    <a href="{{ route('daily.task.my') }}" class="text-primary fs-12 fw-medium">View All Tasks →</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- Open Issues Assigned to Me --}}
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'bg-danger' : 'bg-success' }} text-white d-flex justify-content-between align-items-center py-2">
+                    <span class="fw-semibold fs-14"><i class="ri-alert-line me-1"></i> My Open Issues</span>
+                    <span class="badge bg-white {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-danger' : 'text-success' }}">
+                        {{ ($myPendingIssues ?? collect())->count() }}
+                    </span>
+                </div>
+                <div class="card-body p-0" style="max-height:260px;overflow-y:auto;">
+                    @forelse ($myPendingIssues ?? [] as $issue)
+                        @php
+                            $issueColor = match($issue->type) {
+                                'Critical' => '#dc3545',
+                                'Urgent'   => '#e07b80',
+                                'High'     => '#0d6efd',
+                                default    => '#198754',
+                            };
+                            $issueBadge = match($issue->type) {
+                                'Critical' => 'danger',
+                                'High'     => 'primary',
+                                'Normal'   => 'success',
+                                default    => 'danger',
+                            };
+                        @endphp
+                        <div class="px-3 py-2 border-bottom d-flex align-items-start gap-2"
+                            style="border-left: 3px solid {{ $issueColor }} !important;">
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-medium fs-13" style="color:{{ $issueColor }}">
+                                    {{ Str::limit($issue->issue, 55) }}
+                                </div>
+                                <div class="text-muted" style="font-size:11px;">
+                                    {{ $issue->client_name }} · {{ $issue->profile_name }}
+                                    <span class="badge bg-{{ $issueBadge }} ms-1" style="{{ $issue->type === 'Urgent' ? 'opacity:.75' : '' }}">{{ $issue->type }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-4">
+                            <i class="ri-shield-check-line fs-2 d-block mb-1 text-success"></i>
+                            <span class="fs-13">No open issues assigned to you</span>
+                        </div>
+                    @endforelse
+                </div>
+                <div class="card-footer bg-transparent py-2 text-end">
+                    <a href="{{ route('daily.issue.list') }}" class="text-danger fs-12 fw-medium">View All Issues →</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- Client Message Status --}}
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-2">
+                    <span class="fw-semibold fs-14"><i class="ri-mail-send-line me-1"></i> Client Messages</span>
+                    @if (($myPendingClientMessages ?? 0) > 0)
+                        <span class="badge bg-dark text-warning">{{ $myPendingClientMessages }}</span>
+                    @endif
+                </div>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-4">
+                    @if (($myPendingClientMessages ?? 0) > 0)
+                        <div class="avatar-sm mb-3">
+                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
+                                <i class="ri-time-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="mb-1 text-warning">{{ $myPendingClientMessages }} Pending</h5>
+                        <p class="text-muted fs-13 mb-3">
+                            {{ $myPendingClientMessages === 1 ? 'Your message is' : 'Your messages are' }}
+                            awaiting review by the leader.
+                        </p>
+                        <a href="{{ route('client.message.my.list') }}" class="btn btn-sm btn-warning">
+                            View My Messages
+                        </a>
+                    @elseif (Auth::user()->hasAnyRole(['Leader', 'Co Leader']) && ($pendingClientMessageCount ?? 0) > 0)
+                        <div class="avatar-sm mb-3">
+                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
+                                <i class="ri-mail-check-line"></i>
+                            </span>
+                        </div>
+                        <h5 class="mb-1">{{ $pendingClientMessageCount }} to Review</h5>
+                        <p class="text-muted fs-13 mb-3">Team messages are waiting for your approval.</p>
+                        <a href="{{ route('client.message.review.list') }}" class="btn btn-sm btn-warning">
+                            Review Now
+                        </a>
+                    @else
+                        <div class="avatar-sm mb-3">
+                            <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
+                                <i class="ri-mail-check-line"></i>
+                            </span>
+                        </div>
+                        <p class="text-muted fs-13 mb-3">No pending client messages.</p>
+                        @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
+                            <a href="{{ route('client.message.create') }}" class="btn btn-sm btn-outline-primary">
+                                <i class="ri-add-line me-1"></i> Send Message
+                            </a>
+                        @endif
+                    @endif
+                </div>
+            </div>
+        </div>
+
+    </div>
+    @endif
+    {{-- ── End Personal Dashboard Widgets ─────────────────────────────────── --}}
+
 @endsection
 
 

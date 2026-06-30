@@ -414,3 +414,68 @@
         <div class="clearfix"></div>
     </div>
 </div>
+
+{{-- Sidebar: badge-on-parent + active-state fix --}}
+<script>
+(function () {
+    'use strict';
+
+    /* ── 1. Active-state: open the collapse whose child matches current URL ── */
+    var currentPath = window.location.pathname;
+
+    document.querySelectorAll('.side-nav-item').forEach(function (item) {
+        var trigger  = item.querySelector(':scope > a[data-bs-toggle="collapse"]');
+        var collapse = item.querySelector(':scope > .collapse');
+        if (!trigger || !collapse) return;
+
+        // Check every child link
+        var matched = Array.from(collapse.querySelectorAll('a[href]')).some(function (a) {
+            var href = a.getAttribute('href');
+            return href && href !== '#' && href !== 'javascript:void(0);'
+                && currentPath.startsWith(href.replace(window.location.origin, ''));
+        });
+
+        if (matched) {
+            // Ensure parent link has active class
+            trigger.classList.add('active');
+            // Ensure collapse is open (Bootstrap 5)
+            if (!collapse.classList.contains('show')) {
+                var bs = bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false });
+                bs.show();
+            }
+        }
+    });
+
+    /* ── 2. Badge-on-parent: copy child badges to parent when collapsed ───── */
+    document.querySelectorAll('.side-nav-item').forEach(function (item) {
+        var trigger  = item.querySelector(':scope > a[data-bs-toggle="collapse"]');
+        var collapse = item.querySelector(':scope > .collapse');
+        if (!trigger || !collapse) return;
+
+        // Sum up any danger badges inside child items
+        var total = 0;
+        collapse.querySelectorAll('.badge.bg-danger').forEach(function (b) {
+            var txt = b.textContent.trim();
+            total += txt.includes('+') ? 10 : (parseInt(txt) || 0);
+        });
+        if (total === 0) return;
+
+        // Create parent badge
+        var pBadge = document.createElement('span');
+        pBadge.className = 'badge bg-danger ms-1 sidebar-parent-badge';
+        pBadge.style.fontSize = '10px';
+        pBadge.textContent    = total > 9 ? '9+' : total;
+
+        // Insert before menu-arrow
+        var arrow = trigger.querySelector('.menu-arrow');
+        arrow ? trigger.insertBefore(pBadge, arrow) : trigger.appendChild(pBadge);
+
+        // Hide if already open
+        if (collapse.classList.contains('show')) pBadge.style.display = 'none';
+
+        // Toggle visibility with collapse state
+        collapse.addEventListener('show.bs.collapse',  function () { pBadge.style.display = 'none'; });
+        collapse.addEventListener('hide.bs.collapse',  function () { pBadge.style.display = ''; });
+    });
+})();
+</script>

@@ -18,7 +18,7 @@
         .issue-card-high     .issue-title  { color: #0d6efd; }
         .issue-card-normal   .issue-title  { color: #198754; }
 
-        .issue-type-strip { width: 4px; border-radius: 4px 0 0 4px; flex-shrink: 0; }
+        .issue-type-strip { width: 5px; border-radius: 9px 0 0 9px; flex-shrink: 0; }
         .strip-critical { background: #dc3545; }
         .strip-urgent   { background: #e07b80; }
         .strip-high     { background: #0d6efd; }
@@ -70,7 +70,7 @@
                     $badgeStyle = $issue->type === 'Urgent' ? 'opacity:.75;' : '';
                 @endphp
                 <div class="col-12">
-                    <div class="issue-card issue-card-{{ $typeKey }} card border d-flex flex-row overflow-hidden p-0">
+                    <div class="issue-card issue-card-{{ $typeKey }} card border d-flex flex-row p-0">
                         <div class="issue-type-strip strip-{{ $typeKey }}"></div>
 
                         <div class="card-body p-3 flex-grow-1">
