@@ -193,43 +193,31 @@
                 </li>
 
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarTodayPlan" aria-expanded="false" aria-controls="sidebarTodayPlan"
-                        class="side-nav-link {{ Route::is('today.plan.*') ? 'active' : '' }}">
-                        <i class="ri-calendar-todo-line"></i>
-                        <span> Today's Plan </span>
+                    <a data-bs-toggle="collapse" href="#sidebarDailyTask" aria-expanded="false" aria-controls="sidebarDailyTask"
+                        class="side-nav-link {{ Route::is('daily.task.*') ? 'active' : '' }}">
+                        <i class="ri-task-line"></i>
+                        <span> Daily Task </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarTodayPlan">
+                    <div class="collapse {{ Route::is('daily.task.*') ? 'show' : '' }}" id="sidebarDailyTask">
                         <ul class="side-nav-second-level">
-                            @if (Auth::user()->hasAnyRole(['Co Leader', 'Stack Lead', 'Member', 'Probation']))
+                            <li>
+                                <a href="{{ route('daily.task.add') }}" class="{{ Route::is('daily.task.add') ? 'active' : '' }}">Add Task</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('daily.task.my') }}" class="{{ Route::is('daily.task.my') ? 'active' : '' }}">My Tasks</a>
+                            </li>
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
                                 <li>
-                                    <a href="{{ route('today.plan.create') }}">Submit Plan</a>
+                                    <a href="{{ route('daily.task.assign') }}" class="{{ Route::is('daily.task.assign') ? 'active' : '' }}">Assign Task</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('daily.task.all') }}" class="{{ Route::is('daily.task.all') ? 'active' : '' }}">All Tasks</a>
                                 </li>
                             @endif
                             <li>
-                                <a href="{{ route('today.plan.my.plans') }}">My Plans</a>
+                                <a href="{{ route('daily.task.completed') }}" class="{{ Route::is('daily.task.completed') ? 'active' : '' }}">Completed Tasks</a>
                             </li>
-                            @if (Auth::user()->hasRole('Leader'))
-                                @php
-                                    $pendingTodayPlanCount = \App\Models\TodayPlanTask::where('team_id', Auth::user()->team_id)
-                                        ->where('source', 'planned')
-                                        ->where('status', 'pending')
-                                        ->count();
-                                @endphp
-                                <li>
-                                    <a href="{{ route('today.plan.review.list') }}">Pending Review
-                                        @if ($pendingTodayPlanCount > 0)
-                                            <span class="badge bg-danger float-end">{{ $pendingTodayPlanCount > 9 ? '9+' : $pendingTodayPlanCount }}</span>
-                                        @endif
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('today.plan.review.history') }}">Review History</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('today.plan.dashboard') }}">Team Dashboard</a>
-                                </li>
-                            @endif
                         </ul>
                     </div>
                 </li>

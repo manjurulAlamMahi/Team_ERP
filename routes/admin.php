@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\LeaderController;
 use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TeamController;
+use App\Http\Controllers\Admin\DailyTaskController;
 use App\Http\Controllers\Admin\TodayPlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
@@ -151,6 +152,23 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         // Leader: completion verification
         Route::post('/today-plan/verify', 'verifyComplete')->name('today.plan.verify');
         Route::post('/today-plan/reopen', 'reopenTask')->name('today.plan.reopen');
+    });
+
+    Route::controller(DailyTaskController::class)->group(function () {
+        // All team members
+        Route::get('/daily-task/add', 'createForm')->name('daily.task.add');
+        Route::post('/daily-task/store', 'store')->name('daily.task.store');
+        Route::get('/daily-task/my-tasks', 'myTasks')->name('daily.task.my');
+        Route::post('/daily-task/complete', 'complete')->name('daily.task.complete');
+        Route::get('/daily-task/completed', 'completedTasks')->name('daily.task.completed');
+        // Leads only
+        Route::get('/daily-task/assign', 'assignForm')->name('daily.task.assign');
+        Route::post('/daily-task/assign/store', 'storeAssigned')->name('daily.task.assign.store');
+        Route::get('/daily-task/all', 'allTasks')->name('daily.task.all');
+        Route::get('/daily-task/edit', 'edit')->name('daily.task.edit');
+        Route::post('/daily-task/update', 'update')->name('daily.task.update');
+        Route::post('/daily-task/destroy', 'destroy')->name('daily.task.destroy');
+        Route::post('/daily-task/remarks', 'updateRemarks')->name('daily.task.remarks');
     });
 
     Route::controller(DailyIssueController::class)->group(function () {

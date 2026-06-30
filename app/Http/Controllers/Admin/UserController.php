@@ -185,7 +185,9 @@ class UserController extends Controller
     public function profile($username)
     {
         $data['username'] = $username;
-        $data['user'] = User::where('username', $username)->first();
+        $data['user'] = User::with(['team', 'community', 'stack', 'roles', 'reportingTo'])
+            ->where('username', $username)
+            ->firstOrFail();
         return view('admin.pages.user.profile', $data);
     }
 

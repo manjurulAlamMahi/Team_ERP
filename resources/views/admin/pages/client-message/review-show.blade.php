@@ -42,23 +42,69 @@
 
     @if ($clientMessage->status === 'pending')
         <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
                 <div class="modal-content">
                     <form id="rejectForm">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Reject Message</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title"><i class="ri-close-circle-line me-1"></i> Reject Message</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body p-0">
                             <input type="hidden" name="id" value="{{ $clientMessage->id }}">
-                            <div class="mb-3">
-                                <label class="form-label">Reason for rejection</label>
-                                <textarea name="reason" class="form-control" rows="4" required></textarea>
+                            <div class="row g-0" style="min-height: 340px;">
+                                {{-- Left: user's submitted message --}}
+                                <div class="col-md-6 border-end p-4 bg-light-subtle">
+                                    <h6 class="text-uppercase text-muted fw-bold mb-3 fs-12">
+                                        <i class="ri-message-3-line me-1"></i> Employee's Message
+                                    </h6>
+                                    <div class="mb-3">
+                                        <div class="text-muted small mb-1">Client / Profile</div>
+                                        <strong>{{ $clientMessage->client_name }}</strong>
+                                        <span class="text-muted mx-1">/</span>
+                                        {{ $clientMessage->profile_name }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="text-muted small mb-1">Message</div>
+                                        <div class="p-3 border rounded bg-white fs-14" style="white-space: pre-wrap; max-height: 260px; overflow-y: auto;">{{ strip_tags($clientMessage->their_message) }}</div>
+                                    </div>
+                                    @php $lastFiles = $clientMessage->attachments->where('type', 'last_message'); @endphp
+                                    @if ($lastFiles->isNotEmpty())
+                                        <div>
+                                            <div class="text-muted small mb-1">Last Message Screenshot(s)</div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach ($lastFiles as $f)
+                                                    <a href="javascript:void(0)" class="preview-trigger"
+                                                        data-url="{{ asset($f->path) }}" data-name="{{ $f->original_name }}">
+                                                        <img src="{{ asset($f->path) }}" alt="{{ $f->original_name }}"
+                                                            class="rounded border" style="max-height:80px;">
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- Right: rejection reason --}}
+                                <div class="col-md-6 p-4">
+                                    <h6 class="text-uppercase text-muted fw-bold mb-3 fs-12">
+                                        <i class="ri-feedback-line me-1"></i> Rejection Reason
+                                    </h6>
+                                    <p class="text-muted small mb-3">
+                                        Explain clearly what the member needs to fix before resubmitting.
+                                        This message will be sent as a notification to the member.
+                                    </p>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Reason <span class="text-danger">*</span></label>
+                                        <textarea name="reason" class="form-control" rows="9"
+                                            placeholder="e.g. The message format is incorrect. Please follow the required structure and resubmit."
+                                            required></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Reject</button>
+                            <button type="submit" class="btn btn-danger"><i class="ri-close-line me-1"></i> Confirm Rejection</button>
                         </div>
                     </form>
                 </div>

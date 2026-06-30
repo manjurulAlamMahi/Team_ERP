@@ -199,7 +199,8 @@ class AppServiceProvider extends ServiceProvider
                 $profileComplete = filled($authUser->phone)
                     && filled($authUser->address)
                     && filled($authUser->designation)
-                    && filled($authUser->dob);
+                    && filled($authUser->dob)
+                    && (!$authUser->team_id || (filled($authUser->joining_date) && filled($authUser->probation_end_date)));
             }
 
             // ================================================================
