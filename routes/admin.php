@@ -28,6 +28,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/', 'index')->name('dashboard');
         Route::get('/inbox', 'inbox')->name('dashboard.inbox');
+        Route::get('/todo-list', 'todoList')->name('todo.list');
 
         Route::post('/addQuickAccess', 'addQuickAccess')->name('add.quick.access');
         Route::get('/removeQuickAccess/{route}', 'removeQuickAccess')->name('remove.quick.access');
@@ -174,6 +175,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
     Route::controller(DailyIssueController::class)->group(function () {
         Route::get('/daily-issue/create', 'createForm')->name('daily.issue.create');
         Route::post('/daily-issue/store', 'store')->name('daily.issue.store');
+        Route::get('/daily-issue/my-issues', 'myIssues')->name('daily.issue.my');
         Route::get('/daily-issue/{id}/edit', 'edit')->name('daily.issue.edit');
         Route::post('/daily-issue/update', 'update')->name('daily.issue.update');
         Route::post('/daily-issue/destroy', 'destroy')->name('daily.issue.destroy');

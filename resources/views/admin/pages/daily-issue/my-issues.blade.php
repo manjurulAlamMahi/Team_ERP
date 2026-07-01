@@ -1,6 +1,6 @@
 @extends('admin.master')
 
-@section('title', 'View Issues')
+@section('title', 'My Issues')
 @section('quickAccessicon', 'ri-alert-line')
 
 @push('style')
@@ -57,12 +57,7 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h5 class="mb-0"><i class="ri-alert-line me-1"></i> Issues</h5>
-        @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
-            <a href="{{ route('daily.issue.create') }}" class="btn btn-sm btn-success">
-                <i class="ri-add-line me-1"></i> Add Issue
-            </a>
-        @endif
+        <h5 class="mb-0"><i class="ri-alert-line me-1"></i> My Open Issues</h5>
     </div>
 
     @php $authUser = Auth::user(); @endphp
@@ -70,7 +65,7 @@
     @if ($issues->isEmpty())
         <div class="card card-body text-center text-muted py-5">
             <i class="ri-checkbox-circle-line fs-1 d-block mb-2 text-success"></i>
-            <p class="mb-0 fs-15">No open issues. Everything looks good!</p>
+            <p class="mb-0 fs-15">No open issues assigned to you. Everything looks good!</p>
         </div>
     @else
         <div class="row g-3">

@@ -102,6 +102,11 @@ class DashboardController extends Controller
     {
         return view('admin.pages.inbox');
     }
+
+    public function todoList()
+    {
+        return view('admin.pages.todo-list');
+    }
     // Index
     public function addQuickAccess(Request $request)
     {

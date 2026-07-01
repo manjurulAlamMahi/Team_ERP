@@ -11,13 +11,17 @@
         </h5>
 
         @if ($isLead)
-            <form method="GET" action="{{ route('daily.task.completed') }}" class="d-flex align-items-center gap-2">
-                <label class="text-muted fs-13 mb-0">Filter by date:</label>
-                <input type="date" name="date" class="form-control form-control-sm"
-                    value="{{ $date->format('Y-m-d') }}" max="{{ today()->format('Y-m-d') }}">
-                <button type="submit" class="btn btn-sm btn-primary">Go</button>
-                <a href="{{ route('daily.task.completed') }}" class="btn btn-sm btn-light">Today</a>
-            </form>
+            <div class="card mb-3 w-100">
+                <div class="card-body py-2">
+                    <form method="GET" action="{{ route('daily.task.completed') }}" class="d-flex align-items-center gap-2">
+                        <label class="text-muted fs-13 mb-0">Filter by date:</label>
+                        <input type="date" name="date" class="form-control form-control-sm"
+                            value="{{ $date->format('Y-m-d') }}" max="{{ today()->format('Y-m-d') }}">
+                        <button type="submit" class="btn btn-sm btn-primary">Go</button>
+                        <a href="{{ route('daily.task.completed') }}" class="btn btn-sm btn-light">Today</a>
+                    </form>
+                </div>
+            </div>
         @endif
     </div>
 

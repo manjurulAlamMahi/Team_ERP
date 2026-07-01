@@ -88,10 +88,13 @@
                                         <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}">{{ $issue->type }}</span>
 
                                         @if ($issue->responsibles->isNotEmpty())
-                                            <span class="text-muted small">
-                                                <i class="ri-user-received-line me-1"></i>{{ $issue->responsibles->pluck('name')->join(', ') }}
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                                <i class="ri-user-received-2-line me-1"></i>Assigned: {{ $issue->responsibles->pluck('name')->join(', ') }}
                                             </span>
                                         @endif
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                            <i class="ri-user-add-line me-1"></i>By: {{ $issue->creator->name ?? 'N/A' }}
+                                        </span>
 
                                         @if ($issue->completer)
                                             <span class="badge bg-success-subtle text-success border border-success-subtle">

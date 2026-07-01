@@ -11,42 +11,46 @@
 
 @section('content')
     {{-- Filters --}}
-    <form method="GET" action="{{ route('daily.task.all') }}" class="mb-3">
-        <div class="row g-2 align-items-end">
-            <div class="col-sm-auto">
-                <label class="form-label mb-1 fs-12 text-muted">Member</label>
-                <select name="member_id" class="form-select form-select-sm">
-                    <option value="">All Members</option>
-                    @foreach ($members as $m)
-                        <option value="{{ $m->id }}" {{ request('member_id') == $m->id ? 'selected' : '' }}>{{ $m->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-sm-auto">
-                <label class="form-label mb-1 fs-12 text-muted">Task By</label>
-                <select name="source" class="form-select form-select-sm">
-                    <option value="">All</option>
-                    <option value="self" {{ request('source') === 'self' ? 'selected' : '' }}>My Self</option>
-                    <option value="leader" {{ request('source') === 'leader' ? 'selected' : '' }}>Leader</option>
-                    <option value="co_leader" {{ request('source') === 'co_leader' ? 'selected' : '' }}>Co Leader</option>
-                    <option value="stack_lead" {{ request('source') === 'stack_lead' ? 'selected' : '' }}>Stack Leader</option>
-                </select>
-            </div>
-            <div class="col-sm-auto">
-                <label class="form-label mb-1 fs-12 text-muted">Date</label>
-                <input type="date" name="date" class="form-select form-select-sm" value="{{ request('date') }}">
-            </div>
-            <div class="col-sm-auto d-flex gap-1">
-                <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-                <a href="{{ route('daily.task.all') }}" class="btn btn-sm btn-light">Reset</a>
-            </div>
-            <div class="col-sm-auto ms-auto">
-                <a href="{{ route('daily.task.assign') }}" class="btn btn-sm btn-success">
-                    <i class="ri-user-add-line me-1"></i> Assign Task
-                </a>
-            </div>
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="GET" action="{{ route('daily.task.all') }}">
+                <div class="row g-2 align-items-end">
+                    <div class="col-sm-auto">
+                        <label class="form-label mb-1 fs-12 text-muted">Member</label>
+                        <select name="member_id" class="form-select form-select-sm">
+                            <option value="">All Members</option>
+                            @foreach ($members as $m)
+                                <option value="{{ $m->id }}" {{ request('member_id') == $m->id ? 'selected' : '' }}>{{ $m->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-sm-auto">
+                        <label class="form-label mb-1 fs-12 text-muted">Task By</label>
+                        <select name="source" class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="self" {{ request('source') === 'self' ? 'selected' : '' }}>My Self</option>
+                            <option value="leader" {{ request('source') === 'leader' ? 'selected' : '' }}>Leader</option>
+                            <option value="co_leader" {{ request('source') === 'co_leader' ? 'selected' : '' }}>Co Leader</option>
+                            <option value="stack_lead" {{ request('source') === 'stack_lead' ? 'selected' : '' }}>Stack Leader</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-auto">
+                        <label class="form-label mb-1 fs-12 text-muted">Date</label>
+                        <input type="date" name="date" class="form-select form-select-sm" value="{{ request('date') }}">
+                    </div>
+                    <div class="col-sm-auto d-flex gap-1">
+                        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                        <a href="{{ route('daily.task.all') }}" class="btn btn-sm btn-light">Reset</a>
+                    </div>
+                    <div class="col-sm-auto ms-auto">
+                        <a href="{{ route('daily.task.assign') }}" class="btn btn-sm btn-success">
+                            <i class="ri-user-add-line me-1"></i> Assign Task
+                        </a>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 
     <div class="card">
         <div class="card-body p-0">

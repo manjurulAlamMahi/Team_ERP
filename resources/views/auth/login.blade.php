@@ -128,7 +128,7 @@
                                         <div class="form-check">
                                             <input id="remember_me" name="remember" type="checkbox"
                                                 class="form-check-input">
-                                            <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                            <label class="form-check-label" for="remember_me">Remember me</label>
                                         </div>
                                     </div>
                                     <div class="d-grid mb-0 text-center">

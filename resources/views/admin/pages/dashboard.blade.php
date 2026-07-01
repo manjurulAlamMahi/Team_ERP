@@ -5,739 +5,445 @@
 
 @section('content')
 
-    @if (!($profileComplete ?? true))
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span><i class="ri-error-warning-line"></i> Your profile is incomplete. Please add your phone,
-                        address, designation, and date of birth.</span>
-                    <a href="{{ route('profile.index') }}" class="btn btn-sm btn-warning">Complete Profile</a>
-                </div>
-            </div>
-        </div>
-    @endif
+{{-- Alerts --}}
+@if (!($profileComplete ?? true))
+<div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <span><i class="ri-error-warning-line me-1"></i> Your profile is incomplete. Please add your phone, address, designation, and date of birth.</span>
+    <a href="{{ route('profile.index') }}" class="btn btn-sm btn-warning">Complete Profile</a>
+</div>
+@endif
 
-    @if (($myPendingIssueCount ?? 0) > 0)
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="alert alert-danger d-flex align-items-center justify-content-between flex-wrap gap-2 shadow-sm" role="alert">
-                    <div>
-                        <i class="ri-alarm-warning-fill me-2 fs-18"></i>
-                        <strong>Hello, {{ Auth::user()->name }}!</strong>
-                        You have <strong>{{ $myPendingIssueCount }}</strong> open
-                        {{ Str::plural('issue', $myPendingIssueCount) }} assigned to you that need to be resolved <strong>ASAP</strong>.
+@if (isset($team))
+
+{{-- ── TEAM MEMBER DASHBOARD ──────────────────────────────── --}}
+<div class="row g-3">
+
+    {{-- ── COL 8 ─────────────────────────────────────────── --}}
+    <div class="col-lg-8">
+
+        {{-- Top row: Greeting + Todo + Quick Access (fixed height, scroll) --}}
+        <div class="row g-3 mb-3">
+
+            {{-- Greeting --}}
+            <div class="col-4">
+                <div class="card mb-0 h-100" style="min-height:200px;">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        @if (Auth::user()->email_verified_at == null)
+                            <div class="alert alert-warning py-1 px-2 fs-12 mb-2">
+                                <strong>Email not verified.</strong>
+                                <a href="{{ route('email.verify') }}" class="text-warning-emphasis fw-medium">Verify now</a>
+                            </div>
+                        @endif
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            @if ($greetings == 'Good Morning!')
+                                <img width="38" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
+                            @elseif ($greetings == 'Good Afternoon!')
+                                <img width="38" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
+                            @else
+                                <img width="38" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
+                            @endif
+                            <div>
+                                <div class="text-primary fw-semibold fs-14">{{ $greetings }}</div>
+                                <div class="fw-semibold fs-15">{{ Auth::user()->name }}</div>
+                                <div class="text-muted fs-12">{{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</div>
+                            </div>
+                        </div>
+                        @if (!empty($eventMessages))
+                            @foreach ($eventMessages as $event)
+                                <div class="alert alert-info py-1 px-2 fs-12 mb-1">🎉 {{ $event->message }}</div>
+                            @endforeach
+                        @endif
+                        @if ($upcomingEvents->isNotEmpty())
+                            @foreach ($upcomingEvents as $event)
+                                <div class="text-muted fs-12">
+                                    📅 <strong>{{ $event->name }}</strong>
+                                    @if ($event->name !== 'Birthday')
+                                        on {{ \Carbon\Carbon::parse($event->start_date)->format('M d') }}
+                                    @endif
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
-                    <a href="{{ route('daily.issue.list') }}" class="btn btn-sm btn-danger">
-                        <i class="ri-arrow-right-line"></i> View Issues
-                    </a>
+                </div>
+            </div>
+
+            {{-- Todo List --}}
+            <div class="col-4">
+                <div class="card mb-0 d-flex flex-column" style="height:200px;">
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold fs-13">Todo List</span>
+                        <a href="{{ route('todo.list') }}" class="text-muted fs-11"><i class="ri-external-link-line"></i></a>
+                    </div>
+                    <div class="card-body py-2 px-3 flex-grow-1" style="overflow-y:auto;" id="dash-todo-scroll">
+                        <form id="todo-form" class="mb-2">
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="todo-input-text" class="form-control form-control-sm" placeholder="Add todo...">
+                                <button class="btn btn-sm btn-primary" type="submit">+</button>
+                            </div>
+                        </form>
+                        <ul class="list-unstyled mb-0" id="todo-list"></ul>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Quick Access --}}
+            <div class="col-4">
+                <div class="card mb-0 d-flex flex-column" style="height:200px;">
+                    <div class="card-header py-2">
+                        <span class="fw-semibold fs-13">Quick Access</span>
+                    </div>
+                    <div class="card-body py-2 px-3 flex-grow-1" style="overflow-y:auto;">
+                        @forelse ($menuItems as $item)
+                            <div class="d-flex align-items-center gap-2 py-1 border-bottom">
+                                <i class="{{ $item->icon }} fs-14 text-muted flex-shrink-0"></i>
+                                <a href="{{ $item->url }}" class="text-body fs-13 flex-grow-1 text-truncate">{{ $item->name }}</a>
+                                <a href="{{ route('remove.quick.access', $item->route) }}" class="text-danger fs-11">✕</a>
+                            </div>
+                        @empty
+                            <div class="text-muted text-center py-3 fs-13">
+                                <i class="ri-search-2-line d-block mb-1"></i> No links added
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
-    @endif
 
-    <div class="row">
-        <!-- Welcome -->
-        <div class="col-lg-5">
-            <div class="row">
-                @if (Auth::user()->email_verified_at == null)
-                    <div class="col-lg-12">
-                        <div class="alert alert-warning">
-                            <strong>{{ Auth::user()->email }}</strong>Is Not Verified ! <a
-                                href="{{ route('email.verify') }}">Click Here</a> To Verify Now
+        {{-- Stat Cards row --}}
+        <div class="row g-3">
+            {{-- Team Info --}}
+            <div class="col-3">
+                <div class="card mb-0 text-bg-purple h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="text-white text-opacity-75 fs-11 text-uppercase fw-semibold">Team</div>
+                                <div class="fw-bold fs-15 mt-1">{{ $team->name }}</div>
+                                <div class="text-white text-opacity-75 fs-13 mt-1">{{ $totalMembers }} Active Members</div>
+                            </div>
+                            <span class="avatar-title bg-white bg-opacity-20 rounded-3 fs-4 d-inline-flex p-2">
+                                <i class="ri-team-line"></i>
+                            </span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {{-- Tasks --}}
+            <div class="col-3">
+                <a href="{{ route('daily.task.my') }}" class="text-decoration-none">
+                    <div class="card mb-0 text-bg-primary h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="text-white text-opacity-75 fs-11 text-uppercase fw-semibold">Tasks Left</div>
+                                    <div class="fw-bold fs-24 mt-1">{{ ($myTodayTasks ?? collect())->count() }}</div>
+                                    <div class="text-white text-opacity-75 fs-12">Pending today</div>
+                                </div>
+                                <span class="avatar-title bg-white bg-opacity-20 rounded-3 fs-4 d-inline-flex p-2">
+                                    <i class="ri-task-line"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            {{-- Issues --}}
+            <div class="col-3">
+                <a href="{{ route('daily.issue.my') }}" class="text-decoration-none">
+                    <div class="card mb-0 h-100 {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-bg-danger' : 'text-bg-success' }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="text-white text-opacity-75 fs-11 text-uppercase fw-semibold">Issues</div>
+                                    <div class="fw-bold fs-24 mt-1">{{ ($myPendingIssues ?? collect())->count() }}</div>
+                                    <div class="text-white text-opacity-75 fs-12">Assigned to me</div>
+                                </div>
+                                <span class="avatar-title bg-white bg-opacity-20 rounded-3 fs-4 d-inline-flex p-2">
+                                    <i class="ri-alert-line"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            {{-- Client Messages --}}
+            <div class="col-3">
+                @php
+                    $msgCount = ($myPendingClientMessages ?? 0) > 0
+                        ? ($myPendingClientMessages ?? 0)
+                        : ($pendingClientMessageCount ?? 0);
+                    $msgRoute = ($myPendingClientMessages ?? 0) > 0
+                        ? route('client.message.my.list')
+                        : route('client.message.review.list');
+                @endphp
+                <a href="{{ $msgRoute }}" class="text-decoration-none">
+                    <div class="card mb-0 h-100 {{ $msgCount > 0 ? 'text-bg-warning' : 'bg-light border' }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="{{ $msgCount > 0 ? 'text-dark' : 'text-muted' }} fs-11 text-uppercase fw-semibold">Messages</div>
+                                    <div class="fw-bold fs-24 mt-1 {{ $msgCount > 0 ? 'text-dark' : 'text-dark' }}">{{ $msgCount }}</div>
+                                    <div class="{{ $msgCount > 0 ? 'text-dark opacity-75' : 'text-muted' }} fs-12">Pending review</div>
+                                </div>
+                                <span class="avatar-title {{ $msgCount > 0 ? 'bg-dark bg-opacity-10' : 'bg-secondary bg-opacity-10' }} rounded-3 fs-4 d-inline-flex p-2">
+                                    <i class="ri-mail-send-line {{ $msgCount > 0 ? 'text-dark' : 'text-secondary' }}"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>{{-- end col-8 --}}
+
+    {{-- ── COL 4: Today's Reminders ─────────────────────── --}}
+    <div class="col-lg-4">
+        <div class="card h-100 mb-0">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold"><i class="ri-alarm-line me-1 text-primary"></i> Today's Reminders</span>
+                <span class="text-muted fs-12">{{ now()->format('d M') }}</span>
+            </div>
+            <div class="card-body p-0" style="overflow-y:auto;max-height:460px;">
+
+                {{-- Pending Tasks --}}
+                @if (($myTodayTasks ?? collect())->isNotEmpty())
+                    <div class="px-3 pt-3 pb-1">
+                        <div class="text-muted fs-11 text-uppercase fw-bold mb-2 d-flex align-items-center gap-1">
+                            <i class="ri-task-line text-primary"></i> Pending Tasks
+                            <span class="badge bg-primary ms-1">{{ ($myTodayTasks ?? collect())->count() }}</span>
+                        </div>
+                        @foreach ($myTodayTasks ?? [] as $task)
+                            <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded" style="background:#f0f5ff;">
+                                <i class="ri-circle-fill text-primary mt-1 flex-shrink-0" style="font-size:7px;"></i>
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="fs-13 fw-medium text-truncate" title="{{ $task->plan_details }}">{{ Str::limit($task->plan_details, 45) }}</div>
+                                    <div class="text-muted fs-11">{{ $task->client_name }} · {{ $task->profile_name }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                        <a href="{{ route('daily.task.my') }}" class="fs-12 text-primary d-block text-end mb-2">View all →</a>
+                    </div>
+                    <hr class="my-0">
                 @endif
 
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body row">
-                            <div class="col-lg-6">
-                                <div class="d-flex align-items-center" style="gap: 0 10px">
-                                    <div class="greet_img">
-                                        @if ($greetings == 'Good Morning!')
-                                            <img width="50"
-                                                src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}"
-                                                alt="">
-                                        @elseif ($greetings == 'Good Afternoon!')
-                                            <img width="50"
-                                                src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}"
-                                                alt="">
-                                        @else
-                                            <img width="50"
-                                                src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}"
-                                                alt="">
-                                        @endif
-                                    </div>
-                                    <div class="greet">
-                                        <h4 class="mt-1 mb-1">
-                                            <span class="text-primary">{{ $greetings }}</span>
-                                        </h4>
-                                        <p class="fs-13 m-0" style="text-transform:capitalize">
-                                            {{ Auth::user()->name }} ||
-                                            {{ Auth::user()->getRoleNames()->first() ?? 'No Role Assigned' }}</p>
-                                    </div>
+                {{-- Open Issues --}}
+                @if (($myPendingIssues ?? collect())->isNotEmpty())
+                    <div class="px-3 pt-3 pb-1">
+                        <div class="text-muted fs-11 text-uppercase fw-bold mb-2 d-flex align-items-center gap-1">
+                            <i class="ri-alert-line text-danger"></i> Open Issues
+                            <span class="badge bg-danger ms-1">{{ ($myPendingIssues ?? collect())->count() }}</span>
+                        </div>
+                        @foreach ($myPendingIssues ?? [] as $issue)
+                            @php
+                                $ic = match($issue->type){ 'Critical'=>'#dc3545','Urgent'=>'#e07b80','High'=>'#0d6efd',default=>'#198754' };
+                            @endphp
+                            <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded border-start border-3" style="border-color:{{ $ic }} !important;background:#fff8f8;">
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="fs-13 fw-medium" style="color:{{ $ic }}">{{ Str::limit($issue->issue, 45) }}</div>
+                                    <div class="text-muted fs-11">{{ $issue->client_name }} · {{ $issue->profile_name }}</div>
                                 </div>
+                            </div>
+                        @endforeach
+                        <a href="{{ route('daily.issue.my') }}" class="fs-12 text-danger d-block text-end mb-2">View all →</a>
+                    </div>
+                    <hr class="my-0">
+                @endif
 
+                {{-- Client Messages --}}
+                @if (($myPendingClientMessages ?? 0) > 0 || ($pendingClientMessageCount ?? 0) > 0)
+                    <div class="px-3 pt-3 pb-3">
+                        <div class="text-muted fs-11 text-uppercase fw-bold mb-2 d-flex align-items-center gap-1">
+                            <i class="ri-mail-send-line text-warning"></i> Client Messages
+                        </div>
+                        @if (($myPendingClientMessages ?? 0) > 0)
+                            <div class="p-2 rounded mb-1" style="background:#fff8e1;">
+                                <div class="fs-13">Your <strong>{{ $myPendingClientMessages }}</strong> message(s) pending approval.</div>
+                                <a href="{{ route('client.message.my.list') }}" class="fs-12 text-warning fw-medium">View →</a>
+                            </div>
+                        @endif
+                        @if (($pendingClientMessageCount ?? 0) > 0 && Auth::user()->hasAnyRole(['Leader','Co Leader']))
+                            <div class="p-2 rounded" style="background:#fff3cd;">
+                                <div class="fs-13"><strong>{{ $pendingClientMessageCount }}</strong> message(s) waiting your review.</div>
+                                <a href="{{ route('client.message.review.list') }}" class="fs-12 text-warning fw-medium">Review Now →</a>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    @if (($myTodayTasks ?? collect())->isEmpty() && ($myPendingIssues ?? collect())->isEmpty())
+                        <div class="text-center text-muted py-5">
+                            <i class="ri-checkbox-circle-line fs-1 d-block mb-2 text-success"></i>
+                            <div class="fs-14 fw-medium">All clear!</div>
+                            <div class="fs-13">No pending tasks or issues.</div>
+                        </div>
+                    @else
+                        <div class="px-3 py-3">
+                            <div class="p-2 rounded" style="background:#f0fff4;">
+                                <div class="fs-13 text-success"><i class="ri-mail-check-line me-1"></i> No pending client messages.</div>
+                            </div>
+                        </div>
+                    @endif
+                @endif
 
+            </div>
+        </div>
+    </div>
 
-                                {{-- <ul class="mb-0 list-inline">
-                                    <li class="list-inline-item me-3">
-                                        <h5 class="mb-1">$ 2658.69</h5>
-                                        <p class="mb-0 fs-13">Total Test</p>
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <h5 class="mb-1">150</h5>
-                                        <p class="mb-0 fs-13">Number of Test</p>
-                                    </li>
-                                </ul> --}}
+</div>{{-- end main row --}}
 
-                                @if (!empty($eventMessages))
-                                    @foreach ($eventMessages as $event)
-                                        <p class="fs-13 pt-3 m-0" style="text-transform:capitalize">
-                                            Today is
-                                            <b>{{ $event->name == 'Birthday' ? 'Your Birthday' : $event->name }}</b>
-                                        </p>
-                                        <h4 class="mb-1">{{ $event->message }}</h4>
-                                    @endforeach
-                                @endif
-                                @if ($upcomingEvents->isNotEmpty())
-                                    <p class="fs-13 pt-3 m-0" style="text-transform:capitalize">
-                                        Upcoming Events:
-                                    </p>
-                                    <h4 class="mb-1">
-                                        @foreach ($upcomingEvents as $event)
-                                            @if ($event->name == 'Birthday')
-                                                <b>{{ $event->message }}</b>
-                                            @else
-                                                <b>{{ $event->name }}</b> on
-                                                {{ \Carbon\Carbon::parse($event->start_date)->format('F d, Y') }} <br>
-                                            @endif
-                                        @endforeach
-                                    </h4>
+@else
+{{-- ── ADMIN / NON-TEAM DASHBOARD ─────────────────────────── --}}
+<div class="row">
+    <div class="col-lg-5">
+        <div class="row">
+            @if (Auth::user()->email_verified_at == null)
+                <div class="col-12 mb-3">
+                    <div class="alert alert-warning">
+                        <strong>{{ Auth::user()->email }}</strong> is not verified.
+                        <a href="{{ route('email.verify') }}">Verify now</a>
+                    </div>
+                </div>
+            @endif
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-body row">
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center gap-2">
+                                @if ($greetings == 'Good Morning!')
+                                    <img width="50" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
+                                @elseif ($greetings == 'Good Afternoon!')
+                                    <img width="50" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
                                 @else
-                                    @if (empty($eventMessages))
-                                        <p class="fs-13 pt-3 m-0" style="text-transform:capitalize"> Upcoming Event</p>
-                                        <h4 class="mb-1">There No Upcoming Event</h4>
-                                    @endif
+                                    <img width="50" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
                                 @endif
-
-                            </div>
-
-                            <div class="col-lg-6">
-                                <img class="w-100 image-fluid" src="{{ asset('admin/assets/images/admin.png') }}"
-                                    alt="">
-                            </div>
-                            <!-- end div-->
-                        </div>
-                        <!-- end card-body-->
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="header-title">Quick Access</h4>
-                            </div>
-
-                            <div class="card-body py-0 mb-3" data-simplebar style="max-height: 315px;">
-
-                                @forelse ($menuItems as $item)
-                                    <div class="row py-1 align-items-center">
-                                        <div class="col-auto">
-                                            <i class="{{ $item->icon }} fs-18"></i>
-                                        </div>
-                                        <div class="col ps-0">
-                                            <a href="{{ $item->url }}" class="text-body">{{ $item->name }}</a>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="{{ route('remove.quick.access', $item->route) }}"
-                                                class="text-danger fw-bold pe-2">Remove</a>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="row py-1 align-items-center">
-                                        <div class="col-auto">
-                                            <i class="ri-search-2-line  fs-18"></i>
-                                        </div>
-                                        <div class="col ps-0">
-                                            <a href="javascript:void(0);" class="text-body">No Links Found</a>
-                                        </div>
-                                    </div>
-                                @endforelse
-
-                            </div> <!-- end slimscroll -->
-                        </div>
-                        <!-- end card-->
-                    </div>
-
-                <div class="col-lg-6">
-                        <!-- Todo-->
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="header-title">Todo List</h4>
-                            </div>
-
-                            <div class="todoapp">
-
-                                <div class="card-body pt-2">
-                                    <form name="todo-form" id="todo-form" class="needs-validation">
-                                        <div class="row">
-                                            <div class="col">
-                                                <input type="text" id="todo-input-text" name="todo-input-text"
-                                                    class="form-control" placeholder="Add new todo">
-                                            </div>
-                                            <div class="col-auto d-grid">
-                                                <button class="btn-primary btn-md btn waves-effect waves-light" type="submit"
-                                                    id="todo-btn-submit">Add</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <div class="simplebar-content">
-                                        <ul class="list-group list-group-flush todo-list" id="todo-list">
-
-                                        </ul>
-                                    </div>
+                                <div>
+                                    <h5 class="text-primary mb-0">{{ $greetings }}</h5>
+                                    <p class="fs-13 mb-0">{{ Auth::user()->name }} — {{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</p>
                                 </div>
-                            </div> <!-- end .todoapp-->
-                        </div> <!-- end card-->
-                    </div>
-
-                @php
-                    $messages = App\Models\Chat::where('receiver_id', auth()->user()->id)
-                        ->where('read', false)
-                        ->get();
-                @endphp
-                @if ($messages->count() > 0)
-                        <div class="col-lg-12">
-                            <!-- Messages-->
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h4 class="header-title">Messages</h4>
-                                    <div class="dropdown">
-                                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            <i class="ri-more-2-fill"></i>
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <div class="card-body pt-0">
-                                    <div class="inbox-widget">
-                                        @foreach ($messages as $msg)
-                                            <div class="inbox-item">
-                                                <div class="inbox-item-img"><img src="{{ asset($msg->sender->avatar) }}"
-                                                        class="rounded-circle" alt=""></div>
-                                                <p class="inbox-item-author">{{ $msg->sender->name }}</p>
-                                                <p class="inbox-item-text">{{ Str::limit($msg->message, 50) }}</p>
-                                                <p class="inbox-item-date">
-                                                    <a href="{{ route('dashboard.inbox') }}"
-                                                        class="btn btn-sm btn-link text-info fs-13"> Reply </a>
-                                                </p>
-                                            </div>
-                                        @endforeach
-                                    </div> <!-- end inbox-widget -->
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
+                            </div>
                         </div>
-                    @endif
-
-            </div>
-        </div>
-        <!-- Welcome Ends -->
-        <div class="col-lg-7">
-                <div class="row">
-                    @if (isset($team))
-                        <div class="col-lg-3">
-                            <div class="card widget-icon-box text-bg-purple h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="text-uppercase fs-13 mt-0">Total Members</h5>
-                                            <h3 class="my-3">{{ $totalMembers }}</h3>
-                                        </div>
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                                <i class="ri-team-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div> <!-- end col-->
-
-                        <div class="col-lg-3">
-                            <div class="card widget-icon-box text-bg-success h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="text-uppercase fs-13 mt-0">Today's Plans Submitted</h5>
-                                            <h3 class="my-3">{{ $teamOverview->whereIn('plan_status', ['approved', 'pending', 'rejected'])->count() }}</h3>
-                                        </div>
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                                <i class="ri-calendar-todo-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div> <!-- end col-->
-
-                        <div class="col-lg-3">
-                            <div class="card widget-icon-box text-bg-pink h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="text-uppercase fs-13 mt-0">Pending Plan Reviews</h5>
-                                            <h3 class="my-3">{{ $pendingPlanCount }}</h3>
-                                        </div>
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                                <i class="ri-hourglass-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div> <!-- end col-->
-
-                        <div class="col-lg-3">
-                            <div class="card widget-icon-box h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="text-muted text-uppercase fs-13 mt-0">Open Issues</h5>
-                                            <h3 class="my-3">{{ $openIssueCount }}</h3>
-                                        </div>
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title text-bg-danger rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                                <i class="ri-alert-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div> <!-- end col-->
-
-                        @if (($pendingClientMessageCount ?? 0) > 0)
-                        <div class="col-lg-12 mt-2">
-                            <a href="{{ route('client.message.review.list') }}" class="text-decoration-none">
-                                <div class="alert alert-warning d-flex align-items-center justify-content-between mb-0" role="alert">
-                                    <div>
-                                        <i class="ri-mail-send-line me-2 fs-18"></i>
-                                        <strong>Quick Review Needed:</strong>
-                                        You have <strong>{{ $pendingClientMessageCount }}</strong> client
-                                        {{ Str::plural('message', $pendingClientMessageCount) }} waiting for your review.
-                                    </div>
-                                    <span class="badge bg-warning text-dark fs-13 ms-3">Review Now &rarr;</span>
-                                </div>
-                            </a>
-                        </div>
-                        @endif
-                    @else
                         <div class="col-lg-6">
-                            <div class="card widget-icon-box text-bg-purple h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="text-uppercase fs-13 mt-0">Total Teams</h5>
-                                            <h3 class="my-3">{{ $totalTeams }}</h3>
-                                        </div>
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                                <i class="ri-briefcase-4-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div> <!-- end col-->
-
-                        <div class="col-lg-6">
-                            <div class="card widget-icon-box text-bg-success h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="text-uppercase fs-13 mt-0">Total Members</h5>
-                                            <h3 class="my-3">{{ $totalOrgMembers }}</h3>
-                                        </div>
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                                <i class="ri-group-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div> <!-- end col-->
-                    @endif
+                            <img class="w-100" src="{{ asset('admin/assets/images/admin.png') }}" alt="">
+                        </div>
+                    </div>
                 </div>
             </div>
-
-        {{-- Kept for future design reference, not currently used:
-        @can('dashboard_anylisis')
-            <div class="col-lg-7">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card widget-icon-box text-bg-purple">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <h5 class="text-uppercase fs-13 mt-0" title="Number of Customers">Customers</h5>
-                                        <h3 class="my-3">54,214</h3>
-                                        <p class="mb-0 text-white text-opacity-75 text-truncate">
-                                            <span class="badge bg-white bg-opacity-10 me-1"><i class="ri-arrow-up-line"></i>
-                                                2,541</span>
-                                            <span>Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span
-                                            class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                            <i class="ri-group-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div> <!-- end col-->
-
-                    <div class="col-lg-4">
-                        <div class="card widget-icon-box text-bg-pink">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <h5 class="text-uppercase fs-13 mt-0" title="Number of Orders">Orders</h5>
-                                        <h3 class="my-3">7,543</h3>
-                                        <p class="mb-0 text-white text-opacity-75 text-truncate">
-                                            <span class="badge bg-white bg-opacity-25 me-1"><i class="ri-arrow-down-line"></i>
-                                                1.08%</span>
-                                            <span>Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span
-                                            class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                            <i class="ri-shopping-basket-2-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div> <!-- end col-->
-
-                    <div class="col-lg-4">
-                        <div class="card widget-icon-box text-bg-success">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <h5 class="text-uppercase fs-13 mt-0" title="Average Revenue">Revenue</h5>
-                                        <h3 class="my-3">$9,254</h3>
-                                        <p class="mb-0 text-white text-opacity-75 text-truncate">
-                                            <span class="badge bg-white bg-opacity-25 me-1"><i class="ri-arrow-down-line"></i>
-                                                7.00%</span>
-                                            <span>Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span
-                                            class="avatar-title bg-white bg-opacity-25 text-white rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                            <i class="ri-money-dollar-circle-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div> <!-- end col-->
-
-                    <div class="col-lg-4">
-                        <div class="card widget-icon-box">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <h5 class="text-muted text-uppercase fs-13 mt-0" title="Growth">Growth</h5>
-                                        <h3 class="my-3">+ 20.6%</h3>
-                                        <p class="mb-0 text-muted text-truncate">
-                                            <span class="badge bg-success me-1"><i class="ri-arrow-up-line"></i> 4.87%</span>
-                                            <span>Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span
-                                            class="avatar-title text-bg-primary rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                            <i class="ri-donut-chart-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div> <!-- end col-->
-
-                    <div class="col-lg-4">
-                        <div class="card widget-icon-box">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <h5 class="text-muted text-uppercase fs-13 mt-0" title="Conversation Ration">
-                                            Conversation</h5>
-                                        <h3 class="my-3">9.62%</h3>
-                                        <p class="mb-0 text-muted text-truncate">
-                                            <span class="badge bg-success me-1"><i class="ri-arrow-up-line"></i> 3.07%</span>
-                                            <span>Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span
-                                            class="avatar-title text-bg-warning rounded rounded-3 fs-3 widget-icon-box-avatar">
-                                            <i class="ri-pulse-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div> <!-- end col-->
-
-                    <div class="col-lg-4">
-                        <div class="card widget-icon-box">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <h5 class="text-muted text-uppercase fs-13 mt-0" title="Conversation Ration">Balance
-                                        </h5>
-                                        <h3 class="my-3">$168.5k</h3>
-                                        <p class="mb-0 text-muted text-truncate">
-                                            <span class="badge bg-success me-1"><i class="ri-arrow-up-line"></i> 18.34%</span>
-                                            <span>Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title text-bg-dark rounded rounded-3 fs-3 widget-icon-box-avatar">
-                                            <i class="ri-wallet-3-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div> <!-- end col-->
-                </div>
-            </div>
-        @endcan
-        --}}
-
-    </div>
-
-    {{-- ── Personal Dashboard Widgets (team members only) ─────────────────── --}}
-    @if (isset($team))
-    <div class="row g-3 mt-1">
-
-        {{-- Today's Tasks --}}
-        <div class="col-lg-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
-                    <span class="fw-semibold fs-14"><i class="ri-task-line me-1"></i> Your Tasks Today</span>
-                    <span class="badge bg-white text-primary">{{ ($myTodayTasks ?? collect())->count() }}</span>
-                </div>
-                <div class="card-body p-0" style="max-height:260px;overflow-y:auto;">
-                    @forelse ($myTodayTasks ?? [] as $task)
-                        <div class="px-3 py-2 border-bottom d-flex align-items-start gap-2">
-                            <i class="ri-checkbox-blank-circle-line text-primary mt-1 flex-shrink-0 fs-13"></i>
-                            <div class="flex-grow-1 min-width-0">
-                                <div class="fw-medium fs-13 text-truncate" title="{{ $task->plan_details }}">
-                                    {{ Str::limit($task->plan_details, 55) }}
-                                </div>
-                                <div class="text-muted" style="font-size:11px;">
-                                    {{ $task->client_name }} · {{ $task->profile_name }}
-                                    @if ($task->source !== 'self')
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-1">{{ $task->task_by_label }}</span>
-                                    @endif
-                                </div>
+            <div class="col-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header"><h4 class="header-title">Quick Access</h4></div>
+                    <div class="card-body py-0 mb-3" data-simplebar style="max-height:250px;">
+                        @forelse ($menuItems as $item)
+                            <div class="row py-1 align-items-center">
+                                <div class="col-auto"><i class="{{ $item->icon }} fs-18"></i></div>
+                                <div class="col ps-0"><a href="{{ $item->url }}" class="text-body">{{ $item->name }}</a></div>
+                                <div class="col-auto"><a href="{{ route('remove.quick.access', $item->route) }}" class="text-danger fw-bold">Remove</a></div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-center text-muted py-4">
-                            <i class="ri-checkbox-circle-line fs-2 d-block mb-1 text-success"></i>
-                            <span class="fs-13">No pending tasks today</span>
-                        </div>
-                    @endforelse
-                </div>
-                <div class="card-footer bg-transparent py-2 text-end">
-                    <a href="{{ route('daily.task.my') }}" class="text-primary fs-12 fw-medium">View All Tasks →</a>
+                        @empty
+                            <div class="row py-1"><div class="col ps-0"><a href="#" class="text-body">No Links Found</a></div></div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
-        </div>
-
-        {{-- Open Issues Assigned to Me --}}
-        <div class="col-lg-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-header {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'bg-danger' : 'bg-success' }} text-white d-flex justify-content-between align-items-center py-2">
-                    <span class="fw-semibold fs-14"><i class="ri-alert-line me-1"></i> My Open Issues</span>
-                    <span class="badge bg-white {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-danger' : 'text-success' }}">
-                        {{ ($myPendingIssues ?? collect())->count() }}
-                    </span>
-                </div>
-                <div class="card-body p-0" style="max-height:260px;overflow-y:auto;">
-                    @forelse ($myPendingIssues ?? [] as $issue)
-                        @php
-                            $issueColor = match($issue->type) {
-                                'Critical' => '#dc3545',
-                                'Urgent'   => '#e07b80',
-                                'High'     => '#0d6efd',
-                                default    => '#198754',
-                            };
-                            $issueBadge = match($issue->type) {
-                                'Critical' => 'danger',
-                                'High'     => 'primary',
-                                'Normal'   => 'success',
-                                default    => 'danger',
-                            };
-                        @endphp
-                        <div class="px-3 py-2 border-bottom d-flex align-items-start gap-2"
-                            style="border-left: 3px solid {{ $issueColor }} !important;">
-                            <div class="flex-grow-1 min-width-0">
-                                <div class="fw-medium fs-13" style="color:{{ $issueColor }}">
-                                    {{ Str::limit($issue->issue, 55) }}
+            <div class="col-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header"><h4 class="header-title">Todo List</h4></div>
+                    <div class="todoapp">
+                        <div class="card-body pt-2">
+                            <form name="todo-form" id="todo-form">
+                                <div class="row">
+                                    <div class="col"><input type="text" id="todo-input-text" class="form-control" placeholder="Add new todo"></div>
+                                    <div class="col-auto"><button class="btn btn-primary btn-md" type="submit">Add</button></div>
                                 </div>
-                                <div class="text-muted" style="font-size:11px;">
-                                    {{ $issue->client_name }} · {{ $issue->profile_name }}
-                                    <span class="badge bg-{{ $issueBadge }} ms-1" style="{{ $issue->type === 'Urgent' ? 'opacity:.75' : '' }}">{{ $issue->type }}</span>
-                                </div>
-                            </div>
+                            </form>
+                            <ul class="list-group list-group-flush todo-list mt-2" id="todo-list"></ul>
                         </div>
-                    @empty
-                        <div class="text-center text-muted py-4">
-                            <i class="ri-shield-check-line fs-2 d-block mb-1 text-success"></i>
-                            <span class="fs-13">No open issues assigned to you</span>
-                        </div>
-                    @endforelse
-                </div>
-                <div class="card-footer bg-transparent py-2 text-end">
-                    <a href="{{ route('daily.issue.list') }}" class="text-danger fs-12 fw-medium">View All Issues →</a>
+                    </div>
                 </div>
             </div>
         </div>
-
-        {{-- Client Message Status --}}
-        <div class="col-lg-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-2">
-                    <span class="fw-semibold fs-14"><i class="ri-mail-send-line me-1"></i> Client Messages</span>
-                    @if (($myPendingClientMessages ?? 0) > 0)
-                        <span class="badge bg-dark text-warning">{{ $myPendingClientMessages }}</span>
-                    @endif
-                </div>
-                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-4">
-                    @if (($myPendingClientMessages ?? 0) > 0)
-                        <div class="avatar-sm mb-3">
-                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
-                                <i class="ri-time-line"></i>
-                            </span>
-                        </div>
-                        <h5 class="mb-1 text-warning">{{ $myPendingClientMessages }} Pending</h5>
-                        <p class="text-muted fs-13 mb-3">
-                            {{ $myPendingClientMessages === 1 ? 'Your message is' : 'Your messages are' }}
-                            awaiting review by the leader.
-                        </p>
-                        <a href="{{ route('client.message.my.list') }}" class="btn btn-sm btn-warning">
-                            View My Messages
-                        </a>
-                    @elseif (Auth::user()->hasAnyRole(['Leader', 'Co Leader']) && ($pendingClientMessageCount ?? 0) > 0)
-                        <div class="avatar-sm mb-3">
-                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
-                                <i class="ri-mail-check-line"></i>
-                            </span>
-                        </div>
-                        <h5 class="mb-1">{{ $pendingClientMessageCount }} to Review</h5>
-                        <p class="text-muted fs-13 mb-3">Team messages are waiting for your approval.</p>
-                        <a href="{{ route('client.message.review.list') }}" class="btn btn-sm btn-warning">
-                            Review Now
-                        </a>
-                    @else
-                        <div class="avatar-sm mb-3">
-                            <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
-                                <i class="ri-mail-check-line"></i>
-                            </span>
-                        </div>
-                        <p class="text-muted fs-13 mb-3">No pending client messages.</p>
-                        @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
-                            <a href="{{ route('client.message.create') }}" class="btn btn-sm btn-outline-primary">
-                                <i class="ri-add-line me-1"></i> Send Message
-                            </a>
-                        @endif
-                    @endif
-                </div>
-            </div>
-        </div>
-
     </div>
-    @endif
-    {{-- ── End Personal Dashboard Widgets ─────────────────────────────────── --}}
+    <div class="col-lg-7">
+        <div class="row">
+            <div class="col-6 mb-3">
+                <div class="card widget-icon-box text-bg-purple h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div><h5 class="text-uppercase fs-13 mt-0">Total Teams</h5><h3 class="my-3">{{ $totalTeams }}</h3></div>
+                            <div class="avatar-sm flex-shrink-0"><span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3"><i class="ri-briefcase-4-line"></i></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 mb-3">
+                <div class="card widget-icon-box text-bg-success h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div><h5 class="text-uppercase fs-13 mt-0">Total Members</h5><h3 class="my-3">{{ $totalOrgMembers }}</h3></div>
+                            <div class="avatar-sm flex-shrink-0"><span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3"><i class="ri-group-line"></i></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 @endsection
 
-
 @push('script')
-    <script>
-        $(document).ready(function() {
-            let userID = "{{ Auth::id() }}"; // Get user ID from Laravel Blade
-            let storageKey = `tasks_${userID}`; // Unique key for each user's tasks
+<script>
+$(document).ready(function() {
+    let userID = "{{ Auth::id() }}";
+    let storageKey = 'tasks_' + userID;
 
-            function loadTasks() {
-                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-                $('#todo-list').empty();
-                tasks.forEach(function(task, index) {
-                    let taskHTML = `
-            <li class="list-group-item border-0 ps-0 ${task.completed ? 'completed' : ''}" data-index="${index}">
-                <div class="form-check mb-0">
-                    <input type="checkbox" class="form-check-input todo-done" ${task.completed ? 'checked' : ''}>
-                    <label class="form-check-label">${task.completed ? `<s>${task.text}</s>` : task.text}</label>
-                    <span style="cursor:pointer;" class="delete-btn text-danger float-end"><i class="ri-eraser-line"></i></span>
-                </div>
-            </li>
-        `;
-                    $('#todo-list').append(taskHTML);
-                });
-            }
-
-            // Add new task
-            $('#todo-form').submit(function(e) {
-                e.preventDefault();
-                let taskText = $('#todo-input-text').val();
-                if (taskText) {
-                    let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-                    tasks.push({
-                        text: taskText,
-                        completed: false
-                    });
-                    localStorage.setItem(storageKey, JSON.stringify(tasks));
-                    $('#todo-input-text').val('');
-                    loadTasks();
-                }
-            });
-
-            // Mark task as completed or not
-            $(document).on('click', '.todo-done', function() {
-                let taskIndex = $(this).closest('li').data('index');
-                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-                tasks[taskIndex].completed = !tasks[taskIndex].completed;
-                localStorage.setItem(storageKey, JSON.stringify(tasks));
-                loadTasks();
-            });
-
-            // Delete task
-            $(document).on('click', '.delete-btn', function() {
-                let taskIndex = $(this).closest('li').data('index');
-                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-                tasks.splice(taskIndex, 1);
-                localStorage.setItem(storageKey, JSON.stringify(tasks));
-                loadTasks();
-            });
-
-            // Initial load
-            loadTasks();
+    function loadTasks() {
+        let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+        let $list = $('#todo-list');
+        $list.empty();
+        tasks.forEach(function(task, index) {
+            let taskHTML = '<li class="list-group-item border-0 ps-0 py-1 ' + (task.completed ? 'completed' : '') + '" data-index="' + index + '">'
+                + '<div class="form-check mb-0">'
+                + '<input type="checkbox" class="form-check-input todo-done" ' + (task.completed ? 'checked' : '') + '>'
+                + '<label class="form-check-label fs-13">' + (task.completed ? '<s>' + task.text + '</s>' : task.text) + '</label>'
+                + '<span style="cursor:pointer;" class="delete-btn text-danger float-end"><i class="ri-eraser-line"></i></span>'
+                + '</div></li>';
+            $list.append(taskHTML);
         });
-    </script>
+    }
+
+    $('#todo-form').submit(function(e) {
+        e.preventDefault();
+        let taskText = $('#todo-input-text').val().trim();
+        if (taskText) {
+            let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+            tasks.push({ text: taskText, completed: false });
+            localStorage.setItem(storageKey, JSON.stringify(tasks));
+            $('#todo-input-text').val('');
+            loadTasks();
+        }
+    });
+
+    $(document).on('click', '.todo-done', function() {
+        let taskIndex = $(this).closest('li').data('index');
+        let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+        tasks[taskIndex].completed = !tasks[taskIndex].completed;
+        localStorage.setItem(storageKey, JSON.stringify(tasks));
+        loadTasks();
+    });
+
+    $(document).on('click', '.delete-btn', function() {
+        let taskIndex = $(this).closest('li').data('index');
+        let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+        tasks.splice(taskIndex, 1);
+        localStorage.setItem(storageKey, JSON.stringify(tasks));
+        loadTasks();
+    });
+
+    loadTasks();
+});
+</script>
 @endpush

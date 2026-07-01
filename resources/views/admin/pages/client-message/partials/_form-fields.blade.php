@@ -1,6 +1,6 @@
 @php
     $clientMessage = $clientMessage ?? null;
-    $lastMessageType = old('last_message_type', $clientMessage->last_message_type ?? 'image');
+    $lastMessageType = old('last_message_type', $clientMessage->last_message_type ?? 'none');
     $existingLastMessageFiles = $clientMessage?->attachments->where('type', 'last_message') ?? collect();
     $existingAttachmentFiles = $clientMessage?->attachments->where('type', 'attachment') ?? collect();
 @endphp
@@ -34,6 +34,11 @@
                 <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
                     <span class="text-muted small">Screenshot type:</span>
                     <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="last_message_type" id="lastMessageTypeNone"
+                            value="none" {{ $lastMessageType === 'none' || !$lastMessageType ? 'checked' : '' }} onchange="toggleLastMessageMode()">
+                        <label class="btn btn-outline-secondary" for="lastMessageTypeNone">
+                            <i class="ri-close-line me-1"></i> None
+                        </label>
                         <input type="radio" class="btn-check" name="last_message_type" id="lastMessageTypeImage"
                             value="image" {{ $lastMessageType === 'image' ? 'checked' : '' }} onchange="toggleLastMessageMode()">
                         <label class="btn btn-outline-secondary" for="lastMessageTypeImage">
@@ -123,11 +128,15 @@
         const checked = document.querySelector('input[name="last_message_type"]:checked');
         const single = document.getElementById('lastMessageSingleWrapper');
         const multi = document.getElementById('lastMessageMultiWrapper');
-        if (checked && checked.value === 'multiple') {
+        const val = checked ? checked.value : 'none';
+        if (val === 'multiple') {
             single.style.display = 'none';
             multi.style.display = 'block';
-        } else {
+        } else if (val === 'image') {
             single.style.display = 'block';
+            multi.style.display = 'none';
+        } else {
+            single.style.display = 'none';
             multi.style.display = 'none';
         }
     }

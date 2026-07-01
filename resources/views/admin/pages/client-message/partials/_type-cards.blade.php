@@ -30,6 +30,7 @@
             padding: 10px 14px;
             min-width: 90px;
             max-width: 110px;
+            min-height: 80px;
             border: 1.5px solid #dee2e6;
             border-radius: 10px;
             background: #fff;
@@ -37,6 +38,9 @@
             transition: border-color 0.17s, box-shadow 0.17s, transform 0.15s, background 0.15s;
             text-align: center;
             user-select: none;
+        }
+        #typeCardsRow {
+            align-items: stretch;
         }
 
         .type-card:hover {

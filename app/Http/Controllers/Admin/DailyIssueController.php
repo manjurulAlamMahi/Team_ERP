@@ -135,6 +135,20 @@ class DailyIssueController extends Controller
         return view('admin.pages.daily-issue.list', compact('issues'));
     }
 
+    public function myIssues()
+    {
+        $user = $this->currentTeamUser();
+
+        $issues = DailyIssue::with(['responsibles', 'creator', 'lastEditor'])
+            ->forTeam($user->team_id)
+            ->pending()
+            ->whereHas('responsibles', fn ($q) => $q->where('user_id', $user->id))
+            ->latest()
+            ->get();
+
+        return view('admin.pages.daily-issue.my-issues', compact('issues'));
+    }
+
     public function completedList(Request $request)
     {
         $user   = $this->currentTeamUser();

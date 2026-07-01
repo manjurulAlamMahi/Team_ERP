@@ -3,30 +3,55 @@
 @section('title', 'My Team')
 @section('quickAccessicon', 'ri-team-line')
 
-@section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <h5 class="mb-3 text-uppercase bg-light p-2">
-                <i class="ri-team-line"></i> {{ $team->name }} Team Members
-            </h5>
-        </div>
+@push('style')
+<style>
+    .member-card { transition: box-shadow 0.2s; }
+    .member-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.12) !important; }
+    .member-avatar-wrap { position: relative; display: inline-block; }
+    .member-online-badge {
+        position: absolute;
+        bottom: 4px; right: 4px;
+        width: 13px; height: 13px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+    }
+    .member-online-badge.online  { background: #198754; }
+    .member-online-badge.offline { background: #adb5bd; }
+</style>
+@endpush
 
+@section('content')
+    <div class="mb-3">
+        <h5 class="mb-0 text-uppercase bg-light p-2 rounded">
+            <i class="ri-team-line me-1"></i> {{ $team->name }} Team Members
+        </h5>
+    </div>
+
+    <div class="row g-3">
         @foreach ($users as $user)
             @php $canManage = $user->canBeManagedBy($actor); @endphp
-            <div class="col-xl-4 col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h5 class="mb-0">{{ $user->name }}</h5>
-                                <small class="text-muted">ID: {{ $user->employee_id }}</small>
-                            </div>
-                            <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ ucfirst($user->status) }}</span>
+            <div class="col-xl-3 col-md-4 col-sm-6">
+                <div class="card member-card h-100 d-flex flex-column mb-0">
+                    {{-- Avatar section --}}
+                    <div class="card-body text-center pt-4 pb-2 flex-grow-1">
+                        <div class="member-avatar-wrap mb-2 d-inline-block">
+                            <img src="{{ asset($user->avatar) }}"
+                                class="rounded-circle border border-3 border-white shadow"
+                                width="64" height="64" style="object-fit:cover;" alt="{{ $user->name }}">
+                            <span class="member-online-badge {{ session('online_' . $user->id) ? 'online' : 'offline' }}"></span>
                         </div>
 
+                        {{-- Name --}}
+                        <h6 class="mb-1">
+                            <a href="{{ route('user.profile', $user->username) }}" class="text-body fw-semibold">{{ $user->name }}</a>
+                        </h6>
+
+                        {{-- Role badge --}}
                         <div class="mb-2">
                             @if ($canManage)
-                                <select class="form-select form-select-sm role-select" data-id="{{ $user->id }}" data-previous="{{ $user->getRoleNames()->first() }}">
+                                <select class="form-select form-select-sm role-select d-inline-block w-auto"
+                                    data-id="{{ $user->id }}"
+                                    data-previous="{{ $user->getRoleNames()->first() }}">
                                     @foreach (['Co Leader', 'Stack Lead', 'Member', 'Probation'] as $allowedRole)
                                         <option value="{{ $allowedRole }}" {{ $user->getRoleNames()->first() === $allowedRole ? 'selected' : '' }}>
                                             {{ $allowedRole }}
@@ -38,48 +63,72 @@
                             @endif
                         </div>
 
-                        <ul class="list-unstyled mb-3 fs-13">
-                            <li class="mb-1"><i class="ri-stack-line text-muted me-1"></i> {{ $user->stack->name ?? 'N/A' }}</li>
-                            <li class="mb-1"><i class="ri-mail-line text-muted me-1"></i> {{ $user->email }}</li>
-                            @if ($user->official_email)
-                                <li class="mb-1"><i class="ri-google-line text-muted me-1"></i> {{ $user->official_email }}</li>
-                            @endif
-                            @if ($user->whatsapp)
-                                <li class="mb-1"><i class="ri-whatsapp-line text-muted me-1"></i> {{ $user->whatsapp }}</li>
-                            @endif
-                            @if ($user->telegram)
-                                <li class="mb-1"><i class="ri-telegram-line text-muted me-1"></i> {{ $user->telegram }}</li>
-                            @endif
-                            @if ($user->discord)
-                                <li class="mb-1"><i class="ri-discord-line text-muted me-1"></i> {{ $user->discord }}</li>
-                            @endif
-                            @if ($user->linkedin)
-                                <li class="mb-1"><i class="ri-linkedin-line text-muted me-1"></i>
-                                    <a href="{{ $user->linkedin }}" target="_blank" class="text-muted">LinkedIn</a>
+                        {{-- Status badge --}}
+                        <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-secondary' }} mb-3">
+                            {{ ucfirst($user->status) }}
+                        </span>
+
+                        {{-- Info list --}}
+                        <ul class="list-unstyled text-start fs-12 mb-0">
+                            @if ($user->stack)
+                                <li class="mb-1 d-flex align-items-center gap-1">
+                                    <i class="ri-stack-line text-muted flex-shrink-0"></i>
+                                    <span class="text-truncate">{{ $user->stack->name }}</span>
                                 </li>
                             @endif
-                            @if ($user->dob)
-                                <li class="mb-1"><i class="ri-cake-line text-muted me-1"></i> {{ \Carbon\Carbon::parse($user->dob)->format('d M Y') }}</li>
+                            <li class="mb-1 d-flex align-items-center gap-1">
+                                <i class="ri-mail-line text-muted flex-shrink-0"></i>
+                                <span class="text-truncate">{{ $user->email }}</span>
+                            </li>
+                            @if ($user->whatsapp)
+                                <li class="mb-1 d-flex align-items-center gap-1">
+                                    <i class="ri-whatsapp-line text-muted flex-shrink-0"></i>
+                                    <span>{{ $user->whatsapp }}</span>
+                                </li>
                             @endif
-                            <li class="mb-1"><i class="ri-calendar-line text-muted me-1"></i> Joined {{ $user->joining_date ?? 'N/A' }}</li>
+                            @if ($user->official_email)
+                                <li class="mb-1 d-flex align-items-center gap-1">
+                                    <i class="ri-google-line text-muted flex-shrink-0"></i>
+                                    <span class="text-truncate">{{ $user->official_email }}</span>
+                                </li>
+                            @endif
+                            @if ($user->joining_date)
+                                <li class="mb-1 d-flex align-items-center gap-1">
+                                    <i class="ri-calendar-line text-muted flex-shrink-0"></i>
+                                    <span>Joined {{ $user->joining_date }}</span>
+                                </li>
+                            @endif
                         </ul>
+                    </div>
 
-                        <div class="d-flex flex-wrap gap-1">
+                    {{-- Footer buttons --}}
+                    <div class="card-footer bg-transparent pt-2 pb-3">
+                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                            <a href="{{ route('user.profile', $user->username) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="ri-user-line me-1"></i> Profile
+                            </a>
                             @if ($canManage)
                                 <button type="button" class="btn btn-sm btn-outline-secondary open-edit-modal"
-                                        data-id="{{ $user->id }}"
-                                        data-employee_id="{{ $user->employee_id }}"
-                                        data-username="{{ $user->username }}"
-                                        data-name="{{ $user->name }}"
-                                        data-email="{{ $user->email }}"
-                                        data-phone="{{ $user->phone }}"
-                                        data-whatsapp="{{ $user->whatsapp }}"
-                                        data-joining_date="{{ $user->joining_date }}"
-                                        data-probation_end_date="{{ $user->probation_end_date }}">Edit</button>
-                                <button class="btn btn-sm btn-outline-primary" onclick="toggleStatus({{ $user->id }})">Change Status</button>
+                                    data-id="{{ $user->id }}"
+                                    data-employee_id="{{ $user->employee_id }}"
+                                    data-username="{{ $user->username }}"
+                                    data-name="{{ $user->name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-phone="{{ $user->phone }}"
+                                    data-whatsapp="{{ $user->whatsapp }}"
+                                    data-joining_date="{{ $user->joining_date }}"
+                                    data-probation_end_date="{{ $user->probation_end_date }}">
+                                    <i class="ri-edit-line me-1"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="toggleStatus({{ $user->id }})">
+                                    <i class="ri-refresh-line me-1"></i> Status
+                                </button>
                             @endif
                             @if ($actor->hasRole('Leader'))
-                                <button type="button" class="btn btn-sm btn-outline-warning open-password-modal" data-id="{{ $user->id }}" data-name="{{ $user->name }}">Change Password</button>
+                                <button type="button" class="btn btn-sm btn-outline-warning open-password-modal"
+                                    data-id="{{ $user->id }}" data-name="{{ $user->name }}">
+                                    <i class="ri-lock-password-line me-1"></i> Password
+                                </button>
                             @endif
                         </div>
                     </div>

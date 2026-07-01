@@ -70,10 +70,17 @@
                 @endphp
                 <a href="{{ route('dashboard.inbox') }}" class="side-nav-link">
                     <i class="ri-chat-voice-fill"></i>
-                    @if ($msg > 0)
-                        <span class="badge bg-purple float-end">{{ $msg }}</span>
-                    @endif
                     <span> Inbox </span>
+                    @if ($msg > 0)
+                        <span class="badge bg-purple ms-auto">{{ $msg }}</span>
+                    @endif
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="{{ route('todo.list') }}" class="side-nav-link {{ Route::is('todo.list') ? 'active' : '' }}">
+                    <i class="ri-checkbox-multiple-line"></i>
+                    <span> To Do List </span>
                 </a>
             </li>
 
@@ -147,13 +154,16 @@
                                     <a href="{{ route('daily.issue.create') }}">Add Issue</a>
                                 </li>
                             @endif
+                            <li>
+                                <a href="{{ route('daily.issue.my') }}">My Issues</a>
+                            </li>
                             @php
                                 $pendingDailyIssueCount = \App\Models\DailyIssue::where('team_id', Auth::user()->team_id)
                                     ->where('status', 'pending')
                                     ->count();
                             @endphp
                             <li>
-                                <a href="{{ route('daily.issue.list') }}">View Issues
+                                <a href="{{ route('daily.issue.list') }}">All Issues
                                     @if ($pendingDailyIssueCount > 0)
                                         <span class="badge bg-danger float-end">{{ $pendingDailyIssueCount > 9 ? '9+' : $pendingDailyIssueCount }}</span>
                                     @endif
@@ -416,6 +426,26 @@
 </div>
 
 {{-- Sidebar: badge-on-parent + active-state fix --}}
+<style>
+/* Active sidebar item uses the same visual as hover (not full background fill) */
+.leftside-menu .side-nav-link.active:not([data-bs-toggle="collapse"]) {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 5px;
+}
+
+/* Parent link text turns to theme primary color when a child is active */
+.leftside-menu .side-nav-item > a[data-bs-toggle="collapse"].active > span:first-of-type {
+    color: #0ab39c !important;
+}
+
+/* Badge spacing fix — ensure badge and arrow don't overlap */
+.leftside-menu .side-nav-link .sidebar-parent-badge {
+    margin-right: 6px;
+}
+.leftside-menu .side-nav-link .menu-arrow {
+    flex-shrink: 0;
+}
+</style>
 <script>
 (function () {
     'use strict';
