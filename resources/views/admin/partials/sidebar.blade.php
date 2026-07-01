@@ -478,15 +478,13 @@
     cursor: default;
 }
 
-/* Badge sits right after text, arrow stays far right */
+/* Badge positioned between text and arrow */
 .leftside-menu .side-nav-link .sidebar-parent-badge {
-    margin-left: 4px;
-    margin-right: 0;
-    vertical-align: middle;
-}
-.leftside-menu .side-nav-link .menu-arrow {
-    flex-shrink: 0;
-    margin-left: auto;
+    position: absolute !important;
+    right: 26px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
 }
 </style>
 <script>
