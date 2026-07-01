@@ -40,36 +40,45 @@
             {{-- Greeting --}}
             <div class="col-6">
                 <div class="card mb-0 h-100">
-                    <div class="card-body">
-                        @if (Auth::user()->email_verified_at == null)
-                            <div class="alert alert-warning py-1 px-2 fs-12 mb-2">
-                                <strong>Email not verified.</strong>
-                                <a href="{{ route('email.verify') }}" class="text-warning-emphasis fw-medium">Verify now</a>
-                            </div>
-                        @endif
-                        <div class="row align-items-center">
-                            <div class="col-7">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    @if ($greetings == 'Good Morning!')
-                                        <img width="36" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
-                                    @elseif ($greetings == 'Good Afternoon!')
-                                        <img width="36" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
-                                    @else
-                                        <img width="36" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
-                                    @endif
+                    <div class="card-body row align-items-center">
+                        <div class="col-lg-6">
+                            @if (Auth::user()->email_verified_at == null)
+                                <div class="alert alert-warning py-1 px-2 fs-12 mb-2">
+                                    <strong>Email not verified.</strong>
+                                    <a href="{{ route('email.verify') }}" class="text-warning-emphasis fw-medium">Verify now</a>
                                 </div>
-                                <h5 class="text-primary mb-1">{{ $greetings }}</h5>
-                                <p class="fw-semibold mb-0 fs-14">{{ Auth::user()->name }}</p>
-                                <p class="text-muted fs-12 mb-0">{{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</p>
-                                @if (!empty($eventMessages))
-                                    @foreach ($eventMessages as $event)
-                                        <div class="mt-1 fs-12 text-info">🎉 {{ $event->message }}</div>
-                                    @endforeach
+                            @endif
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                @if ($greetings == 'Good Morning!')
+                                    <img width="50" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
+                                @elseif ($greetings == 'Good Afternoon!')
+                                    <img width="50" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
+                                @else
+                                    <img width="50" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
                                 @endif
+                                <div>
+                                    <h5 class="text-primary mb-0">{{ $greetings }}</h5>
+                                    <p class="fs-13 mb-0">{{ Auth::user()->name }} — {{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</p>
+                                </div>
                             </div>
-                            <div class="col-5 text-end">
-                                <img src="{{ asset('admin/assets/images/admin.png') }}" alt="" class="w-100" style="max-height:100px;object-fit:contain;">
-                            </div>
+                            @if (!empty($eventMessages))
+                                @foreach ($eventMessages as $event)
+                                    <div class="alert alert-info py-1 px-2 fs-12 mb-1">🎉 {{ $event->message }}</div>
+                                @endforeach
+                            @endif
+                            @if (!empty($upcomingEvents) && $upcomingEvents->isNotEmpty())
+                                @foreach ($upcomingEvents as $event)
+                                    <p class="fs-12 text-muted mb-0">
+                                        📅 <strong>{{ $event->name }}</strong>
+                                        @if ($event->name !== 'Birthday')
+                                            on {{ \Carbon\Carbon::parse($event->start_date)->format('M d') }}
+                                        @endif
+                                    </p>
+                                @endforeach
+                            @endif
+                        </div>
+                        <div class="col-lg-6">
+                            <img class="w-100" src="{{ asset('admin/assets/images/admin.png') }}" alt="">
                         </div>
                     </div>
                 </div>
