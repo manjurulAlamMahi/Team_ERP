@@ -55,8 +55,8 @@
 
             <li class="side-nav-title mt-1"> Main</li>
 
-            <li class="side-nav-item {{ Route::is('dashboard') }}">
-                <a href="{{ route('dashboard') }}" class="side-nav-link active">
+            <li class="side-nav-item">
+                <a href="{{ route('dashboard') }}" class="side-nav-link {{ Route::is('dashboard') ? 'active' : '' }}">
                     <i class="ri-dashboard-2-fill"></i>
                     <span> Dashboard </span>
                 </a>
@@ -427,15 +427,55 @@
 
 {{-- Sidebar: badge-on-parent + active-state fix --}}
 <style>
-/* Active sidebar item uses the same visual as hover (not full background fill) */
-.leftside-menu .side-nav-link.active:not([data-bs-toggle="collapse"]) {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 5px;
+/* ── ALL active links: light green fill + green text, no solid background ── */
+.leftside-menu .side-nav-link.active,
+.leftside-menu .side-nav-link.parent-active {
+    background-color: rgba(10, 179, 156, 0.13) !important;
+    background: rgba(10, 179, 156, 0.13) !important;
+    box-shadow: none !important;
+}
+.leftside-menu .side-nav-link.active,
+.leftside-menu .side-nav-link.active > i,
+.leftside-menu .side-nav-link.active > span,
+.leftside-menu .side-nav-link.parent-active,
+.leftside-menu .side-nav-link.parent-active > i,
+.leftside-menu .side-nav-link.parent-active > span {
+    color: #0ab39c !important;
 }
 
-/* Parent link text turns to theme primary color when a child is active */
-.leftside-menu .side-nav-item > a[data-bs-toggle="collapse"].active > span:first-of-type {
+/* ── Collapsible parent trigger: keep same light fill, no solid fill ── */
+.leftside-menu .side-nav-link.active[data-bs-toggle="collapse"],
+.leftside-menu .side-nav-link.parent-active[data-bs-toggle="collapse"] {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* ── Active child link: light green fill + green bold text ── */
+.leftside-menu .side-nav-second-level li a.active,
+.leftside-menu .side-nav-third-level li a.active {
     color: #0ab39c !important;
+    font-weight: 700 !important;
+    background-color: rgba(10, 179, 156, 0.13) !important;
+    border-radius: 5px;
+}
+.leftside-menu .side-nav-second-level a.active::before,
+.leftside-menu .side-nav-third-level a.active::before {
+    background: #0ab39c !important;
+}
+
+/* ── No hover change on already-active items ── */
+.leftside-menu .side-nav-link.active:hover,
+.leftside-menu .side-nav-link.active:hover > i,
+.leftside-menu .side-nav-link.active:hover > span {
+    background-color: rgba(10, 179, 156, 0.13) !important;
+    color: #0ab39c !important;
+    cursor: default;
+}
+.leftside-menu .side-nav-second-level li a.active:hover,
+.leftside-menu .side-nav-third-level li a.active:hover {
+    background-color: rgba(10, 179, 156, 0.13) !important;
+    color: #0ab39c !important;
+    cursor: default;
 }
 
 /* Badge spacing fix — ensure badge and arrow don't overlap */
@@ -458,17 +498,23 @@
         var collapse = item.querySelector(':scope > .collapse');
         if (!trigger || !collapse) return;
 
-        // Check every child link
-        var matched = Array.from(collapse.querySelectorAll('a[href]')).some(function (a) {
+        // Check every child link and mark the best match
+        var bestMatch = null, bestLen = 0;
+        collapse.querySelectorAll('a[href]').forEach(function (a) {
             var href = a.getAttribute('href');
-            return href && href !== '#' && href !== 'javascript:void(0);'
-                && currentPath.startsWith(href.replace(window.location.origin, ''));
+            if (!href || href === '#' || href.startsWith('javascript')) return;
+            var path = href.replace(window.location.origin, '');
+            if (currentPath === path || currentPath.startsWith(path + '/')) {
+                if (path.length > bestLen) { bestLen = path.length; bestMatch = a; }
+            }
         });
 
-        if (matched) {
-            // Ensure parent link has active class
-            trigger.classList.add('active');
-            // Ensure collapse is open (Bootstrap 5)
+        if (bestMatch) {
+            // Mark the matched child link active
+            bestMatch.classList.add('active');
+            // Mark parent with a separate class (not 'active') to keep theme styles intact
+            trigger.classList.add('parent-active');
+            // Open the collapse
             if (!collapse.classList.contains('show')) {
                 var bs = bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false });
                 bs.show();

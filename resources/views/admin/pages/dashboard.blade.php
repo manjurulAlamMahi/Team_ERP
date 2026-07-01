@@ -3,6 +3,19 @@
 @section('title', 'Dashboard')
 @section('quickAccessicon', 'ri-dashboard-2-fill')
 
+@push('style')
+<style>
+    .stat-card-link { text-decoration: none; display: block; }
+    .stat-card-link .card {
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .stat-card-link:hover .card {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- Alerts --}}
@@ -19,56 +32,51 @@
 <div class="row g-3">
 
     {{-- ── COL 8 ─────────────────────────────────────────── --}}
-    <div class="col-lg-8">
+    <div class="col-lg-9">
 
         {{-- Top row: Greeting + Todo + Quick Access (fixed height, scroll) --}}
         <div class="row g-3 mb-3">
 
             {{-- Greeting --}}
-            <div class="col-4">
-                <div class="card mb-0 h-100" style="min-height:200px;">
-                    <div class="card-body d-flex flex-column justify-content-center">
+            <div class="col-6">
+                <div class="card mb-0 h-100">
+                    <div class="card-body">
                         @if (Auth::user()->email_verified_at == null)
                             <div class="alert alert-warning py-1 px-2 fs-12 mb-2">
                                 <strong>Email not verified.</strong>
                                 <a href="{{ route('email.verify') }}" class="text-warning-emphasis fw-medium">Verify now</a>
                             </div>
                         @endif
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            @if ($greetings == 'Good Morning!')
-                                <img width="38" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
-                            @elseif ($greetings == 'Good Afternoon!')
-                                <img width="38" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
-                            @else
-                                <img width="38" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
-                            @endif
-                            <div>
-                                <div class="text-primary fw-semibold fs-14">{{ $greetings }}</div>
-                                <div class="fw-semibold fs-15">{{ Auth::user()->name }}</div>
-                                <div class="text-muted fs-12">{{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</div>
-                            </div>
-                        </div>
-                        @if (!empty($eventMessages))
-                            @foreach ($eventMessages as $event)
-                                <div class="alert alert-info py-1 px-2 fs-12 mb-1">🎉 {{ $event->message }}</div>
-                            @endforeach
-                        @endif
-                        @if ($upcomingEvents->isNotEmpty())
-                            @foreach ($upcomingEvents as $event)
-                                <div class="text-muted fs-12">
-                                    📅 <strong>{{ $event->name }}</strong>
-                                    @if ($event->name !== 'Birthday')
-                                        on {{ \Carbon\Carbon::parse($event->start_date)->format('M d') }}
+                        <div class="row align-items-center">
+                            <div class="col-7">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    @if ($greetings == 'Good Morning!')
+                                        <img width="36" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
+                                    @elseif ($greetings == 'Good Afternoon!')
+                                        <img width="36" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
+                                    @else
+                                        <img width="36" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
                                     @endif
                                 </div>
-                            @endforeach
-                        @endif
+                                <h5 class="text-primary mb-1">{{ $greetings }}</h5>
+                                <p class="fw-semibold mb-0 fs-14">{{ Auth::user()->name }}</p>
+                                <p class="text-muted fs-12 mb-0">{{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</p>
+                                @if (!empty($eventMessages))
+                                    @foreach ($eventMessages as $event)
+                                        <div class="mt-1 fs-12 text-info">🎉 {{ $event->message }}</div>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <div class="col-5 text-end">
+                                <img src="{{ asset('admin/assets/images/admin.png') }}" alt="" class="w-100" style="max-height:100px;object-fit:contain;">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Todo List --}}
-            <div class="col-4">
+            <div class="col-3">
                 <div class="card mb-0 d-flex flex-column" style="height:200px;">
                     <div class="card-header py-2 d-flex justify-content-between align-items-center">
                         <span class="fw-semibold fs-13">Todo List</span>
@@ -87,7 +95,7 @@
             </div>
 
             {{-- Quick Access --}}
-            <div class="col-4">
+            <div class="col-3">
                 <div class="card mb-0 d-flex flex-column" style="height:200px;">
                     <div class="card-header py-2">
                         <span class="fw-semibold fs-13">Quick Access</span>
@@ -113,17 +121,19 @@
         <div class="row g-3">
             {{-- Team Info --}}
             <div class="col-3">
-                <div class="card mb-0 text-bg-purple h-100">
+                <div class="card widget-icon-box text-bg-purple mb-0 h-100" style="transition:transform 0.18s ease,box-shadow 0.18s ease;cursor:default;">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex justify-content-between">
                             <div>
-                                <div class="text-white text-opacity-75 fs-11 text-uppercase fw-semibold">Team</div>
-                                <div class="fw-bold fs-15 mt-1">{{ $team->name }}</div>
-                                <div class="text-white text-opacity-75 fs-13 mt-1">{{ $totalMembers }} Active Members</div>
+                                <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Team</h5>
+                                <h3 class="my-2 text-white">{{ $team->name }}</h3>
+                                <p class="mb-0 text-white text-opacity-75 fs-13">{{ $totalMembers }} Active Members</p>
                             </div>
-                            <span class="avatar-title bg-white bg-opacity-20 rounded-3 fs-4 d-inline-flex p-2">
-                                <i class="ri-team-line"></i>
-                            </span>
+                            <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                    <i class="ri-team-line"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,18 +141,20 @@
 
             {{-- Tasks --}}
             <div class="col-3">
-                <a href="{{ route('daily.task.my') }}" class="text-decoration-none">
-                    <div class="card mb-0 text-bg-primary h-100">
+                <a href="{{ route('daily.task.my') }}" class="stat-card-link">
+                    <div class="card widget-icon-box text-bg-success mb-0 h-100">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between">
                                 <div>
-                                    <div class="text-white text-opacity-75 fs-11 text-uppercase fw-semibold">Tasks Left</div>
-                                    <div class="fw-bold fs-24 mt-1">{{ ($myTodayTasks ?? collect())->count() }}</div>
-                                    <div class="text-white text-opacity-75 fs-12">Pending today</div>
+                                    <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Tasks Left</h5>
+                                    <h3 class="my-2 text-white">{{ ($myTodayTasks ?? collect())->count() }}</h3>
+                                    <p class="mb-0 text-white text-opacity-75 fs-13">Pending today</p>
                                 </div>
-                                <span class="avatar-title bg-white bg-opacity-20 rounded-3 fs-4 d-inline-flex p-2">
-                                    <i class="ri-task-line"></i>
-                                </span>
+                                <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                    <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                        <i class="ri-task-line"></i>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -151,18 +163,20 @@
 
             {{-- Issues --}}
             <div class="col-3">
-                <a href="{{ route('daily.issue.my') }}" class="text-decoration-none">
-                    <div class="card mb-0 h-100 {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-bg-danger' : 'text-bg-success' }}">
+                <a href="{{ route('daily.issue.my') }}" class="stat-card-link">
+                    <div class="card widget-icon-box mb-0 h-100 {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-bg-danger' : 'text-bg-info' }}">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between">
                                 <div>
-                                    <div class="text-white text-opacity-75 fs-11 text-uppercase fw-semibold">Issues</div>
-                                    <div class="fw-bold fs-24 mt-1">{{ ($myPendingIssues ?? collect())->count() }}</div>
-                                    <div class="text-white text-opacity-75 fs-12">Assigned to me</div>
+                                    <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Issues</h5>
+                                    <h3 class="my-2 text-white">{{ ($myPendingIssues ?? collect())->count() }}</h3>
+                                    <p class="mb-0 text-white text-opacity-75 fs-13">Assigned to me</p>
                                 </div>
-                                <span class="avatar-title bg-white bg-opacity-20 rounded-3 fs-4 d-inline-flex p-2">
-                                    <i class="ri-alert-line"></i>
-                                </span>
+                                <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                    <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                        <i class="ri-alert-line"></i>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -179,18 +193,20 @@
                         ? route('client.message.my.list')
                         : route('client.message.review.list');
                 @endphp
-                <a href="{{ $msgRoute }}" class="text-decoration-none">
-                    <div class="card mb-0 h-100 {{ $msgCount > 0 ? 'text-bg-warning' : 'bg-light border' }}">
+                <a href="{{ $msgRoute }}" class="stat-card-link">
+                    <div class="card widget-icon-box mb-0 h-100 {{ $msgCount > 0 ? 'text-bg-warning' : 'text-bg-primary' }}">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between">
                                 <div>
-                                    <div class="{{ $msgCount > 0 ? 'text-dark' : 'text-muted' }} fs-11 text-uppercase fw-semibold">Messages</div>
-                                    <div class="fw-bold fs-24 mt-1 {{ $msgCount > 0 ? 'text-dark' : 'text-dark' }}">{{ $msgCount }}</div>
-                                    <div class="{{ $msgCount > 0 ? 'text-dark opacity-75' : 'text-muted' }} fs-12">Pending review</div>
+                                    <h5 class="text-uppercase fs-13 mt-0 {{ $msgCount > 0 ? 'text-dark' : 'text-white text-opacity-75' }}">Messages</h5>
+                                    <h3 class="my-2 {{ $msgCount > 0 ? 'text-dark' : 'text-white' }}">{{ $msgCount }}</h3>
+                                    <p class="mb-0 fs-13 {{ $msgCount > 0 ? 'text-dark opacity-75' : 'text-white text-opacity-75' }}">{{ $msgCount > 0 ? 'Pending review' : 'All clear' }}</p>
                                 </div>
-                                <span class="avatar-title {{ $msgCount > 0 ? 'bg-dark bg-opacity-10' : 'bg-secondary bg-opacity-10' }} rounded-3 fs-4 d-inline-flex p-2">
-                                    <i class="ri-mail-send-line {{ $msgCount > 0 ? 'text-dark' : 'text-secondary' }}"></i>
-                                </span>
+                                <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                    <span class="avatar-title bg-white bg-opacity-25 {{ $msgCount > 0 ? 'text-dark' : 'text-white' }} rounded-3 fs-3">
+                                        <i class="ri-mail-send-line"></i>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -201,7 +217,7 @@
     </div>{{-- end col-8 --}}
 
     {{-- ── COL 4: Today's Reminders ─────────────────────── --}}
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <div class="card h-100 mb-0">
             <div class="card-header d-flex justify-content-between align-items-center py-2">
                 <span class="fw-semibold"><i class="ri-alarm-line me-1 text-primary"></i> Today's Reminders</span>
