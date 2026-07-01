@@ -478,12 +478,15 @@
     cursor: default;
 }
 
-/* Badge spacing fix — ensure badge and arrow don't overlap */
+/* Badge sits right after text, arrow stays far right */
 .leftside-menu .side-nav-link .sidebar-parent-badge {
-    margin-right: 6px;
+    margin-left: 4px;
+    margin-right: 0;
+    vertical-align: middle;
 }
 .leftside-menu .side-nav-link .menu-arrow {
     flex-shrink: 0;
+    margin-left: auto;
 }
 </style>
 <script>
@@ -538,13 +541,18 @@
 
         // Create parent badge
         var pBadge = document.createElement('span');
-        pBadge.className = 'badge bg-danger ms-1 sidebar-parent-badge';
+        pBadge.className = 'badge bg-danger sidebar-parent-badge';
         pBadge.style.fontSize = '10px';
         pBadge.textContent    = total > 9 ? '9+' : total;
 
-        // Insert before menu-arrow
-        var arrow = trigger.querySelector('.menu-arrow');
-        arrow ? trigger.insertBefore(pBadge, arrow) : trigger.appendChild(pBadge);
+        // Insert right after the text span (not before the arrow)
+        var textSpan = trigger.querySelector('span:not(.menu-arrow):not(.badge)');
+        if (textSpan) {
+            textSpan.insertAdjacentElement('afterend', pBadge);
+        } else {
+            var arrow = trigger.querySelector('.menu-arrow');
+            arrow ? trigger.insertBefore(pBadge, arrow) : trigger.appendChild(pBadge);
+        }
 
         // Hide if already open
         if (collapse.classList.contains('show')) pBadge.style.display = 'none';
