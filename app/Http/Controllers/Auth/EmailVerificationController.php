@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 class EmailVerificationController extends Controller
 {
@@ -22,10 +21,20 @@ class EmailVerificationController extends Controller
 
         return back()->with('email_success', 'Verification link sent!');
     }
-    public function verify(EmailVerificationRequest $request, $id)
+
+    public function verify(Request $request, $id, $hash)
     {
-        $request->fulfill();
-        $data['user'] = User::find($id);
-        return view('auth.verified-mail',$data);
+        $user = User::findOrFail($id);
+
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            abort(403, 'Invalid verification link.');
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new Verified($user));
+        }
+
+        return view('auth.verified-mail', ['user' => $user]);
     }
 }

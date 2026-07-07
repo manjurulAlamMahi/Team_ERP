@@ -286,7 +286,7 @@ class ClientMessageController extends Controller
             'client_message_type_id' => ['required', 'exists:client_message_types,id'],
             'client_name' => ['required', 'string', 'max:255'],
             'profile_name' => ['required', 'string', 'max:255'],
-            'last_message_type' => ['required', Rule::in(['image', 'multiple'])],
+            'last_message_type' => ['required', Rule::in(['none', 'image', 'multiple'])],
             'last_message_files' => ['nullable', 'array'],
             'last_message_files.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:4096'],
             'their_message' => ['required', 'string'],

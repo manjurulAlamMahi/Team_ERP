@@ -11,6 +11,8 @@ class LockScreenController extends Controller
     // Index
     public function lockScreen()
     {
+        session()->reflash();
+
         session(['user_data' => Auth::user()]);
 
         Auth::logout();

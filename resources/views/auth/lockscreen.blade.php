@@ -22,6 +22,13 @@
 
                         <div class="card-body p-4">
 
+                            @if (session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+                            @if (session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
+                            @endif
+
                             <div class="text-center w-75 m-auto">
                                 <img src="{{ asset($user->avatar) }}" height="64" alt="user-image"
                                     class="rounded-circle shadow">
