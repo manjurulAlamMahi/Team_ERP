@@ -100,6 +100,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Stack::class);
     }
 
+    public function assignedClients()
+    {
+        return $this->belongsToMany(Client::class, 'client_assignments')->withPivot('assigned_by')->withTimestamps();
+    }
+
     public function reportingTo()
     {
         return $this->belongsTo(User::class, 'reporting_to');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ClientMessageController;
 use App\Http\Controllers\Admin\ClientMessageTypeController;
 use App\Http\Controllers\Admin\CommunityController;
@@ -185,6 +186,18 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/daily-issue/reverse', 'reverseComplete')->name('daily.issue.reverse');
         Route::post('/daily-issue/comment/store', 'storeComment')->name('daily.issue.comment.store');
         Route::get('/daily-issue/{id}/comments', 'comments')->name('daily.issue.comments');
+    });
+
+    Route::controller(ClientController::class)->group(function () {
+        Route::get('/client/create', 'createForm')->name('client.create');
+        Route::post('/client/store', 'store')->name('client.store');
+        Route::get('/client/list', 'list')->name('client.list');
+        Route::get('/client/my-clients', 'myClients')->name('client.my');
+        Route::get('/client/{id}/edit', 'edit')->name('client.edit');
+        Route::post('/client/update', 'update')->name('client.update');
+        Route::post('/client/destroy', 'destroy')->name('client.destroy');
+        Route::get('/client/{id}/assignees', 'assignees')->name('client.assignees');
+        Route::post('/client/assign/store', 'storeAssign')->name('client.assign.store');
     });
 
     Route::controller(CommunityController::class)->group(function () {

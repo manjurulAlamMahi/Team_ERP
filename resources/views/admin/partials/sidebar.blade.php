@@ -84,6 +84,15 @@
                 </a>
             </li>
 
+            @if (Auth::user()->team_id)
+                <li class="side-nav-item">
+                    <a href="{{ route('client.my') }}" class="side-nav-link {{ Route::is('client.my') ? 'active' : '' }}">
+                        <i class="ri-team-line"></i>
+                        <span> My Clients </span>
+                    </a>
+                </li>
+            @endif
+
             {{-- Organization Control --}}
             @canany(['community_list', 'team_list', 'community_create', 'team_create'])
                 <li class="side-nav-item">
@@ -138,6 +147,28 @@
 
             @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead', 'Member', 'Probation']))
                 <li class="side-nav-title mt-2">Teams</li>
+
+                {{-- 0. Our Clients --}}
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarOurClients" aria-expanded="false" aria-controls="sidebarOurClients"
+                        class="side-nav-link {{ Route::is('client.*') ? 'active' : '' }}">
+                        <i class="ri-team-line"></i>
+                        <span> Our Clients </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse {{ Route::is('client.*') ? 'show' : '' }}" id="sidebarOurClients">
+                        <ul class="side-nav-second-level">
+                            <li>
+                                <a href="{{ route('client.list') }}">Client Lists</a>
+                            </li>
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+                                <li>
+                                    <a href="{{ route('client.create') }}">Add New</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
 
                 {{-- 1. Daily Issue --}}
                 <li class="side-nav-item">
