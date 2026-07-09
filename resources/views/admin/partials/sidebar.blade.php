@@ -84,6 +84,13 @@
                 </a>
             </li>
 
+            <li class="side-nav-item">
+                <a href="{{ route('daily.reminder.my.list') }}" class="side-nav-link {{ Route::is('daily.reminder.*') ? 'active' : '' }}">
+                    <i class="ri-alarm-line"></i>
+                    <span> Daily Reminder </span>
+                </a>
+            </li>
+
             @if (Auth::user()->team_id)
                 <li class="side-nav-item">
                     <a href="{{ route('client.my') }}" class="side-nav-link {{ Route::is('client.my') ? 'active' : '' }}">

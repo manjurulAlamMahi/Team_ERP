@@ -234,6 +234,26 @@
             </div>
             <div class="card-body p-0" style="overflow-y:auto;max-height:460px;">
 
+                {{-- Daily Reminders --}}
+                @if (($myReminders ?? collect())->isNotEmpty())
+                    <div class="px-3 pt-3 pb-1">
+                        <div class="text-muted fs-11 text-uppercase fw-bold mb-2 d-flex align-items-center gap-1">
+                            <i class="ri-alarm-line text-warning"></i> Daily Reminders
+                            <span class="badge bg-warning text-dark ms-1">{{ ($myReminders ?? collect())->count() }}</span>
+                        </div>
+                        @foreach ($myReminders ?? [] as $reminder)
+                            <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded" style="background:#fff8e1;">
+                                <i class="ri-circle-fill text-warning mt-1 flex-shrink-0" style="font-size:7px;"></i>
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="fs-13" title="{{ $reminder->daysLeftLabel() }}">{{ Str::limit($reminder->daysLeftLabel(), 70) }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                        <a href="{{ route('daily.reminder.my.list') }}" class="fs-12 text-warning fw-medium d-block text-end mb-2">View all →</a>
+                    </div>
+                    <hr class="my-0">
+                @endif
+
                 {{-- Pending Tasks --}}
                 @if (($myTodayTasks ?? collect())->isNotEmpty())
                     <div class="px-3 pt-3 pb-1">
@@ -298,7 +318,7 @@
                         @endif
                     </div>
                 @else
-                    @if (($myTodayTasks ?? collect())->isEmpty() && ($myPendingIssues ?? collect())->isEmpty())
+                    @if (($myReminders ?? collect())->isEmpty() && ($myTodayTasks ?? collect())->isEmpty() && ($myPendingIssues ?? collect())->isEmpty())
                         <div class="text-center text-muted py-5">
                             <i class="ri-checkbox-circle-line fs-1 d-block mb-2 text-success"></i>
                             <div class="fs-14 fw-medium">All clear!</div>
@@ -353,6 +373,21 @@
                         <div class="col-lg-6">
                             <img class="w-100" src="{{ asset('admin/assets/images/admin.png') }}" alt="">
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="header-title mb-0"><i class="ri-alarm-line me-1 text-warning"></i> Daily Reminders</h4>
+                        <a href="{{ route('daily.reminder.create') }}" class="fs-13">Create Daily Reminder</a>
+                    </div>
+                    <div class="card-body py-2" data-simplebar style="max-height:200px;">
+                        @forelse ($myReminders ?? [] as $reminder)
+                            <div class="py-1 border-bottom fs-13">{{ $reminder->daysLeftLabel() }}</div>
+                        @empty
+                            <div class="text-muted text-center py-2 fs-13">No reminders. You're all caught up!</div>
+                        @endforelse
                     </div>
                 </div>
             </div>

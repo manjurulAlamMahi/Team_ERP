@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ClientMessageController;
 use App\Http\Controllers\Admin\ClientMessageTypeController;
 use App\Http\Controllers\Admin\CommunityController;
 use App\Http\Controllers\Admin\DailyIssueController;
+use App\Http\Controllers\Admin\DailyReminderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -154,6 +155,18 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         // Leader: completion verification
         Route::post('/today-plan/verify', 'verifyComplete')->name('today.plan.verify');
         Route::post('/today-plan/reopen', 'reopenTask')->name('today.plan.reopen');
+    });
+
+    Route::controller(DailyReminderController::class)->group(function () {
+        Route::get('/daily-reminder/create', 'createForm')->name('daily.reminder.create');
+        Route::post('/daily-reminder/store', 'store')->name('daily.reminder.store');
+        Route::get('/daily-reminder/my-list', 'myList')->name('daily.reminder.my.list');
+        Route::get('/daily-reminder/{id}/edit', 'edit')->name('daily.reminder.edit');
+        Route::post('/daily-reminder/update', 'update')->name('daily.reminder.update');
+        Route::post('/daily-reminder/complete', 'toggleComplete')->name('daily.reminder.complete');
+        Route::get('/daily-reminder/assign', 'assignForm')->name('daily.reminder.assign');
+        Route::post('/daily-reminder/assign/store', 'storeAssigned')->name('daily.reminder.assign.store');
+        Route::post('/daily-reminder/assign/destroy', 'destroyAssigned')->name('daily.reminder.assign.destroy');
     });
 
     Route::controller(DailyTaskController::class)->group(function () {

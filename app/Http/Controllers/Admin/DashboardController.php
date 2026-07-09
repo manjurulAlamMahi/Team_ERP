@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ClientMessage;
 use App\Models\DailyIssue;
+use App\Models\DailyReminder;
 use App\Models\DailyTask;
 use App\Models\QuickAccessMenu;
 use App\Models\Team;
@@ -22,6 +23,8 @@ class DashboardController extends Controller
     {
         $data = [];
         $user = Auth::user();
+
+        $data['myReminders'] = DailyReminder::forUser($user->id)->orderBy('due_date')->get();
 
         if ($user->team_id) {
             $team = Team::find($user->team_id);
