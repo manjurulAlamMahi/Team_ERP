@@ -9,21 +9,21 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Team Member</label>
-                        <select name="user_id" class="form-select" required>
+                        <select name="user_id" id="assignTaskMemberSelect" class="form-select" required>
                             <option value="">Select Member</option>
                             @foreach ($members as $member)
                                 <option value="{{ $member->id }}">{{ $member->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Client Name</label>
-                        <input type="text" name="client_name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Profile</label>
-                        <input type="text" name="profile_name" class="form-control" required>
-                    </div>
+
+                    @include('admin.partials._client-select-field', [
+                        'clients' => collect(),
+                        'fieldId' => 'assignPlanClient',
+                        'emptyMessage' => 'Select a team member first.',
+                        'autoInit' => false,
+                    ])
+
                     <div class="mb-3">
                         <label class="form-label">Details</label>
                         <textarea name="details" class="form-control" rows="3" required></textarea>

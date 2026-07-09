@@ -11,7 +11,7 @@ class DailyTask extends Model
 
     protected $fillable = [
         'team_id', 'user_id', 'created_by',
-        'task_date', 'client_name', 'profile_name', 'plan_details',
+        'task_date', 'client_id', 'client_name', 'profile_name', 'plan_details',
         'expected_complete_date', 'source', 'status',
         'completed_at', 'remarks', 'remarks_by', 'remarks_updated_at',
     ];
@@ -27,6 +27,7 @@ class DailyTask extends Model
     }
 
     public function team()       { return $this->belongsTo(Team::class); }
+    public function client()     { return $this->belongsTo(Client::class); }
     public function user()       { return $this->belongsTo(User::class, 'user_id'); }
     public function creator()    { return $this->belongsTo(User::class, 'created_by'); }
     public function remarksByUser() { return $this->belongsTo(User::class, 'remarks_by'); }

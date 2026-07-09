@@ -221,6 +221,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/client/destroy', 'destroy')->name('client.destroy');
         Route::get('/client/{id}/assignees', 'assignees')->name('client.assignees');
         Route::post('/client/assign/store', 'storeAssign')->name('client.assign.store');
+        Route::get('/client/assigned-to/{userId}', 'assignedToMember')->name('client.assigned.to.member');
     });
 
     Route::controller(CommunityController::class)->group(function () {

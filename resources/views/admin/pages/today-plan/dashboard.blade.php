@@ -57,6 +57,30 @@
 
 @push('script')
     <script>
+        const assignPlanClientField = initClientSelectField('assignPlanClient', '#assignTaskModal');
+
+        $(document).on('change', '#assignTaskMemberSelect', function () {
+            var userId = this.value;
+
+            if (!userId) {
+                setClientSelectOptions(assignPlanClientField, [], 'Select a team member first.');
+                return;
+            }
+
+            var url = "{{ route('client.assigned.to.member', ['userId' => '__ID__']) }}".replace('__ID__', userId);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    setClientSelectOptions(assignPlanClientField, response.data || [], 'No clients assigned to this member.');
+                },
+                error: function () {
+                    setClientSelectOptions(assignPlanClientField, [], 'Unable to load clients for this member.');
+                }
+            });
+        });
+
         $(document).on('submit', '#assignTaskForm', function(e) {
             e.preventDefault();
             $.ajax({

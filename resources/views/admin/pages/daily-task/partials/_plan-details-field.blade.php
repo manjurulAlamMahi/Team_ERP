@@ -31,6 +31,7 @@
 
 @push('style')
     <link href="{{ asset('admin') }}/assets/vendor/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin') }}/assets/css/select2-theme.css" rel="stylesheet" type="text/css" />
 @endpush
 
 @push('script')

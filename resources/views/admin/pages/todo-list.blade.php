@@ -29,8 +29,18 @@
 (function() {
     var userID = "{{ Auth::id() }}";
     var storageKey = 'tasks_' + userID;
+    var resetDateKey = 'todoResetDate_' + userID;
+
+    function resetIfNewDay() {
+        var today = new Date().toISOString().slice(0, 10);
+        if (localStorage.getItem(resetDateKey) !== today) {
+            localStorage.setItem(storageKey, JSON.stringify([]));
+            localStorage.setItem(resetDateKey, today);
+        }
+    }
 
     function loadTasks() {
+        resetIfNewDay();
         var tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
         var list = document.getElementById('todo-list-page');
         var count = document.getElementById('todo-count');

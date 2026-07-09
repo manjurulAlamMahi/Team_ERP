@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\ClientMessage;
 use App\Models\ClientMessageAttachment;
 use App\Models\ClientMessageType;
@@ -52,12 +53,13 @@ class ClientMessageController extends Controller
 
     public function createForm(Request $request)
     {
-        $this->submitterUser();
+        $user = $this->submitterUser();
 
         $types = ClientMessageType::active()->orderBy('name')->get();
         $selectedType = $request->filled('type') ? ClientMessageType::active()->find($request->query('type')) : null;
+        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
 
-        return view('admin.pages.client-message.create', compact('types', 'selectedType'));
+        return view('admin.pages.client-message.create', compact('types', 'selectedType', 'clients'));
     }
 
     public function store(Request $request)
@@ -65,19 +67,22 @@ class ClientMessageController extends Controller
         $user = $this->submitterUser();
         $team = Team::findOrFail($user->team_id);
 
-        $this->validatePayload($request);
+        $this->validatePayload($request, $user);
 
         $type = ClientMessageType::active()->find($request->client_message_type_id);
         if (!$type) {
             return back()->withErrors(['client_message_type_id' => 'Selected message type is invalid.'])->withInput();
         }
 
+        $client = Client::with('profile')->findOrFail($request->client_id);
+
         $message = ClientMessage::create([
             'team_id' => $team->id,
             'client_message_type_id' => $type->id,
             'submitted_by' => $user->id,
-            'client_name' => $request->client_name,
-            'profile_name' => $request->profile_name,
+            'client_id' => $client->id,
+            'client_name' => $client->client_name ?: $client->username,
+            'profile_name' => $client->profile->name ?? '',
             'last_message_type' => $request->last_message_type,
             'their_message' => $request->their_message,
             'status' => 'pending',
@@ -125,8 +130,9 @@ class ClientMessageController extends Controller
         abort_unless($message->isEditableBy($user), 403);
 
         $types = ClientMessageType::active()->orderBy('name')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
 
-        return view('admin.pages.client-message.edit', ['clientMessage' => $message, 'types' => $types]);
+        return view('admin.pages.client-message.edit', ['clientMessage' => $message, 'types' => $types, 'clients' => $clients]);
     }
 
     public function update(Request $request)
@@ -136,17 +142,20 @@ class ClientMessageController extends Controller
         $message = ClientMessage::where('submitted_by', $user->id)->findOrFail($request->id);
         abort_unless($message->isEditableBy($user), 403);
 
-        $this->validatePayload($request);
+        $this->validatePayload($request, $user);
 
         $type = ClientMessageType::active()->find($request->client_message_type_id);
         if (!$type) {
             return back()->withErrors(['client_message_type_id' => 'Selected message type is invalid.'])->withInput();
         }
 
+        $client = Client::with('profile')->findOrFail($request->client_id);
+
         $message->update([
             'client_message_type_id' => $type->id,
-            'client_name' => $request->client_name,
-            'profile_name' => $request->profile_name,
+            'client_id' => $client->id,
+            'client_name' => $client->client_name ?: $client->username,
+            'profile_name' => $client->profile->name ?? '',
             'last_message_type' => $request->last_message_type,
             'their_message' => $request->their_message,
         ]);
@@ -280,18 +289,24 @@ class ClientMessageController extends Controller
         return $this->success($message, 'Message rejected successfully', 200);
     }
 
-    private function validatePayload(Request $request): void
+    private function validatePayload(Request $request, User $user): void
     {
         $request->validate([
             'client_message_type_id' => ['required', 'exists:client_message_types,id'],
-            'client_name' => ['required', 'string', 'max:255'],
-            'profile_name' => ['required', 'string', 'max:255'],
+            'client_id' => [
+                'required',
+                'integer',
+                'exists:clients,id',
+                Rule::exists('client_assignments', 'client_id')->where('user_id', $user->id),
+            ],
             'last_message_type' => ['required', Rule::in(['none', 'image', 'multiple'])],
             'last_message_files' => ['nullable', 'array'],
             'last_message_files.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:4096'],
             'their_message' => ['required', 'string'],
             'attachment_files' => ['nullable', 'array'],
             'attachment_files.*' => ['nullable', 'file', 'max:10240'],
+        ], [
+            'client_id.required' => 'Please select a client.',
         ]);
 
         $lastMessageFiles = $request->file('last_message_files', []);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\TodayPlan;
 
+use App\Models\Client;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +18,7 @@ class StoreAssignedTaskRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'exists:users,id'],
-            'client_name' => ['required', 'string', 'max:255'],
-            'profile_name' => ['required', 'string', 'max:255'],
+            'client_id' => ['required', 'integer', 'exists:clients,id'],
             'details' => ['required', 'string', 'max:2000'],
         ];
     }
@@ -31,6 +31,12 @@ class StoreAssignedTaskRequest extends FormRequest
 
             if (!$target || !$leader || $target->team_id !== $leader->team_id) {
                 $validator->errors()->add('user_id', 'Selected member must belong to your team.');
+                return;
+            }
+
+            $clientId = $this->input('client_id');
+            if ($clientId && !Client::where('id', $clientId)->assignedTo($target->id)->exists()) {
+                $validator->errors()->add('client_id', 'Selected client is not assigned to this member.');
             }
         });
     }
@@ -39,8 +45,7 @@ class StoreAssignedTaskRequest extends FormRequest
     {
         return [
             'user_id.required' => 'Please select a team member.',
-            'client_name.required' => 'Client name is required.',
-            'profile_name.required' => 'Profile is required.',
+            'client_id.required' => 'Please select a client.',
             'details.required' => 'Task details are required.',
         ];
     }

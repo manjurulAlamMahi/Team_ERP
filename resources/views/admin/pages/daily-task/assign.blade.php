@@ -20,7 +20,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-medium">Assign To <span class="text-danger">*</span></label>
-                            <select name="user_id" class="form-select @error('user_id') is-invalid @enderror" required>
+                            <select name="user_id" id="assignMemberSelect" class="form-select @error('user_id') is-invalid @enderror" required>
                                 <option value="">— Select Member —</option>
                                 @foreach ($members as $member)
                                     <option value="{{ $member->id }}" {{ old('user_id') == $member->id ? 'selected' : '' }}>
@@ -38,22 +38,11 @@
                             <input type="text" class="form-control bg-light" value="{{ today()->format('d F Y') }}" readonly>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">Client Name <span class="text-danger">*</span></label>
-                                <input type="text" name="client_name"
-                                    class="form-control @error('client_name') is-invalid @enderror"
-                                    value="{{ old('client_name') }}" placeholder="Client name">
-                                @error('client_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">Profile Name <span class="text-danger">*</span></label>
-                                <input type="text" name="profile_name"
-                                    class="form-control @error('profile_name') is-invalid @enderror"
-                                    value="{{ old('profile_name') }}" placeholder="Profile name">
-                                @error('profile_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
+                        @include('admin.partials._client-select-field', [
+                            'clients' => collect(),
+                            'fieldId' => 'assignTaskClient',
+                            'emptyMessage' => 'Select a team member first.',
+                        ])
 
                         @include('admin.pages.daily-task.partials._plan-details-field', ['fieldId' => 'assignPlanDetails', 'selected' => old('plan_details')])
 
@@ -85,3 +74,30 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+    <script>
+        $(document).on('change', '#assignMemberSelect', function () {
+            var userId = this.value;
+            var field = window.clientSelectFields['assignTaskClient'];
+
+            if (!userId) {
+                setClientSelectOptions(field, [], 'Select a team member first.');
+                return;
+            }
+
+            var url = "{{ route('client.assigned.to.member', ['userId' => '__ID__']) }}".replace('__ID__', userId);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    setClientSelectOptions(field, response.data || [], 'No clients assigned to this member.');
+                },
+                error: function () {
+                    setClientSelectOptions(field, [], 'Unable to load clients for this member.');
+                }
+            });
+        });
+    </script>
+@endpush

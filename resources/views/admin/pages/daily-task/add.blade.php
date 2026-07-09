@@ -24,22 +24,11 @@
                             <small class="text-muted">Tasks are always created for today's date.</small>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">Client Name <span class="text-danger">*</span></label>
-                                <input type="text" name="client_name"
-                                    class="form-control @error('client_name') is-invalid @enderror"
-                                    value="{{ old('client_name') }}" placeholder="Enter client name">
-                                @error('client_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">Profile Name <span class="text-danger">*</span></label>
-                                <input type="text" name="profile_name"
-                                    class="form-control @error('profile_name') is-invalid @enderror"
-                                    value="{{ old('profile_name') }}" placeholder="Enter profile name">
-                                @error('profile_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
+                        @include('admin.partials._client-select-field', [
+                            'clients' => $clients,
+                            'selected' => old('client_id'),
+                            'fieldId' => 'addTaskClient',
+                        ])
 
                         @include('admin.pages.daily-task.partials._plan-details-field', ['fieldId' => 'addPlanDetails', 'selected' => old('plan_details')])
 

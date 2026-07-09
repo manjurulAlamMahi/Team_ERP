@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\TodayPlan;
 
+use App\Models\Client;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StorePlanRequest extends FormRequest
 {
@@ -15,18 +17,31 @@ class StorePlanRequest extends FormRequest
     {
         return [
             'items' => ['required', 'array', 'min:1'],
-            'items.*.client_name' => ['required', 'string', 'max:255'],
-            'items.*.profile_name' => ['required', 'string', 'max:255'],
+            'items.*.client_id' => ['required', 'integer', 'exists:clients,id'],
             'items.*.details' => ['required', 'string', 'max:2000'],
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $user = Auth::user();
+            $items = $this->input('items', []);
+
+            foreach ($items as $index => $item) {
+                $clientId = $item['client_id'] ?? null;
+                if ($clientId && $user && !Client::where('id', $clientId)->assignedTo($user->id)->exists()) {
+                    $validator->errors()->add("items.$index.client_id", 'You may only select a client assigned to you.');
+                }
+            }
+        });
     }
 
     public function messages(): array
     {
         return [
             'items.required' => 'Please add at least one plan.',
-            'items.*.client_name.required' => 'Client name is required for every plan.',
-            'items.*.profile_name.required' => 'Profile is required for every plan.',
+            'items.*.client_id.required' => 'Client is required for every plan.',
             'items.*.details.required' => 'Plan details are required for every plan.',
         ];
     }

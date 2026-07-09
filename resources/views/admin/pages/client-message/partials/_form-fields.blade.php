@@ -9,24 +9,11 @@
     <div class="card-body">
         <h6 class="text-uppercase bg-light p-2 mb-3"><i class="ri-user-search-line"></i> Client Info</h6>
 
-        <div class="row mb-3">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <label class="form-label">Client Name</label>
-                <input type="text" class="form-control @error('client_name') is-invalid @enderror"
-                    name="client_name" value="{{ old('client_name', $clientMessage->client_name ?? '') }}">
-                @error('client_name')
-                    <div class="text-danger small">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Profile Name</label>
-                <input type="text" class="form-control @error('profile_name') is-invalid @enderror"
-                    name="profile_name" value="{{ old('profile_name', $clientMessage->profile_name ?? '') }}">
-                @error('profile_name')
-                    <div class="text-danger small">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
+        @include('admin.partials._client-select-field', [
+            'clients' => $clients,
+            'selected' => old('client_id', $clientMessage->client_id ?? ''),
+            'fieldId' => 'clientMessageClient',
+        ])
 
         <div class="row">
             <div class="col-md-12">

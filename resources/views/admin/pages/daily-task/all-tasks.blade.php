@@ -184,14 +184,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="id" id="editTaskId">
-                        <div class="mb-3">
-                            <label class="form-label">Client Name</label>
-                            <input type="text" name="client_name" id="editClientName" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Profile Name</label>
-                            <input type="text" name="profile_name" id="editProfileName" class="form-control" required>
-                        </div>
+                        @include('admin.partials._client-select-field', ['fieldId' => 'editTaskClient', 'autoInit' => false])
                         @include('admin.pages.daily-task.partials._plan-details-field', ['fieldId' => 'editPlanDetails', 'autoInit' => false])
                         <div class="mb-3">
                             <label class="form-label">Expected Complete Date</label>
@@ -237,6 +230,7 @@
 @push('script')
     <script>
         const editPlanField = initPlanDetailsField('editPlanDetails', '#editTaskModal');
+        const editClientField = initClientSelectField('editTaskClient', '#editTaskModal');
 
         // Own task checkbox
         $(document).on('change', '.own-task-checkbox', function () {
@@ -271,8 +265,8 @@
                     if (res.status) {
                         const t = res.data;
                         $('#editTaskId').val(t.id);
-                        $('#editClientName').val(t.client_name);
-                        $('#editProfileName').val(t.profile_name);
+                        setClientSelectOptions(editClientField, t.assignable_clients || [], 'No clients assigned to this member.');
+                        editClientField.select.val(t.client_id).trigger('change');
                         setPlanDetailsValue(editPlanField, t.plan_details);
                         $('#editExpectedDate').val(t.expected_complete_date ? t.expected_complete_date.substr(0, 10) : '');
                         new bootstrap.Modal(document.getElementById('editTaskModal')).show();

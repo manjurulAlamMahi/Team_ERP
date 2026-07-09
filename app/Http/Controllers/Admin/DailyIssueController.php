@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DailyIssue\StoreIssueRequest;
 use App\Http\Requests\DailyIssue\UpdateIssueRequest;
+use App\Models\Client;
 use App\Models\DailyIssue;
 use App\Models\User;
 use App\Notifications\AdminNotification;
@@ -61,20 +62,24 @@ class DailyIssueController extends Controller
         $members = $this->responsibleMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
         $categories = self::CATEGORIES;
+        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
 
-        return view('admin.pages.daily-issue.create', compact('members', 'types', 'categories'));
+        return view('admin.pages.daily-issue.create', compact('members', 'types', 'categories', 'clients'));
     }
 
     public function store(StoreIssueRequest $request)
     {
         $user = $this->creatorUser();
 
+        $client = Client::with('profile')->findOrFail($request->client_id);
+
         $issue = DailyIssue::create([
             'team_id' => $user->team_id,
             'created_by' => $user->id,
             'issue_date' => today(),
-            'client_name' => $request->client_name,
-            'profile_name' => $request->profile_name,
+            'client_id' => $client->id,
+            'client_name' => $client->client_name ?: $client->username,
+            'profile_name' => $client->profile->name ?? '',
             'issue' => $request->issue,
             'type' => $request->type,
             'category' => $request->category,
@@ -98,8 +103,9 @@ class DailyIssueController extends Controller
         $members = $this->responsibleMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
         $categories = self::CATEGORIES;
+        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
 
-        return view('admin.pages.daily-issue.edit', compact('issue', 'members', 'types', 'categories'));
+        return view('admin.pages.daily-issue.edit', compact('issue', 'members', 'types', 'categories', 'clients'));
     }
 
     public function update(UpdateIssueRequest $request)
@@ -109,9 +115,12 @@ class DailyIssueController extends Controller
         $issue = DailyIssue::forTeam($user->team_id)->findOrFail($request->id);
         abort_unless($issue->isEditableBy($user), 403);
 
+        $client = Client::with('profile')->findOrFail($request->client_id);
+
         $issue->update([
-            'client_name' => $request->client_name,
-            'profile_name' => $request->profile_name,
+            'client_id' => $client->id,
+            'client_name' => $client->client_name ?: $client->username,
+            'profile_name' => $client->profile->name ?? '',
             'issue' => $request->issue,
             'type' => $request->type,
             'category' => $request->category,

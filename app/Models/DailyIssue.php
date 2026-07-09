@@ -14,6 +14,7 @@ class DailyIssue extends Model
         'created_by',
         'last_edited_by',
         'issue_date',
+        'client_id',
         'client_name',
         'profile_name',
         'issue',
@@ -40,6 +41,11 @@ class DailyIssue extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
     }
 
     public function lastEditor()

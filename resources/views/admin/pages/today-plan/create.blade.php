@@ -53,6 +53,8 @@
         document.getElementById('addRowBtn').addEventListener('click', function() {
             const html = rowTemplate.innerHTML.replace(/__INDEX__/g, rowIndex);
             document.getElementById('planRows').insertAdjacentHTML('beforeend', html);
+            window.clientSelectFields = window.clientSelectFields || {};
+            window.clientSelectFields['planClient' + rowIndex] = initClientSelectField('planClient' + rowIndex);
             rowIndex++;
         });
 

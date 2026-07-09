@@ -18,24 +18,11 @@
                         <input type="text" class="form-control bg-light" value="{{ today()->format('d F Y') }}" readonly>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Client Name</label>
-                            <input type="text" class="form-control @error('client_name') is-invalid @enderror"
-                                name="client_name" value="{{ old('client_name') }}">
-                            @error('client_name')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Profile</label>
-                            <input type="text" class="form-control @error('profile_name') is-invalid @enderror"
-                                name="profile_name" value="{{ old('profile_name') }}">
-                            @error('profile_name')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
+                    @include('admin.partials._client-select-field', [
+                        'clients' => $clients,
+                        'selected' => old('client_id'),
+                        'fieldId' => 'issueClient',
+                    ])
 
                     <div class="mb-3">
                         <label class="form-label">Issue</label>

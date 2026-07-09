@@ -7,14 +7,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Client Name</label>
-                        <input type="text" name="client_name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Profile</label>
-                        <input type="text" name="profile_name" class="form-control" required>
-                    </div>
+                    @include('admin.partials._client-select-field', [
+                        'clients' => $clients,
+                        'fieldId' => 'personalTaskClient',
+                        'autoInit' => false,
+                    ])
+
                     <div class="mb-3">
                         <label class="form-label">Details</label>
                         <textarea name="details" class="form-control" rows="3" required></textarea>

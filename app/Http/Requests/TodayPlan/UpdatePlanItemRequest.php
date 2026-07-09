@@ -15,8 +15,7 @@ class UpdatePlanItemRequest extends FormRequest
     {
         return [
             'id' => ['required', 'exists:today_plan_tasks,id'],
-            'client_name' => ['required', 'string', 'max:255'],
-            'profile_name' => ['required', 'string', 'max:255'],
+            'client_id' => ['required', 'integer', 'exists:clients,id'],
             'details' => ['required', 'string', 'max:2000'],
         ];
     }
@@ -24,8 +23,7 @@ class UpdatePlanItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'client_name.required' => 'Client name is required.',
-            'profile_name.required' => 'Profile is required.',
+            'client_id.required' => 'Please select a client.',
             'details.required' => 'Plan details are required.',
         ];
     }

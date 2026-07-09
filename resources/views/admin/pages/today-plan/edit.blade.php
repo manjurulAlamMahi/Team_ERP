@@ -18,22 +18,11 @@
                     @csrf
                     <input type="hidden" name="id" value="{{ $task->id }}">
 
-                    <div class="mb-3">
-                        <label class="form-label">Client Name</label>
-                        <input type="text" class="form-control @error('client_name') is-invalid @enderror"
-                            name="client_name" value="{{ old('client_name', $task->client_name) }}">
-                        @error('client_name')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Profile</label>
-                        <input type="text" class="form-control @error('profile_name') is-invalid @enderror"
-                            name="profile_name" value="{{ old('profile_name', $task->profile_name) }}">
-                        @error('profile_name')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @include('admin.partials._client-select-field', [
+                        'clients' => $clients,
+                        'selected' => old('client_id', $task->client_id),
+                        'fieldId' => 'editPlanClient',
+                    ])
                     <div class="mb-3">
                         <label class="form-label">Details</label>
                         <textarea class="form-control @error('details') is-invalid @enderror" name="details"

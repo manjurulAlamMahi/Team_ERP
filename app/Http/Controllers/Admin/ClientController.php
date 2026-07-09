@@ -144,6 +144,26 @@ class ClientController extends Controller
         return view('admin.pages.client.my-clients', compact('clients', 'profiles'));
     }
 
+    public function assignedToMember($userId)
+    {
+        $user = $this->leadUser();
+
+        $member = User::where('team_id', $user->team_id)->findOrFail($userId);
+
+        $clients = Client::with('profile')
+            ->forTeam($user->team_id)
+            ->assignedTo($member->id)
+            ->orderBy('username')
+            ->get()
+            ->map(fn (Client $client) => [
+                'id' => $client->id,
+                'label' => ($client->client_name ?: $client->username) . ' - ' . ($client->profile->name ?? 'N/A'),
+                'profile' => $client->profile->name ?? '',
+            ]);
+
+        return $this->success($clients, 'ok', 200);
+    }
+
     public function assignees($id)
     {
         $user = $this->leadUser();

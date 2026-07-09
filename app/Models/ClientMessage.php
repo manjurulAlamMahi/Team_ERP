@@ -14,6 +14,7 @@ class ClientMessage extends Model
         'client_message_type_id',
         'submitted_by',
         'reviewed_by',
+        'client_id',
         'client_name',
         'profile_name',
         'last_message_type',
@@ -38,6 +39,11 @@ class ClientMessage extends Model
     public function type()
     {
         return $this->belongsTo(ClientMessageType::class, 'client_message_type_id')->withTrashed();
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
     }
 
     public function submitter()

@@ -45,6 +45,11 @@ class Client extends Model
         return $query->where('team_id', $teamId);
     }
 
+    public function scopeAssignedTo($query, int $userId)
+    {
+        return $query->whereHas('assignees', fn ($q) => $q->where('user_id', $userId));
+    }
+
     public function isAssignedTo(User $user): bool
     {
         if ($this->relationLoaded('assignees')) {

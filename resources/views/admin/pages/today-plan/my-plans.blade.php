@@ -119,6 +119,8 @@
 
 @push('script')
     <script>
+        const personalTaskClientField = initClientSelectField('personalTaskClient', '#personalTaskModal');
+
         function toggleComplete(id) {
             $.ajax({
                 url: "{{ route('today.plan.toggle.complete') }}",

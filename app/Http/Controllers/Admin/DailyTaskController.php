@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\DailyTask;
 use App\Models\Team;
 use App\Models\User;
@@ -39,8 +40,11 @@ class DailyTaskController extends Controller
 
     public function createForm()
     {
-        $this->teamUser();
-        return view('admin.pages.daily-task.add');
+        $user = $this->teamUser();
+
+        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+
+        return view('admin.pages.daily-task.add', compact('clients'));
     }
 
     public function store(Request $request)
@@ -48,19 +52,21 @@ class DailyTaskController extends Controller
         $user = $this->teamUser();
 
         $request->validate([
-            'client_name'            => 'required|string|max:255',
-            'profile_name'           => 'required|string|max:255',
+            'client_id'              => ['required', 'integer', 'exists:clients,id', Rule::exists('client_assignments', 'client_id')->where('user_id', $user->id)],
             'plan_details'           => 'required|string',
             'expected_complete_date' => 'nullable|date|after_or_equal:today',
         ]);
+
+        $client = Client::with('profile')->findOrFail($request->client_id);
 
         DailyTask::create([
             'team_id'                => $user->team_id,
             'user_id'                => $user->id,
             'created_by'             => $user->id,
             'task_date'              => today(),
-            'client_name'            => $request->client_name,
-            'profile_name'           => $request->profile_name,
+            'client_id'              => $client->id,
+            'client_name'            => $client->client_name ?: $client->username,
+            'profile_name'           => $client->profile->name ?? '',
             'plan_details'           => $request->plan_details,
             'expected_complete_date' => $request->expected_complete_date,
             'source'                 => 'self',
@@ -126,8 +132,7 @@ class DailyTaskController extends Controller
 
         $request->validate([
             'user_id'                => ['required', 'exists:users,id'],
-            'client_name'            => 'required|string|max:255',
-            'profile_name'           => 'required|string|max:255',
+            'client_id'              => ['required', 'integer', 'exists:clients,id'],
             'plan_details'           => 'required|string',
             'remarks'                => 'nullable|string',
             'expected_complete_date' => 'nullable|date',
@@ -136,6 +141,9 @@ class DailyTaskController extends Controller
         // Ensure the target member is assignable by this actor
         $member = User::where('team_id', $team->id)->findOrFail($request->user_id);
         abort_unless($this->canAssign($actor, $member), 403);
+
+        $client = Client::with('profile')->forTeam($team->id)->assignedTo($member->id)->find($request->client_id);
+        abort_unless($client, 422);
 
         $source = match (true) {
             $actor->hasRole('Leader')    => 'leader',
@@ -148,8 +156,9 @@ class DailyTaskController extends Controller
             'user_id'                => $member->id,
             'created_by'             => $actor->id,
             'task_date'              => today(),
-            'client_name'            => $request->client_name,
-            'profile_name'           => $request->profile_name,
+            'client_id'              => $client->id,
+            'client_name'            => $client->client_name ?: $client->username,
+            'profile_name'           => $client->profile->name ?? '',
             'plan_details'           => $request->plan_details,
             'expected_complete_date' => $request->expected_complete_date,
             'source'                 => $source,
@@ -223,7 +232,21 @@ class DailyTaskController extends Controller
         $task  = DailyTask::forTeam($actor->team_id)->with(['user'])->findOrFail($request->id);
         abort_unless($task->canBeEditedBy($actor), 403);
 
-        return $this->success($task->load(['user', 'remarksByUser']), 'ok', 200);
+        $clients = Client::with('profile')
+            ->forTeam($actor->team_id)
+            ->assignedTo($task->user_id)
+            ->orderBy('username')
+            ->get()
+            ->map(fn (Client $client) => [
+                'id' => $client->id,
+                'label' => ($client->client_name ?: $client->username) . ' - ' . ($client->profile->name ?? 'N/A'),
+                'profile' => $client->profile->name ?? '',
+            ]);
+
+        $data = $task->load(['user', 'remarksByUser'])->toArray();
+        $data['assignable_clients'] = $clients;
+
+        return $this->success($data, 'ok', 200);
     }
 
     public function update(Request $request)
@@ -233,13 +256,21 @@ class DailyTaskController extends Controller
         abort_unless($task->canBeEditedBy($actor), 403);
 
         $request->validate([
-            'client_name'            => 'required|string|max:255',
-            'profile_name'           => 'required|string|max:255',
+            'client_id'              => ['required', 'integer', 'exists:clients,id'],
             'plan_details'           => 'required|string',
             'expected_complete_date' => 'nullable|date',
         ]);
 
-        $task->update($request->only(['client_name', 'profile_name', 'plan_details', 'expected_complete_date']));
+        $client = Client::with('profile')->forTeam($actor->team_id)->assignedTo($task->user_id)->find($request->client_id);
+        abort_unless($client, 422);
+
+        $task->update([
+            'client_id' => $client->id,
+            'client_name' => $client->client_name ?: $client->username,
+            'profile_name' => $client->profile->name ?? '',
+            'plan_details' => $request->plan_details,
+            'expected_complete_date' => $request->expected_complete_date,
+        ]);
 
         return $this->success($task, 'Task updated successfully', 200);
     }

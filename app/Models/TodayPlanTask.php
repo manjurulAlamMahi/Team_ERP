@@ -15,6 +15,7 @@ class TodayPlanTask extends Model
         'created_by',
         'reviewed_by',
         'plan_date',
+        'client_id',
         'client_name',
         'profile_name',
         'details',
@@ -42,6 +43,11 @@ class TodayPlanTask extends Model
     public function team()
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
     }
 
     public function user()
