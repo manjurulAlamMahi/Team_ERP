@@ -177,12 +177,19 @@ class DailyTaskController extends Controller
         $actor = $this->leadUser();
         $team  = Team::findOrFail($actor->team_id);
 
+        // Default to "Today's Tasks" when no date range is specified.
+        $startDate = $request->filled('start_date') ? Carbon::parse($request->start_date) : today();
+        $endDate   = $request->filled('end_date') ? Carbon::parse($request->end_date) : today();
+
         $query = DailyTask::with(['user.stack', 'creator', 'remarksByUser'])
             ->forTeam($team->id)
+            ->whereDate('task_date', '>=', $startDate)
+            ->whereDate('task_date', '<=', $endDate)
             ->orderByDesc('task_date')
             ->orderByDesc('created_at');
 
-        // Stack Lead scoped to own stack
+        // Stack Lead scoped to own stack (their own tasks stay included, since
+        // a Stack Lead's user row is itself part of their own stack).
         if ($actor->hasRole('Stack Lead') && !$actor->hasAnyRole(['Leader', 'Co Leader'])) {
             $stackMemberIds = User::where('team_id', $team->id)
                 ->where('stack_id', $actor->stack_id)
@@ -200,14 +207,14 @@ class DailyTaskController extends Controller
         if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
-        if ($request->filled('date')) {
-            $query->whereDate('task_date', $request->date);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
-        $tasks   = $query->get();
+        $tasks   = $query->paginate(20)->withQueryString();
         $members = $this->assignableMembers($actor, $team);
 
-        return view('admin.pages.daily-task.all-tasks', compact('tasks', 'members', 'actor', 'team'));
+        return view('admin.pages.daily-task.all-tasks', compact('tasks', 'members', 'actor', 'team', 'startDate', 'endDate'));
     }
 
     public function edit(Request $request)
@@ -265,43 +272,6 @@ class DailyTaskController extends Controller
         ]);
 
         return $this->success($task->load('remarksByUser'), 'Remarks updated successfully', 200);
-    }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // Completed Tasks
-    // ────────────────────────────────────────────────────────────────────────
-
-    public function completedTasks(Request $request)
-    {
-        $actor  = $this->teamUser();
-        $isLead = $actor->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']);
-
-        $date = $request->filled('date') && $isLead
-            ? Carbon::parse($request->date)
-            : today();
-
-        $query = DailyTask::with(['user.stack', 'creator', 'remarksByUser'])
-            ->forTeam($actor->team_id)
-            ->completed()
-            ->whereDate('completed_at', $date)
-            ->orderByDesc('completed_at');
-
-        // Non-leads only see their own completed tasks
-        if (!$isLead) {
-            $query->forUser($actor->id);
-        }
-
-        // Stack Lead scoped to own stack
-        if ($actor->hasRole('Stack Lead') && !$actor->hasAnyRole(['Leader', 'Co Leader'])) {
-            $stackMemberIds = User::where('team_id', $actor->team_id)
-                ->where('stack_id', $actor->stack_id)
-                ->pluck('id');
-            $query->whereIn('user_id', $stackMemberIds);
-        }
-
-        $tasks = $query->get();
-
-        return view('admin.pages.daily-task.completed', compact('tasks', 'date', 'isLead'));
     }
 
     // ────────────────────────────────────────────────────────────────────────

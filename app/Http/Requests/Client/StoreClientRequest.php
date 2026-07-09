@@ -19,9 +19,9 @@ class StoreClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('clients', 'username')->where(fn ($q) => $q->where('profile', $this->profile)),
+                Rule::unique('clients', 'username')->where(fn ($q) => $q->where('profile_id', $this->profile_id)),
             ],
-            'profile' => ['required', 'string', 'max:255'],
+            'profile_id' => ['required', 'integer', 'exists:fiverr_profiles,id'],
             'client_name' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:100'],
             'sales_man_name' => ['nullable', 'string', 'max:255'],
@@ -34,7 +34,7 @@ class StoreClientRequest extends FormRequest
         return [
             'username.required' => 'Username Client is required.',
             'username.unique' => 'This username already exists for this profile.',
-            'profile.required' => 'Fiverr Profile is required.',
+            'profile_id.required' => 'Fiverr Profile is required.',
         ];
     }
 }

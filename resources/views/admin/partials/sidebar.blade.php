@@ -101,7 +101,7 @@
             @endif
 
             {{-- Organization Control --}}
-            @canany(['community_list', 'team_list', 'community_create', 'team_create'])
+            @canany(['community_list', 'team_list', 'community_create', 'team_create', 'fiverr_profile_list', 'fiverr_profile_create'])
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarOrganizationControl" aria-expanded="false" aria-controls="sidebarOrganizationControl"
                         class="side-nav-link">
@@ -119,6 +119,11 @@
                             @can('team_list')
                                 <li>
                                     <a href="{{ route('team.list') }}">Teams</a>
+                                </li>
+                            @endcan
+                            @can('fiverr_profile_list')
+                                <li>
+                                    <a href="{{ route('fiverr.profile.list') }}">Fiverr Profiles</a>
                                 </li>
                             @endcan
                         </ul>
@@ -238,9 +243,6 @@
                                     <a href="{{ route('daily.task.all') }}" class="{{ Route::is('daily.task.all') ? 'active' : '' }}">All Tasks</a>
                                 </li>
                             @endif
-                            <li>
-                                <a href="{{ route('daily.task.completed') }}" class="{{ Route::is('daily.task.completed') ? 'active' : '' }}">Completed Tasks</a>
-                            </li>
                         </ul>
                     </div>
                 </li>

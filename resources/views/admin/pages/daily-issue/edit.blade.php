@@ -10,11 +10,14 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-alert-line"></i> Edit Issue
                 </h5>
-                <p class="text-muted">Date: <strong>{{ $issue->issue_date->format('Y-m-d') }}</strong></p>
-
                 <form action="{{ route('daily.issue.update') }}" method="POST">
                     @csrf
                     <input type="hidden" name="id" value="{{ $issue->id }}">
+
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="text" class="form-control bg-light" value="{{ $issue->issue_date->format('d F Y') }}" readonly>
+                    </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -45,17 +48,24 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <select class="form-select @error('type') is-invalid @enderror" name="type">
-                            @foreach ($types as $type)
-                                <option value="{{ $type }}" {{ old('type', $issue->type) === $type ? 'selected' : '' }}>
-                                    {{ $type }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label d-block">Type</label>
+                        @foreach ($types as $type)
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="type" id="edit-type-{{ $type }}"
+                                    value="{{ $type }}" {{ old('type', $issue->type) === $type ? 'checked' : '' }}>
+                                <label class="form-check-label" for="edit-type-{{ $type }}">{{ $type }}</label>
+                            </div>
+                        @endforeach
                         @error('type')
-                            <div class="text-danger small">{{ $message }}</div>
+                            <div class="text-danger small d-block">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    @include('admin.pages.daily-issue.partials._category-field', [
+                        'categories' => $categories,
+                        'selected' => old('category', $issue->category),
+                        'fieldId' => 'editCategory',
+                    ])
 
                     @include('admin.pages.daily-issue.partials._responsible-checklist', [
                         'members' => $members,

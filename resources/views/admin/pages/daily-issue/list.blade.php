@@ -113,6 +113,12 @@
                                     <div class="d-flex flex-wrap gap-2 align-items-center">
                                         <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}">{{ $issue->type }}</span>
 
+                                        @if ($issue->category)
+                                            <span class="badge bg-dark-subtle text-dark border border-dark-subtle">
+                                                <i class="ri-price-tag-3-line me-1"></i>{{ $issue->category }}
+                                            </span>
+                                        @endif
+
                                         @if ($issue->responsibles->isNotEmpty())
                                             <span class="badge bg-info-subtle text-info border border-info-subtle">
                                                 <i class="ri-user-received-2-line me-1"></i>Assigned: {{ $issue->responsibles->pluck('name')->join(', ') }}

@@ -21,6 +21,7 @@ class UpdateIssueRequest extends FormRequest
             'profile_name' => ['required', 'string', 'max:255'],
             'issue' => ['required', 'string', 'max:2000'],
             'type' => ['required', 'in:Critical,Urgent,High,Normal'],
+            'category' => ['required', 'string', 'max:255'],
             'responsible_ids' => ['required', 'array', 'min:1'],
             'responsible_ids.*' => ['integer', 'exists:users,id'],
         ];
@@ -45,6 +46,7 @@ class UpdateIssueRequest extends FormRequest
             'profile_name.required' => 'Profile is required.',
             'issue.required' => 'Issue details are required.',
             'type.required' => 'Please select a type.',
+            'category.required' => 'Please select an issue category.',
             'responsible_ids.required' => 'Please select at least one responsible person.',
         ];
     }

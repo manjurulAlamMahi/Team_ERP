@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
+use App\Models\FiverrProfile;
 use App\Models\User;
 use App\Traits\AjaxResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ClientController extends Controller
 {
@@ -40,8 +42,9 @@ class ClientController extends Controller
         $this->leadUser();
 
         $countries = config('countries');
+        $profiles = FiverrProfile::where('status', 'active')->orderBy('name')->get();
 
-        return view('admin.pages.client.create', compact('countries'));
+        return view('admin.pages.client.create', compact('countries', 'profiles'));
     }
 
     public function store(StoreClientRequest $request)
@@ -52,7 +55,7 @@ class ClientController extends Controller
             'team_id' => $user->team_id,
             'created_by' => $user->id,
             'username' => $request->username,
-            'profile' => $request->profile,
+            'profile_id' => $request->profile_id,
             'client_name' => $request->client_name,
             'country' => $request->country,
             'sales_man_name' => $request->sales_man_name,
@@ -70,8 +73,9 @@ class ClientController extends Controller
         abort_unless($client->isEditableBy($user), 403);
 
         $countries = config('countries');
+        $profiles = FiverrProfile::where('status', 'active')->orderBy('name')->get();
 
-        return view('admin.pages.client.edit', compact('client', 'countries'));
+        return view('admin.pages.client.edit', compact('client', 'countries', 'profiles'));
     }
 
     public function update(UpdateClientRequest $request)
@@ -83,7 +87,7 @@ class ClientController extends Controller
 
         $client->update([
             'username' => $request->username,
-            'profile' => $request->profile,
+            'profile_id' => $request->profile_id,
             'client_name' => $request->client_name,
             'country' => $request->country,
             'sales_man_name' => $request->sales_man_name,
@@ -107,6 +111,10 @@ class ClientController extends Controller
             return $this->error([], 'You are not allowed to delete this client.', 403);
         }
 
+        if (!Hash::check($request->password, $user->password)) {
+            return $this->error([], 'Incorrect Password', 401);
+        }
+
         $client->delete();
 
         return $this->success([], 'Client deleted successfully', 200);
@@ -116,8 +124,8 @@ class ClientController extends Controller
     {
         $user = $this->currentTeamUser();
 
-        $clients = Client::forTeam($user->team_id)->orderBy('username')->get();
-        $profiles = Client::forTeam($user->team_id)->select('profile')->distinct()->orderBy('profile')->pluck('profile');
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
+        $profiles = FiverrProfile::where('status', 'active')->orderBy('name')->get();
 
         return view('admin.pages.client.list', compact('clients', 'profiles'));
     }
@@ -126,11 +134,12 @@ class ClientController extends Controller
     {
         $user = $this->currentTeamUser();
 
-        $clients = Client::forTeam($user->team_id)
+        $clients = Client::with('profile')
+            ->forTeam($user->team_id)
             ->whereHas('assignees', fn ($q) => $q->where('user_id', $user->id))
             ->orderBy('username')
             ->get();
-        $profiles = Client::forTeam($user->team_id)->select('profile')->distinct()->orderBy('profile')->pluck('profile');
+        $profiles = FiverrProfile::where('status', 'active')->orderBy('name')->get();
 
         return view('admin.pages.client.my-clients', compact('clients', 'profiles'));
     }

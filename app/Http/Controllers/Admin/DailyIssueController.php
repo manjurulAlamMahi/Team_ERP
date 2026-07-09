@@ -18,6 +18,22 @@ class DailyIssueController extends Controller
 {
     use AjaxResponse;
 
+    private const CATEGORIES = [
+        'Close Revision', 'Client Asking For Cancel', 'Send Extension', 'Delivery Approach',
+        'Delivered Project', 'Client Hyper', 'Client Asking For Update', 'Send Update',
+        'Check Profile', 'Need Reply', 'Check Telegram', 'Send Meeting Follow Up',
+        'Send Last Message Follow Up', 'Ask For Meeting', 'Other',
+    ];
+
+    private function responsibleMembers(int $teamId)
+    {
+        return User::where('team_id', $teamId)
+            ->where('is_request', false)
+            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['Leader', 'Co Leader', 'Stack Lead', 'Member', 'Probation']))
+            ->orderBy('name')
+            ->get();
+    }
+
     private function currentTeamUser(): User
     {
         /** @var User|null $user */
@@ -42,10 +58,11 @@ class DailyIssueController extends Controller
     {
         $user = $this->creatorUser();
 
-        $members = User::where('team_id', $user->team_id)->orderBy('name')->get();
+        $members = $this->responsibleMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
+        $categories = self::CATEGORIES;
 
-        return view('admin.pages.daily-issue.create', compact('members', 'types'));
+        return view('admin.pages.daily-issue.create', compact('members', 'types', 'categories'));
     }
 
     public function store(StoreIssueRequest $request)
@@ -60,6 +77,7 @@ class DailyIssueController extends Controller
             'profile_name' => $request->profile_name,
             'issue' => $request->issue,
             'type' => $request->type,
+            'category' => $request->category,
             'status' => 'pending',
         ]);
 
@@ -77,10 +95,11 @@ class DailyIssueController extends Controller
         $issue = DailyIssue::with('responsibles')->forTeam($user->team_id)->findOrFail($id);
         abort_unless($issue->isEditableBy($user), 403);
 
-        $members = User::where('team_id', $user->team_id)->orderBy('name')->get();
+        $members = $this->responsibleMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
+        $categories = self::CATEGORIES;
 
-        return view('admin.pages.daily-issue.edit', compact('issue', 'members', 'types'));
+        return view('admin.pages.daily-issue.edit', compact('issue', 'members', 'types', 'categories'));
     }
 
     public function update(UpdateIssueRequest $request)
@@ -95,6 +114,7 @@ class DailyIssueController extends Controller
             'profile_name' => $request->profile_name,
             'issue' => $request->issue,
             'type' => $request->type,
+            'category' => $request->category,
             'last_edited_by' => $user->id,
         ]);
 

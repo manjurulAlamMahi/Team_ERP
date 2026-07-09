@@ -3,6 +3,10 @@
 @section('title', 'Edit Client')
 @section('quickAccessicon', 'ri-team-line')
 
+@push('style')
+    <link href="{{ asset('admin') }}/assets/vendor/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+@endpush
+
 @section('content')
     <div class="row">
         <div class="col-lg-8 m-auto">
@@ -25,9 +29,15 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Fiverr Profile <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('profile') is-invalid @enderror"
-                                name="profile" value="{{ old('profile', $client->profile) }}">
-                            @error('profile')
+                            <select class="form-select select2-field @error('profile_id') is-invalid @enderror" name="profile_id">
+                                <option value="">Select Profile</option>
+                                @foreach ($profiles as $profile)
+                                    <option value="{{ $profile->id }}" {{ (string) old('profile_id', $client->profile_id) === (string) $profile->id ? 'selected' : '' }}>
+                                        {{ $profile->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('profile_id')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
                         </div>
@@ -44,7 +54,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Country</label>
-                            <select class="form-select @error('country') is-invalid @enderror" name="country">
+                            <select class="form-select select2-field @error('country') is-invalid @enderror" name="country">
                                 <option value="">Select Country</option>
                                 @foreach ($countries as $country)
                                     <option value="{{ $country }}"
@@ -89,3 +99,12 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+    <script src="{{ asset('admin') }}/assets/vendor/select2/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2-field').select2({ width: '100%' });
+        });
+    </script>
+@endpush

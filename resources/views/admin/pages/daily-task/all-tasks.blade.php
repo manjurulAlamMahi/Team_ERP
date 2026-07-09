@@ -35,8 +35,20 @@
                         </select>
                     </div>
                     <div class="col-sm-auto">
-                        <label class="form-label mb-1 fs-12 text-muted">Date</label>
-                        <input type="date" name="date" class="form-select form-select-sm" value="{{ request('date') }}">
+                        <label class="form-label mb-1 fs-12 text-muted">Status</label>
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending Tasks</option>
+                            <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed Tasks</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-auto">
+                        <label class="form-label mb-1 fs-12 text-muted">Start Date</label>
+                        <input type="date" name="start_date" class="form-select form-select-sm" value="{{ $startDate->format('Y-m-d') }}">
+                    </div>
+                    <div class="col-sm-auto">
+                        <label class="form-label mb-1 fs-12 text-muted">End Date</label>
+                        <input type="date" name="end_date" class="form-select form-select-sm" value="{{ $endDate->format('Y-m-d') }}">
                     </div>
                     <div class="col-sm-auto d-flex gap-1">
                         <button type="submit" class="btn btn-sm btn-primary">Filter</button>
@@ -154,6 +166,11 @@
                 </table>
             </div>
         </div>
+        @if ($tasks->hasPages())
+            <div class="card-footer">
+                {{ $tasks->onEachSide(1)->links() }}
+            </div>
+        @endif
     </div>
 
     {{-- Edit Modal --}}
@@ -175,10 +192,7 @@
                             <label class="form-label">Profile Name</label>
                             <input type="text" name="profile_name" id="editProfileName" class="form-control" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Plan Details</label>
-                            <textarea name="plan_details" id="editPlanDetails" class="form-control" rows="5" required></textarea>
-                        </div>
+                        @include('admin.pages.daily-task.partials._plan-details-field', ['fieldId' => 'editPlanDetails', 'autoInit' => false])
                         <div class="mb-3">
                             <label class="form-label">Expected Complete Date</label>
                             <input type="date" name="expected_complete_date" id="editExpectedDate" class="form-control">
@@ -222,6 +236,8 @@
 
 @push('script')
     <script>
+        const editPlanField = initPlanDetailsField('editPlanDetails', '#editTaskModal');
+
         // Own task checkbox
         $(document).on('change', '.own-task-checkbox', function () {
             const $cb  = $(this);
@@ -257,7 +273,7 @@
                         $('#editTaskId').val(t.id);
                         $('#editClientName').val(t.client_name);
                         $('#editProfileName').val(t.profile_name);
-                        $('#editPlanDetails').val(t.plan_details);
+                        setPlanDetailsValue(editPlanField, t.plan_details);
                         $('#editExpectedDate').val(t.expected_complete_date ? t.expected_complete_date.substr(0, 10) : '');
                         new bootstrap.Modal(document.getElementById('editTaskModal')).show();
                     }

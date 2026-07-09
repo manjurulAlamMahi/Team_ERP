@@ -26,7 +26,7 @@
                         <select id="profileFilter" class="form-select">
                             <option value="">All Profiles</option>
                             @foreach ($profiles as $profile)
-                                <option value="{{ $profile }}">{{ $profile }}</option>
+                                <option value="{{ $profile->name }}">{{ $profile->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -48,7 +48,7 @@
                         @foreach ($clients as $client)
                             <tr>
                                 <td>{{ $client->username }}</td>
-                                <td>{{ $client->profile }}</td>
+                                <td>{{ $client->profile->name ?? 'N/A' }}</td>
                                 <td>{{ $client->client_name ?? 'N/A' }}</td>
                                 <td>{{ $client->sales_man_name ?? 'N/A' }}</td>
                                 <td>{{ $client->sales_man_whatsapp ?? 'N/A' }}</td>

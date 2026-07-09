@@ -40,6 +40,10 @@ class PermissionsTableSeeder extends Seeder
             ['name' => 'client_message_type_create', 'guard_name' => 'web'],
             ['name' => 'client_message_type_edit', 'guard_name' => 'web'],
             ['name' => 'client_message_type_delete', 'guard_name' => 'web'],
+            ['name' => 'fiverr_profile_list', 'guard_name' => 'web'],
+            ['name' => 'fiverr_profile_create', 'guard_name' => 'web'],
+            ['name' => 'fiverr_profile_edit', 'guard_name' => 'web'],
+            ['name' => 'fiverr_profile_delete', 'guard_name' => 'web'],
         ];
 
         foreach ($permissions as $permission) {

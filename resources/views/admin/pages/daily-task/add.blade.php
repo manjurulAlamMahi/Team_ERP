@@ -41,13 +41,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Plan Details <span class="text-danger">*</span></label>
-                            <textarea name="plan_details" rows="5"
-                                class="form-control @error('plan_details') is-invalid @enderror"
-                                placeholder="Describe the task in detail...">{{ old('plan_details') }}</textarea>
-                            @error('plan_details')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
+                        @include('admin.pages.daily-task.partials._plan-details-field', ['fieldId' => 'addPlanDetails', 'selected' => old('plan_details')])
 
                         <div class="mb-4">
                             <label class="form-label fw-medium">Expected Complete Date <span class="text-muted">(optional)</span></label>

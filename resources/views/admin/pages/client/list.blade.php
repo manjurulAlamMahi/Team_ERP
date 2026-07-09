@@ -35,7 +35,7 @@
                         <select id="profileFilter" class="form-select">
                             <option value="">All Profiles</option>
                             @foreach ($profiles as $profile)
-                                <option value="{{ $profile }}">{{ $profile }}</option>
+                                <option value="{{ $profile->name }}">{{ $profile->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -60,7 +60,7 @@
                         @foreach ($clients as $client)
                             <tr id="client-row-{{ $client->id }}">
                                 <td>{{ $client->username }}</td>
-                                <td>{{ $client->profile }}</td>
+                                <td>{{ $client->profile->name ?? 'N/A' }}</td>
                                 <td>{{ $client->client_name ?? 'N/A' }}</td>
                                 <td>{{ $client->sales_man_name ?? 'N/A' }}</td>
                                 <td>{{ $client->sales_man_whatsapp ?? 'N/A' }}</td>
@@ -109,47 +109,68 @@
             table.column(1).search(value ? '^' + $.fn.dataTable.util.escapeRegex(value) + '$' : '', true, false).draw();
         });
 
-        function deleteClient(id) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Delete this client?',
+        async function deleteClient(id) {
+            const {
+                value: password
+            } = await Swal.fire({
+                icon: 'info',
+                title: "Are you sure you want to delete this client?",
+                input: "password",
+                inputLabel: "Enter your password",
+                inputPlaceholder: "Enter your password",
+                inputAttributes: {
+                    maxlength: "100",
+                    autocapitalize: "off",
+                    autocorrect: "off"
+                },
+                confirmButtonText: "Yes",
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it',
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('client.destroy') }}",
-                        type: 'POST',
-                        data: {
-                            id: id,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.status) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: response.message
-                                });
-                                setTimeout(function() {
-                                    location.reload();
-                                }, 1000);
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: response.message
-                                });
-                            }
-                        },
-                        error: function() {
+                cancelButtonText: "No"
+            });
+
+            if (password) {
+                let formData = new FormData();
+                formData.append('id', id);
+                formData.append('password', password);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                $.ajax({
+                    url: "{{ route('client.destroy') }}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.status) {
+                            Toast.fire({
+                                icon: 'success',
+                                title: response.message
+                            });
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 401) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: xhr.responseJSON?.message || 'Incorrect Password'
+                            });
+                        } else {
                             Toast.fire({
                                 icon: 'error',
                                 title: 'Something went wrong.'
                             });
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
         }
     </script>
 @endpush

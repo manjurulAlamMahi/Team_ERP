@@ -18,6 +18,7 @@ class DailyIssue extends Model
         'profile_name',
         'issue',
         'type',
+        'category',
         'status',
         'completed_by',
         'completed_at',

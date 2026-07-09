@@ -3,6 +3,11 @@
 @section('title', 'My Tasks')
 @section('quickAccessicon', 'ri-task-line')
 
+@php
+    $incompleteTasks = $tasks->where('status', 'pending')->values();
+    $completedTasks = $tasks->where('status', 'completed')->values();
+@endphp
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h5 class="mb-0">My Daily Tasks</h5>
@@ -15,76 +20,27 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width:40px"></th>
-                            <th>Date</th>
-                            <th>Client / Profile</th>
-                            <th>Task By</th>
-                            <th>Plan Details</th>
-                            <th>Remarks</th>
-                            <th>Expected Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($tasks as $task)
-                            <tr class="{{ $task->status === 'completed' ? 'table-success' : '' }}" id="task-row-{{ $task->id }}">
-                                <td class="text-center">
-                                    <input type="checkbox"
-                                        class="form-check-input task-checkbox"
-                                        data-id="{{ $task->id }}"
-                                        {{ $task->status === 'completed' ? 'checked' : '' }}>
-                                </td>
-                                <td class="text-nowrap">
-                                    <span class="badge {{ $task->task_date->isToday() ? 'bg-primary' : ($task->task_date->isYesterday() ? 'bg-secondary' : 'bg-light text-dark border') }}">
-                                        {{ $task->formatted_date }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="fw-medium">{{ $task->client_name }}</div>
-                                    <small class="text-muted">{{ $task->profile_name }}</small>
-                                </td>
-                                <td>
-                                    <span class="badge {{ $task->source === 'self' ? 'bg-info' : 'bg-warning text-dark' }}">
-                                        {{ $task->task_by_label }}
-                                    </span>
-                                </td>
-                                <td style="max-width:220px;">
-                                    <div class="text-truncate" style="max-width:220px;" title="{{ $task->plan_details }}">
-                                        {{ $task->plan_details }}
-                                    </div>
-                                </td>
-                                <td style="max-width:180px;">
-                                    @if ($task->remarks)
-                                        <div class="text-truncate" style="max-width:180px;" title="{{ $task->remarks }}">
-                                            {{ $task->remarks }}
-                                        </div>
-                                        @if ($task->remarksByUser)
-                                            <small class="text-muted">by {{ $task->remarksByUser->name }}</small>
-                                        @endif
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                                <td class="text-nowrap">
-                                    {{ $task->expected_complete_date ? $task->expected_complete_date->format('d M Y') : '—' }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
-                                    <i class="ri-inbox-line fs-2 d-block mb-1"></i>
-                                    No tasks yet. <a href="{{ route('daily.task.add') }}">Add your first task</a>.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <ul class="nav nav-tabs mb-3" id="myTasksTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="incomplete-tab" data-bs-toggle="tab" data-bs-target="#incomplete-pane"
+                type="button" role="tab" aria-controls="incomplete-pane" aria-selected="true">
+                Incomplete Tasks <span class="badge bg-primary ms-1" id="incomplete-count">{{ $incompleteTasks->count() }}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-pane"
+                type="button" role="tab" aria-controls="completed-pane" aria-selected="false">
+                Completed Tasks <span class="badge bg-success ms-1" id="completed-count">{{ $completedTasks->count() }}</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTasksTabContent">
+        <div class="tab-pane fade show active" id="incomplete-pane" role="tabpanel" aria-labelledby="incomplete-tab">
+            @include('admin.pages.daily-task.partials._my-tasks-table', ['tasks' => $incompleteTasks, 'emptyMessage' => 'No incomplete tasks. Add your first task.'])
+        </div>
+        <div class="tab-pane fade" id="completed-pane" role="tabpanel" aria-labelledby="completed-tab">
+            @include('admin.pages.daily-task.partials._my-tasks-table', ['tasks' => $completedTasks, 'emptyMessage' => 'No completed tasks yet.'])
         </div>
     </div>
 @endsection
@@ -94,7 +50,6 @@
         $(document).on('change', '.task-checkbox', function () {
             const $cb  = $(this);
             const id   = $cb.data('id');
-            const $row = $('#task-row-' + id);
 
             $.ajax({
                 url: "{{ route('daily.task.complete') }}",
@@ -103,9 +58,11 @@
                 success: function (res) {
                     if (res.status) {
                         const done = res.data.status === 'completed';
-                        $cb.prop('checked', done);
-                        $row.toggleClass('table-success', done);
                         Toast.fire({ icon: 'success', title: done ? 'Task marked as completed!' : 'Task reopened.' });
+                        setTimeout(function () {
+                            location.hash = done ? '#completed-pane' : '#incomplete-pane';
+                            location.reload();
+                        }, 600);
                     }
                 },
                 error: function () {
@@ -113,6 +70,12 @@
                     Toast.fire({ icon: 'error', title: 'Something went wrong.' });
                 }
             });
+        });
+
+        $(document).ready(function () {
+            if (location.hash === '#completed-pane') {
+                new bootstrap.Tab(document.getElementById('completed-tab')).show();
+            }
         });
     </script>
 @endpush

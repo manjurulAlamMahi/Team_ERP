@@ -10,11 +10,14 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-alert-line"></i> Create Issue
                 </h5>
-                <p class="text-muted">Date: <strong>{{ today()->format('Y-m-d') }}</strong> (automatically set, cannot be
-                    changed)</p>
-
                 <form action="{{ route('daily.issue.store') }}" method="POST">
                     @csrf
+
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="text" class="form-control bg-light" value="{{ today()->format('d F Y') }}" readonly>
+                    </div>
+
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Client Name</label>
@@ -44,18 +47,24 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <select class="form-select @error('type') is-invalid @enderror" name="type">
-                            <option value="">Select Type</option>
-                            @foreach ($types as $type)
-                                <option value="{{ $type }}" {{ old('type') === $type ? 'selected' : '' }}>{{ $type }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <label class="form-label d-block">Type</label>
+                        @foreach ($types as $type)
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="type" id="type-{{ $type }}"
+                                    value="{{ $type }}" {{ old('type', 'Normal') === $type ? 'checked' : '' }}>
+                                <label class="form-check-label" for="type-{{ $type }}">{{ $type }}</label>
+                            </div>
+                        @endforeach
                         @error('type')
-                            <div class="text-danger small">{{ $message }}</div>
+                            <div class="text-danger small d-block">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    @include('admin.pages.daily-issue.partials._category-field', [
+                        'categories' => $categories,
+                        'selected' => old('category'),
+                        'fieldId' => 'createCategory',
+                    ])
 
                     @include('admin.pages.daily-issue.partials._responsible-checklist', [
                         'members' => $members,

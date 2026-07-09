@@ -13,7 +13,7 @@ class Client extends Model
         'team_id',
         'created_by',
         'username',
-        'profile',
+        'profile_id',
         'client_name',
         'country',
         'sales_man_name',
@@ -28,6 +28,11 @@ class Client extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function profile()
+    {
+        return $this->belongsTo(FiverrProfile::class, 'profile_id');
     }
 
     public function assignees()

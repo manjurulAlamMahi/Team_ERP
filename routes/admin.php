@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DailyIssueController;
 use App\Http\Controllers\Admin\DailyReminderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\FiverrProfileController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\LeaderController;
 use App\Http\Controllers\Admin\RoleManagementController;
@@ -104,6 +105,16 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/client-message-type-delete', 'destroy')->name('client.message.type.destroy');
     });
 
+    Route::controller(FiverrProfileController::class)->group(function () {
+        Route::get('/fiverr-profile-list', 'list')->name('fiverr.profile.list');
+        Route::get('/create-fiverr-profile', 'create')->name('fiverr.profile.create');
+        Route::post('/store-fiverr-profile', 'store')->name('fiverr.profile.store');
+        Route::get('/fiverr-profile-edit/{id}', 'edit')->name('fiverr.profile.edit');
+        Route::post('/update-fiverr-profile', 'update')->name('fiverr.profile.update');
+        Route::get('/fiverr-profile-status', 'status')->name('fiverr.profile.status');
+        Route::post('/fiverr-profile-delete', 'destroy')->name('fiverr.profile.destroy');
+    });
+
     Route::controller(ClientMessageController::class)->group(function () {
         Route::get('/client-message/create', 'createForm')->name('client.message.create');
         Route::post('/client-message/store', 'store')->name('client.message.store');
@@ -175,7 +186,6 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/daily-task/store', 'store')->name('daily.task.store');
         Route::get('/daily-task/my-tasks', 'myTasks')->name('daily.task.my');
         Route::post('/daily-task/complete', 'complete')->name('daily.task.complete');
-        Route::get('/daily-task/completed', 'completedTasks')->name('daily.task.completed');
         // Leads only
         Route::get('/daily-task/assign', 'assignForm')->name('daily.task.assign');
         Route::post('/daily-task/assign/store', 'storeAssigned')->name('daily.task.assign.store');

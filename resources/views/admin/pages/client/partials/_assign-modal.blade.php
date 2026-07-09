@@ -21,6 +21,7 @@
     </div>
 </div>
 
+@push('script')
 <script>
     function openAssignModal(clientId) {
         document.getElementById('assignClientId').value = clientId;
@@ -97,3 +98,4 @@
         });
     });
 </script>
+@endpush

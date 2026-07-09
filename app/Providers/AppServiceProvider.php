@@ -9,6 +9,7 @@ use App\Models\SettingAdminSite;
 use App\Models\User;
 use App\Notifications\AdminNotification;
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
@@ -31,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         Gate::before(function ($user, $ability) {
             if ($user->is_admin) {
                 return true; // Allows Admin to bypass all permission checks
