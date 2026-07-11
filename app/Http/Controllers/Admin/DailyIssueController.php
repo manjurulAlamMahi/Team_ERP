@@ -62,7 +62,7 @@ class DailyIssueController extends Controller
         $members = $this->responsibleMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
         $categories = self::CATEGORIES;
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.daily-issue.create', compact('members', 'types', 'categories', 'clients'));
     }
@@ -103,7 +103,7 @@ class DailyIssueController extends Controller
         $members = $this->responsibleMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
         $categories = self::CATEGORIES;
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.daily-issue.edit', compact('issue', 'members', 'types', 'categories', 'clients'));
     }

@@ -56,7 +56,7 @@ class TodayPlanController extends Controller
     {
         $user = $this->submitterUser();
 
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.today-plan.create', compact('clients'));
     }
@@ -67,7 +67,6 @@ class TodayPlanController extends Controller
 
         $clientsById = Client::with('profile')
             ->forTeam($user->team_id)
-            ->assignedTo($user->id)
             ->get()
             ->keyBy('id');
 
@@ -100,7 +99,7 @@ class TodayPlanController extends Controller
         $task = TodayPlanTask::where('user_id', $user->id)->where('source', 'planned')->findOrFail($id);
         abort_unless($task->isEditableBy($user), 403);
 
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.today-plan.edit', ['task' => $task, 'clients' => $clients]);
     }
@@ -112,7 +111,7 @@ class TodayPlanController extends Controller
         $task = TodayPlanTask::where('user_id', $user->id)->where('source', 'planned')->findOrFail($request->id);
         abort_unless($task->isEditableBy($user), 403);
 
-        $client = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->findOrFail($request->client_id);
+        $client = Client::with('profile')->forTeam($user->team_id)->findOrFail($request->client_id);
 
         $task->update([
             'client_id' => $client->id,
@@ -155,7 +154,7 @@ class TodayPlanController extends Controller
         $leaderAssigned = $tasks->where('source', 'leader_assigned')->values();
         $personal = $tasks->where('source', 'personal')->values();
         $checklist = $tasks->where('status', 'approved')->values();
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.today-plan.my-plans', compact(
             'approvedPlanned', 'pendingPlanned', 'rejectedPlanned', 'leaderAssigned', 'personal', 'checklist', 'clients'
@@ -194,8 +193,7 @@ class TodayPlanController extends Controller
             'client_id' => [
                 'required',
                 'integer',
-                'exists:clients,id',
-                Rule::exists('client_assignments', 'client_id')->where('user_id', $user->id),
+                Rule::exists('clients', 'id')->where('team_id', $user->team_id),
             ],
             'details' => ['required', 'string', 'max:2000'],
         ]);
@@ -340,7 +338,7 @@ class TodayPlanController extends Controller
     {
         $team = $this->leaderTeam();
 
-        $client = Client::with('profile')->forTeam($team->id)->assignedTo($request->user_id)->findOrFail($request->client_id);
+        $client = Client::with('profile')->forTeam($team->id)->findOrFail($request->client_id);
 
         $task = TodayPlanTask::create([
             'team_id' => $team->id,
@@ -373,7 +371,7 @@ class TodayPlanController extends Controller
         $task = TodayPlanTask::where('source', 'leader_assigned')->forTeam($team->id)->findOrFail($id);
         abort_unless($task->isEditableBy($user), 403);
 
-        $clients = Client::with('profile')->forTeam($team->id)->assignedTo($task->user_id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($team->id)->orderBy('username')->get();
 
         return view('admin.pages.today-plan.edit', ['task' => $task, 'clients' => $clients]);
     }
@@ -386,7 +384,7 @@ class TodayPlanController extends Controller
         $task = TodayPlanTask::where('source', 'leader_assigned')->forTeam($team->id)->findOrFail($request->id);
         abort_unless($task->isEditableBy($user), 403);
 
-        $client = Client::with('profile')->forTeam($team->id)->assignedTo($task->user_id)->findOrFail($request->client_id);
+        $client = Client::with('profile')->forTeam($team->id)->findOrFail($request->client_id);
 
         $task->update([
             'client_id' => $client->id,
@@ -427,6 +425,8 @@ class TodayPlanController extends Controller
             ->orderBy('name')
             ->get();
 
+        $clients = Client::with('profile')->forTeam($team->id)->orderBy('username')->get();
+
         $tasksByUser = TodayPlanTask::forTeam($team->id)->forDate(today())->get()->groupBy('user_id');
 
         $summaries = $members->map(function (User $member) use ($tasksByUser) {
@@ -443,7 +443,7 @@ class TodayPlanController extends Controller
             ];
         });
 
-        return view('admin.pages.today-plan.dashboard', compact('team', 'members', 'summaries'));
+        return view('admin.pages.today-plan.dashboard', compact('team', 'members', 'clients', 'summaries'));
     }
 
     public function memberDetail($userId)

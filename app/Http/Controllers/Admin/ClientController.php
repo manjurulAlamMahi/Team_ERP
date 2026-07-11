@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Client\StoreClientsBulkRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
 use App\Models\FiverrProfile;
@@ -11,6 +12,7 @@ use App\Models\User;
 use App\Traits\AjaxResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class ClientController extends Controller
@@ -27,7 +29,7 @@ class ClientController extends Controller
     }
 
     /**
-     * Only Leader, Co Leader, Stack Lead may create, edit, delete or assign clients.
+     * Only Leader, Co Leader, Stack Lead may create, edit or delete clients.
      */
     private function leadUser(): User
     {
@@ -63,6 +65,36 @@ class ClientController extends Controller
         ]);
 
         return redirect()->route('client.list')->with('success', 'Client created successfully.');
+    }
+
+    public function bulkCreateForm()
+    {
+        $this->leadUser();
+
+        $profiles = FiverrProfile::where('status', 'active')->orderBy('name')->get();
+
+        return view('admin.pages.client.bulk-create', compact('profiles'));
+    }
+
+    public function storeBulk(StoreClientsBulkRequest $request)
+    {
+        $user = $this->leadUser();
+
+        DB::transaction(function () use ($request, $user) {
+            foreach ($request->input('clients') as $row) {
+                Client::create([
+                    'team_id' => $user->team_id,
+                    'created_by' => $user->id,
+                    'username' => trim($row['username']),
+                    'profile_id' => $row['profile_id'],
+                    'client_name' => $row['client_name'] ?? null,
+                ]);
+            }
+        });
+
+        $count = count($request->input('clients'));
+
+        return redirect()->route('client.list')->with('success', $count . ' client' . ($count === 1 ? '' : 's') . ' added successfully.');
     }
 
     public function edit($id)
@@ -130,82 +162,4 @@ class ClientController extends Controller
         return view('admin.pages.client.list', compact('clients', 'profiles'));
     }
 
-    public function myClients()
-    {
-        $user = $this->currentTeamUser();
-
-        $clients = Client::with('profile')
-            ->forTeam($user->team_id)
-            ->whereHas('assignees', fn ($q) => $q->where('user_id', $user->id))
-            ->orderBy('username')
-            ->get();
-        $profiles = FiverrProfile::where('status', 'active')->orderBy('name')->get();
-
-        return view('admin.pages.client.my-clients', compact('clients', 'profiles'));
-    }
-
-    public function assignedToMember($userId)
-    {
-        $user = $this->leadUser();
-
-        $member = User::where('team_id', $user->team_id)->findOrFail($userId);
-
-        $clients = Client::with('profile')
-            ->forTeam($user->team_id)
-            ->assignedTo($member->id)
-            ->orderBy('username')
-            ->get()
-            ->map(fn (Client $client) => [
-                'id' => $client->id,
-                'label' => ($client->client_name ?: $client->username) . ' - ' . ($client->profile->name ?? 'N/A'),
-                'profile' => $client->profile->name ?? '',
-            ]);
-
-        return $this->success($clients, 'ok', 200);
-    }
-
-    public function assignees($id)
-    {
-        $user = $this->leadUser();
-
-        $client = Client::forTeam($user->team_id)->with('assignees')->findOrFail($id);
-
-        $members = User::where('team_id', $user->team_id)->orderBy('name')->get(['id', 'name']);
-        $assignedIds = $client->assignees->pluck('id');
-
-        return $this->success([
-            'client_id' => $client->id,
-            'members' => $members,
-            'assigned_ids' => $assignedIds,
-        ], 'ok', 200);
-    }
-
-    public function storeAssign(Request $request)
-    {
-        $user = $this->leadUser();
-
-        $request->validate([
-            'client_id' => ['required', 'exists:clients,id'],
-            'assignee_ids' => ['array'],
-            'assignee_ids.*' => ['integer', 'exists:users,id'],
-        ]);
-
-        $client = Client::forTeam($user->team_id)->find($request->client_id);
-
-        if (!$client) {
-            return $this->error([], 'Client not found', 404);
-        }
-
-        $ids = $request->input('assignee_ids', []);
-
-        if (!empty($ids) && User::whereIn('id', $ids)->where('team_id', $user->team_id)->count() !== count($ids)) {
-            return $this->error([], 'All assignees must belong to your team.', 422);
-        }
-
-        $client->assignees()->sync(
-            collect($ids)->mapWithKeys(fn ($assigneeId) => [$assigneeId => ['assigned_by' => $user->id]])
-        );
-
-        return $this->success($client->load('assignees'), 'Client assignees updated successfully', 200);
-    }
 }

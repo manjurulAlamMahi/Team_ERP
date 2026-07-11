@@ -265,7 +265,7 @@
                     if (res.status) {
                         const t = res.data;
                         $('#editTaskId').val(t.id);
-                        setClientSelectOptions(editClientField, t.assignable_clients || [], 'No clients assigned to this member.');
+                        setClientSelectOptions(editClientField, t.assignable_clients || [], 'No clients found for your team.');
                         editClientField.select.val(t.client_id).trigger('change');
                         setPlanDetailsValue(editPlanField, t.plan_details);
                         $('#editExpectedDate').val(t.expected_complete_date ? t.expected_complete_date.substr(0, 10) : '');

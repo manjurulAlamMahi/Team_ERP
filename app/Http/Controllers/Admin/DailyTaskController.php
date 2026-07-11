@@ -42,7 +42,7 @@ class DailyTaskController extends Controller
     {
         $user = $this->teamUser();
 
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.daily-task.add', compact('clients'));
     }
@@ -52,7 +52,7 @@ class DailyTaskController extends Controller
         $user = $this->teamUser();
 
         $request->validate([
-            'client_id'              => ['required', 'integer', 'exists:clients,id', Rule::exists('client_assignments', 'client_id')->where('user_id', $user->id)],
+            'client_id'              => ['required', 'integer', Rule::exists('clients', 'id')->where('team_id', $user->team_id)],
             'plan_details'           => 'required|string',
             'expected_complete_date' => 'nullable|date|after_or_equal:today',
         ]);
@@ -121,8 +121,9 @@ class DailyTaskController extends Controller
 
         // Scope assignable members by role rules
         $members = $this->assignableMembers($actor, $team);
+        $clients = Client::with('profile')->forTeam($team->id)->orderBy('username')->get();
 
-        return view('admin.pages.daily-task.assign', compact('team', 'members'));
+        return view('admin.pages.daily-task.assign', compact('team', 'members', 'clients'));
     }
 
     public function storeAssigned(Request $request)
@@ -142,7 +143,7 @@ class DailyTaskController extends Controller
         $member = User::where('team_id', $team->id)->findOrFail($request->user_id);
         abort_unless($this->canAssign($actor, $member), 403);
 
-        $client = Client::with('profile')->forTeam($team->id)->assignedTo($member->id)->find($request->client_id);
+        $client = Client::with('profile')->forTeam($team->id)->find($request->client_id);
         abort_unless($client, 422);
 
         $source = match (true) {
@@ -234,7 +235,6 @@ class DailyTaskController extends Controller
 
         $clients = Client::with('profile')
             ->forTeam($actor->team_id)
-            ->assignedTo($task->user_id)
             ->orderBy('username')
             ->get()
             ->map(fn (Client $client) => [
@@ -261,7 +261,7 @@ class DailyTaskController extends Controller
             'expected_complete_date' => 'nullable|date',
         ]);
 
-        $client = Client::with('profile')->forTeam($actor->team_id)->assignedTo($task->user_id)->find($request->client_id);
+        $client = Client::with('profile')->forTeam($actor->team_id)->find($request->client_id);
         abort_unless($client, 422);
 
         $task->update([

@@ -91,14 +91,6 @@
                 </a>
             </li>
 
-            @if (Auth::user()->team_id)
-                <li class="side-nav-item">
-                    <a href="{{ route('client.my') }}" class="side-nav-link {{ Route::is('client.my') ? 'active' : '' }}">
-                        <i class="ri-team-line"></i>
-                        <span> My Clients </span>
-                    </a>
-                </li>
-            @endif
 
             {{-- Organization Control --}}
             @canany(['community_list', 'team_list', 'community_create', 'team_create', 'fiverr_profile_list', 'fiverr_profile_create'])
@@ -176,6 +168,9 @@
                             @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
                                 <li>
                                     <a href="{{ route('client.create') }}">Add New</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('client.bulk.create') }}">Add Multiple</a>
                                 </li>
                             @endif
                         </ul>

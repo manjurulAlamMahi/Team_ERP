@@ -39,9 +39,9 @@
                         </div>
 
                         @include('admin.partials._client-select-field', [
-                            'clients' => collect(),
+                            'clients' => $clients,
+                            'selected' => old('client_id'),
                             'fieldId' => 'assignTaskClient',
-                            'emptyMessage' => 'Select a team member first.',
                         ])
 
                         @include('admin.pages.daily-task.partials._plan-details-field', ['fieldId' => 'assignPlanDetails', 'selected' => old('plan_details')])
@@ -74,30 +74,3 @@
         </div>
     </div>
 @endsection
-
-@push('script')
-    <script>
-        $(document).on('change', '#assignMemberSelect', function () {
-            var userId = this.value;
-            var field = window.clientSelectFields['assignTaskClient'];
-
-            if (!userId) {
-                setClientSelectOptions(field, [], 'Select a team member first.');
-                return;
-            }
-
-            var url = "{{ route('client.assigned.to.member', ['userId' => '__ID__']) }}".replace('__ID__', userId);
-
-            $.ajax({
-                url: url,
-                type: 'GET',
-                success: function (response) {
-                    setClientSelectOptions(field, response.data || [], 'No clients assigned to this member.');
-                },
-                error: function () {
-                    setClientSelectOptions(field, [], 'Unable to load clients for this member.');
-                }
-            });
-        });
-    </script>
-@endpush

@@ -213,14 +213,12 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
     Route::controller(ClientController::class)->group(function () {
         Route::get('/client/create', 'createForm')->name('client.create');
         Route::post('/client/store', 'store')->name('client.store');
+        Route::get('/client/bulk-create', 'bulkCreateForm')->name('client.bulk.create');
+        Route::post('/client/bulk-store', 'storeBulk')->name('client.bulk.store');
         Route::get('/client/list', 'list')->name('client.list');
-        Route::get('/client/my-clients', 'myClients')->name('client.my');
         Route::get('/client/{id}/edit', 'edit')->name('client.edit');
         Route::post('/client/update', 'update')->name('client.update');
         Route::post('/client/destroy', 'destroy')->name('client.destroy');
-        Route::get('/client/{id}/assignees', 'assignees')->name('client.assignees');
-        Route::post('/client/assign/store', 'storeAssign')->name('client.assign.store');
-        Route::get('/client/assigned-to/{userId}', 'assignedToMember')->name('client.assigned.to.member');
     });
 
     Route::controller(CommunityController::class)->group(function () {

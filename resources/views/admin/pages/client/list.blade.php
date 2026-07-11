@@ -23,9 +23,14 @@
                         <i class="ri-team-line"></i> Client Lists
                     </h5>
                     @if ($isLead)
-                        <a href="{{ route('client.create') }}" class="btn btn-sm btn-success">
-                            <i class="ri-add-line me-1"></i> Add New
-                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('client.create') }}" class="btn btn-sm btn-success">
+                                <i class="ri-add-line me-1"></i> Add New
+                            </a>
+                            <a href="{{ route('client.bulk.create') }}" class="btn btn-sm btn-outline-success">
+                                <i class="ri-file-add-line me-1"></i> Add Multiple
+                            </a>
+                        </div>
                     @endif
                 </div>
 
@@ -67,10 +72,6 @@
                                 <td>{{ $client->country ?? 'N/A' }}</td>
                                 @if ($isLead)
                                     <td>
-                                        <a href="javascript:void(0);" onclick="openAssignModal({{ $client->id }})"
-                                            class="text-reset fs-16 px-1" title="Assign (Beta)">
-                                            <i class="ri-user-add-line"></i>
-                                        </a>
                                         <a href="{{ route('client.edit', $client->id) }}" class="text-reset fs-16 px-1"
                                             title="Edit"> <i class="ri-edit-line"></i></a>
                                         <a href="javascript:void(0);" onclick="deleteClient({{ $client->id }})"
@@ -85,10 +86,6 @@
             </div>
         </div>
     </div>
-
-    @if ($isLead)
-        @include('admin.pages.client.partials._assign-modal')
-    @endif
 @endsection
 
 @push('script')

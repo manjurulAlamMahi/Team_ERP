@@ -38,8 +38,8 @@ class UpdateIssueRequest extends FormRequest
             }
 
             $clientId = $this->input('client_id');
-            if ($clientId && $user && !Client::where('id', $clientId)->assignedTo($user->id)->exists()) {
-                $validator->errors()->add('client_id', 'You may only select a client assigned to you.');
+            if ($clientId && $user && !Client::where('id', $clientId)->where('team_id', $user->team_id)->exists()) {
+                $validator->errors()->add('client_id', 'You may only select a client from your team.');
             }
         });
     }

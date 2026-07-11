@@ -57,7 +57,7 @@ class ClientMessageController extends Controller
 
         $types = ClientMessageType::active()->orderBy('name')->get();
         $selectedType = $request->filled('type') ? ClientMessageType::active()->find($request->query('type')) : null;
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.client-message.create', compact('types', 'selectedType', 'clients'));
     }
@@ -130,7 +130,7 @@ class ClientMessageController extends Controller
         abort_unless($message->isEditableBy($user), 403);
 
         $types = ClientMessageType::active()->orderBy('name')->get();
-        $clients = Client::with('profile')->forTeam($user->team_id)->assignedTo($user->id)->orderBy('username')->get();
+        $clients = Client::with('profile')->forTeam($user->team_id)->orderBy('username')->get();
 
         return view('admin.pages.client-message.edit', ['clientMessage' => $message, 'types' => $types, 'clients' => $clients]);
     }
@@ -296,8 +296,7 @@ class ClientMessageController extends Controller
             'client_id' => [
                 'required',
                 'integer',
-                'exists:clients,id',
-                Rule::exists('client_assignments', 'client_id')->where('user_id', $user->id),
+                Rule::exists('clients', 'id')->where('team_id', $user->team_id),
             ],
             'last_message_type' => ['required', Rule::in(['none', 'image', 'multiple'])],
             'last_message_files' => ['nullable', 'array'],

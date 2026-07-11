@@ -18,9 +18,8 @@
                     </div>
 
                     @include('admin.partials._client-select-field', [
-                        'clients' => collect(),
+                        'clients' => $clients,
                         'fieldId' => 'assignPlanClient',
-                        'emptyMessage' => 'Select a team member first.',
                         'autoInit' => false,
                     ])
 

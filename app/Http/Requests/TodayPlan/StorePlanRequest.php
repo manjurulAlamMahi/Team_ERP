@@ -30,8 +30,8 @@ class StorePlanRequest extends FormRequest
 
             foreach ($items as $index => $item) {
                 $clientId = $item['client_id'] ?? null;
-                if ($clientId && $user && !Client::where('id', $clientId)->assignedTo($user->id)->exists()) {
-                    $validator->errors()->add("items.$index.client_id", 'You may only select a client assigned to you.');
+                if ($clientId && $user && !Client::where('id', $clientId)->where('team_id', $user->team_id)->exists()) {
+                    $validator->errors()->add("items.$index.client_id", 'You may only select a client from your team.');
                 }
             }
         });

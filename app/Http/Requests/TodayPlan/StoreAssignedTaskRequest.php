@@ -35,8 +35,8 @@ class StoreAssignedTaskRequest extends FormRequest
             }
 
             $clientId = $this->input('client_id');
-            if ($clientId && !Client::where('id', $clientId)->assignedTo($target->id)->exists()) {
-                $validator->errors()->add('client_id', 'Selected client is not assigned to this member.');
+            if ($clientId && !Client::where('id', $clientId)->where('team_id', $target->team_id)->exists()) {
+                $validator->errors()->add('client_id', 'Selected client does not belong to this member\'s team.');
             }
         });
     }

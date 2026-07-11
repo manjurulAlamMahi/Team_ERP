@@ -35,28 +35,9 @@ class Client extends Model
         return $this->belongsTo(FiverrProfile::class, 'profile_id');
     }
 
-    public function assignees()
-    {
-        return $this->belongsToMany(User::class, 'client_assignments')->withPivot('assigned_by')->withTimestamps();
-    }
-
     public function scopeForTeam($query, int $teamId)
     {
         return $query->where('team_id', $teamId);
-    }
-
-    public function scopeAssignedTo($query, int $userId)
-    {
-        return $query->whereHas('assignees', fn ($q) => $q->where('user_id', $userId));
-    }
-
-    public function isAssignedTo(User $user): bool
-    {
-        if ($this->relationLoaded('assignees')) {
-            return $this->assignees->contains('id', $user->id);
-        }
-
-        return $this->assignees()->where('user_id', $user->id)->exists();
     }
 
     /**

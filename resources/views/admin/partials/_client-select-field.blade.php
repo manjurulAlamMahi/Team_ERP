@@ -6,7 +6,7 @@
     $disabled = $disabled ?? false;
     $autoInit = $autoInit ?? true;
     $hasClients = $clients->isNotEmpty();
-    $emptyMessage = $emptyMessage ?? 'No clients assigned to you yet. Ask your Leader/Co-Leader to assign you a client first.';
+    $emptyMessage = $emptyMessage ?? 'No clients found for your team yet.';
 @endphp
 
 <div class="row mb-3">
@@ -76,7 +76,7 @@
                 $select.val(null).empty();
 
                 if (!clients.length) {
-                    $select.append(new Option(emptyMessage || 'No clients assigned to this member.', '', true, true));
+                    $select.append(new Option(emptyMessage || 'No clients found for your team.', '', true, true));
                     $select.prop('disabled', true);
                 } else {
                     $select.append(new Option('Select Client', '', true, true));
