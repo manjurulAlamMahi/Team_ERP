@@ -459,18 +459,8 @@
 $(document).ready(function() {
     let userID = "{{ Auth::id() }}";
     let storageKey = 'tasks_' + userID;
-    let resetDateKey = 'todoResetDate_' + userID;
-
-    function resetIfNewDay() {
-        let today = new Date().toISOString().slice(0, 10);
-        if (localStorage.getItem(resetDateKey) !== today) {
-            localStorage.setItem(storageKey, JSON.stringify([]));
-            localStorage.setItem(resetDateKey, today);
-        }
-    }
 
     function loadTasks() {
-        resetIfNewDay();
         let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
         let $list = $('#todo-list');
         $list.empty();

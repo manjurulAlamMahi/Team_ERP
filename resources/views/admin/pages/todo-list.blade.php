@@ -8,7 +8,10 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="header-title mb-0"><i class="ri-checkbox-multiple-line me-1"></i> My To Do List</h4>
-                <span id="todo-count" class="badge bg-primary">0</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span id="todo-count" class="badge bg-primary">0</span>
+                    <button type="button" id="todo-clear-all" class="btn btn-sm btn-outline-danger"><i class="ri-delete-bin-line me-1"></i> Clear All</button>
+                </div>
             </div>
             <div class="card-body">
                 <form id="todo-form-page" class="mb-3">
@@ -29,18 +32,8 @@
 (function() {
     var userID = "{{ Auth::id() }}";
     var storageKey = 'tasks_' + userID;
-    var resetDateKey = 'todoResetDate_' + userID;
-
-    function resetIfNewDay() {
-        var today = new Date().toISOString().slice(0, 10);
-        if (localStorage.getItem(resetDateKey) !== today) {
-            localStorage.setItem(storageKey, JSON.stringify([]));
-            localStorage.setItem(resetDateKey, today);
-        }
-    }
 
     function loadTasks() {
-        resetIfNewDay();
         var tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
         var list = document.getElementById('todo-list-page');
         var count = document.getElementById('todo-count');
@@ -89,6 +82,12 @@
             localStorage.setItem(storageKey, JSON.stringify(tasks));
             loadTasks();
         }
+    });
+
+    document.getElementById('todo-clear-all').addEventListener('click', function() {
+        if (!confirm('Clear all tasks? This cannot be undone.')) return;
+        localStorage.setItem(storageKey, JSON.stringify([]));
+        loadTasks();
     });
 
     loadTasks();

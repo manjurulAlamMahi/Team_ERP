@@ -22,13 +22,23 @@
                         @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Due Date</label>
-                        <input type="date" class="form-control @error('due_date') is-invalid @enderror"
-                            name="due_date" value="{{ old('due_date') }}">
-                        @error('due_date')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" class="form-control @error('due_date') is-invalid @enderror"
+                                name="due_date" value="{{ old('due_date') }}">
+                            @error('due_date')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Due Time</label>
+                            <input type="time" class="form-control @error('due_time') is-invalid @enderror"
+                                name="due_time" value="{{ old('due_time') }}">
+                            @error('due_time')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="text-end">

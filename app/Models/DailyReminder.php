@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,14 +16,31 @@ class DailyReminder extends Model
         'team_id',
         'details',
         'due_date',
+        'due_time',
         'source',
+        'reminder_1_day_email_sent_at',
+        'reminder_12_hour_email_sent_at',
+        'reminder_3_hour_email_sent_at',
+        'reminder_1_hour_email_sent_at',
     ];
 
     protected function casts(): array
     {
         return [
             'due_date' => 'date',
+            'reminder_1_day_email_sent_at' => 'datetime',
+            'reminder_12_hour_email_sent_at' => 'datetime',
+            'reminder_3_hour_email_sent_at' => 'datetime',
+            'reminder_1_hour_email_sent_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The exact moment this reminder is due, combining due_date and due_time.
+     */
+    public function dueAt(): Carbon
+    {
+        return Carbon::parse($this->due_date->format('Y-m-d') . ' ' . $this->due_time);
     }
 
     public function user()
@@ -56,10 +74,16 @@ class DailyReminder extends Model
     }
 
     /**
-     * Only the owner may check their own reminder as completed.
+     * Personal reminders may only be completed by their owner. Assigned
+     * reminders may only be completed by a current Leader/Co Leader of the
+     * team - the member it was assigned to can view it but not complete it.
      */
     public function isCompletableBy(User $user): bool
     {
+        if ($this->isAssigned()) {
+            return $user->team_id === $this->team_id && $user->hasAnyRole(['Leader', 'Co Leader']);
+        }
+
         return $this->user_id === $user->id;
     }
 

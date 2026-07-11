@@ -55,6 +55,7 @@ class DailyReminderController extends Controller
             'team_id' => $user->team_id,
             'details' => $request->details,
             'due_date' => $request->due_date,
+            'due_time' => $request->due_time,
             'source' => 'personal',
         ]);
 
@@ -65,7 +66,18 @@ class DailyReminderController extends Controller
     {
         $user = $this->currentUser();
 
-        $reminders = DailyReminder::forUser($user->id)->orderBy('due_date')->get();
+        $query = DailyReminder::forUser($user->id);
+
+        // Leader/Co Leader must also see (and be able to complete) reminders
+        // they or a fellow lead assigned to team members, since the member
+        // themself cannot mark those as completed.
+        if ($user->team_id && $user->hasAnyRole(['Leader', 'Co Leader'])) {
+            $query->orWhere(function ($q) use ($user) {
+                $q->where('team_id', $user->team_id)->where('source', 'assigned');
+            });
+        }
+
+        $reminders = $query->orderBy('due_date')->get();
 
         return view('admin.pages.daily-reminder.my-list', compact('reminders'));
     }
@@ -90,6 +102,11 @@ class DailyReminderController extends Controller
         $reminder->update([
             'details' => $request->details,
             'due_date' => $request->due_date,
+            'due_time' => $request->due_time,
+            'reminder_1_day_email_sent_at' => null,
+            'reminder_12_hour_email_sent_at' => null,
+            'reminder_3_hour_email_sent_at' => null,
+            'reminder_1_hour_email_sent_at' => null,
         ]);
 
         return redirect()->route('daily.reminder.my.list')->with('success', 'Reminder updated successfully.');
@@ -142,6 +159,7 @@ class DailyReminderController extends Controller
             'team_id' => $team->id,
             'details' => $request->details,
             'due_date' => $request->due_date,
+            'due_time' => $request->due_time,
             'source' => 'assigned',
         ]);
 
