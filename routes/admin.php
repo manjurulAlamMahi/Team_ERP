@@ -204,7 +204,6 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/daily-issue/update', 'update')->name('daily.issue.update');
         Route::post('/daily-issue/destroy', 'destroy')->name('daily.issue.destroy');
         Route::get('/daily-issue/list', 'list')->name('daily.issue.list');
-        Route::get('/daily-issue/completed', 'completedList')->name('daily.issue.completed');
         Route::post('/daily-issue/complete', 'markComplete')->name('daily.issue.complete');
         Route::post('/daily-issue/reverse', 'reverseComplete')->name('daily.issue.reverse');
         Route::post('/daily-issue/comment/store', 'storeComment')->name('daily.issue.comment.store');

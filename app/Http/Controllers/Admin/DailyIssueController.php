@@ -151,17 +151,46 @@ class DailyIssueController extends Controller
         return $this->success([], 'Issue deleted successfully', 200);
     }
 
-    public function list()
+    /**
+     * "All Issues" — filterable by status (pending/completed).
+     * Pending can be filtered by responsible person and type.
+     * Completed defaults to today and can be filtered by date.
+     */
+    public function list(Request $request)
     {
         $user = $this->currentTeamUser();
+        $status = $request->get('status') === 'completed' ? 'completed' : 'pending';
 
-        $issues = DailyIssue::with(['responsibles', 'creator', 'lastEditor'])
-            ->forTeam($user->team_id)
-            ->pending()
-            ->latest()
-            ->get();
+        $query = DailyIssue::with(['responsibles', 'creator', 'lastEditor', 'completer'])
+            ->forTeam($user->team_id);
 
-        return view('admin.pages.daily-issue.list', compact('issues'));
+        $date = null;
+
+        if ($status === 'completed') {
+            $date = $request->filled('date') ? Carbon::parse($request->date) : today();
+            $query->completed()->whereDate('completed_at', $date);
+            $query->latest('completed_at');
+        } else {
+            $query->pending();
+
+            if ($request->filled('responsible_id')) {
+                $query->whereHas('responsibles', fn ($q) => $q->where('user_id', $request->responsible_id));
+            }
+
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+
+            $query->latest();
+        }
+
+        $issues = $query->get();
+
+        $members = $this->responsibleMembers($user->team_id);
+        $types = ['Critical', 'Urgent', 'High', 'Normal'];
+        $date = $date ?? today();
+
+        return view('admin.pages.daily-issue.list', compact('issues', 'status', 'members', 'types', 'date'));
     }
 
     public function myIssues()
@@ -176,29 +205,6 @@ class DailyIssueController extends Controller
             ->get();
 
         return view('admin.pages.daily-issue.my-issues', compact('issues'));
-    }
-
-    public function completedList(Request $request)
-    {
-        $user   = $this->currentTeamUser();
-        $isLead = $user->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']);
-
-        $date = $request->filled('date') && $isLead
-            ? Carbon::parse($request->date)
-            : today();
-
-        $query = DailyIssue::with(['responsibles', 'creator', 'completer'])
-            ->forTeam($user->team_id)
-            ->completed()
-            ->whereDate('completed_at', $date);
-
-        if (!$isLead) {
-            $query->where('completed_by', $user->id);
-        }
-
-        $issues = $query->latest('completed_at')->get();
-
-        return view('admin.pages.daily-issue.completed', compact('issues', 'date', 'isLead'));
     }
 
     public function markComplete(Request $request)

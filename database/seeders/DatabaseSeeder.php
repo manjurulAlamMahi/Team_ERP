@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EventsTableSeeder::class);
         $this->call(QuickAccessMenusTableSeeder::class);
         $this->call(FiverrProfileSeeder::class);
+        $this->call(ClientMessageTypeSeeder::class);
 
     }
 }

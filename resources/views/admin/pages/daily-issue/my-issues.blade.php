@@ -52,12 +52,23 @@
             box-shadow: 0 0 0 3px rgba(25,135,84,.15);
         }
         .issue-checkbox:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .issue-serial {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+        }
     </style>
 @endpush
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h5 class="mb-0"><i class="ri-alert-line me-1"></i> My Open Issues</h5>
+        <h5 class="mb-0">
+            <i class="ri-alert-line me-1"></i> My Open Issues
+            <span class="badge bg-danger align-middle">{{ $issues->count() }}</span>
+        </h5>
     </div>
 
     @php $authUser = Auth::user(); @endphp
@@ -94,29 +105,34 @@
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 {{-- Left: content --}}
                                 <div class="flex-grow-1">
-                                    {{-- Issue text --}}
-                                    <div class="issue-title fw-semibold fs-15 mb-1">{{ $issue->issue }}</div>
+                                    {{-- Serial + Issue (formerly category) --}}
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="issue-serial d-inline-flex align-items-center justify-content-center bg-light text-muted border">
+                                            {{ $loop->iteration }}
+                                        </span>
+                                        <span class="issue-title fw-semibold fs-15">{{ $issue->category ?: 'Issue' }}</span>
+                                        <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}" title="Issue Type">{{ $issue->type }}</span>
+                                    </div>
 
-                                    {{-- Client / Profile --}}
+                                    {{-- Remarks (formerly the free-text "issue") --}}
+                                    @if ($issue->issue)
+                                        <div class="text-muted small mb-2">
+                                            <span class="fw-semibold text-body">Remarks:</span> {{ $issue->issue }}
+                                        </div>
+                                    @endif
+
+                                    {{-- Date / Client / Profile --}}
                                     <div class="d-flex flex-wrap gap-3 text-muted small mb-2">
+                                        <span><i class="ri-calendar-line me-1"></i>{{ $issue->issue_date->format('d M Y') }}</span>
                                         <span><i class="ri-user-3-line me-1"></i>{{ $issue->client_name }}</span>
                                         <span><i class="ri-profile-line me-1"></i>{{ $issue->profile_name }}</span>
-                                        <span><i class="ri-calendar-line me-1"></i>{{ $issue->issue_date->format('d M Y') }}</span>
                                     </div>
 
                                     {{-- Badges row --}}
                                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                                        <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}">{{ $issue->type }}</span>
-
-                                        @if ($issue->category)
-                                            <span class="badge bg-dark-subtle text-dark border border-dark-subtle">
-                                                <i class="ri-price-tag-3-line me-1"></i>{{ $issue->category }}
-                                            </span>
-                                        @endif
-
                                         @if ($issue->responsibles->isNotEmpty())
                                             <span class="badge bg-info-subtle text-info border border-info-subtle">
-                                                <i class="ri-user-received-2-line me-1"></i>Assigned: {{ $issue->responsibles->pluck('name')->join(', ') }}
+                                                <i class="ri-user-received-2-line me-1"></i>Responsible Person(s): {{ $issue->responsibles->pluck('name')->join(', ') }}
                                             </span>
                                         @endif
                                         <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">

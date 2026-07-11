@@ -25,7 +25,7 @@
                     ])
 
                     <div class="mb-3">
-                        <label class="form-label">Issue</label>
+                        <label class="form-label">Remarks</label>
                         <textarea class="form-control @error('issue') is-invalid @enderror" name="issue"
                             rows="4">{{ old('issue') }}</textarea>
                         @error('issue')
@@ -34,7 +34,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label d-block">Type</label>
+                        <label class="form-label d-block">Issue Type</label>
                         @foreach ($types as $type)
                             <div class="form-check form-check-inline">
                                 <input type="radio" class="form-check-input" name="type" id="type-{{ $type }}"

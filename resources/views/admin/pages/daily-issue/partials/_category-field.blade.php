@@ -5,9 +5,9 @@
 @endphp
 
 <div class="mb-3">
-    <label class="form-label">Issue Category <span class="text-danger">*</span></label>
+    <label class="form-label">Issue <span class="text-danger">*</span></label>
     <select id="{{ $fieldId }}Select" class="form-select category-select @error('category') is-invalid @enderror">
-        <option value="">Select Category</option>
+        <option value="">Select Issue</option>
         @foreach ($categories as $option)
             <option value="{{ $option }}" {{ ($isCustom && $option === 'Other') || $selected === $option ? 'selected' : '' }}>
                 {{ $option }}
@@ -16,7 +16,7 @@
     </select>
     <input type="text" id="{{ $fieldId }}Other"
         class="form-control mt-2 category-other {{ $isCustom ? '' : 'd-none' }}"
-        placeholder="Enter custom category" value="{{ $isCustom ? $selected : '' }}">
+        placeholder="Enter custom issue" value="{{ $isCustom ? $selected : '' }}">
     <input type="hidden" name="category" id="{{ $fieldId }}Hidden" value="{{ $selected }}">
     @error('category')
         <div class="text-danger small">{{ $message }}</div>

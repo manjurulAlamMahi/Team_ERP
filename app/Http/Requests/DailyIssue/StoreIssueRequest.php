@@ -47,9 +47,9 @@ class StoreIssueRequest extends FormRequest
     {
         return [
             'client_id.required' => 'Please select a client.',
-            'issue.required' => 'Issue details are required.',
-            'type.required' => 'Please select a type.',
-            'category.required' => 'Please select an issue category.',
+            'issue.required' => 'Remarks are required.',
+            'type.required' => 'Please select an issue type.',
+            'category.required' => 'Please select an issue.',
             'responsible_ids.required' => 'Please select at least one responsible person.',
         ];
     }

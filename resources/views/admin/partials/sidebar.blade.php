@@ -197,8 +197,20 @@
                                     <a href="{{ route('daily.issue.create') }}">Add Issue</a>
                                 </li>
                             @endif
+                            @php
+                                $myPendingDailyIssueCount = \Illuminate\Support\Facades\DB::table('daily_issue_responsibles')
+                                    ->join('daily_issues', 'daily_issues.id', '=', 'daily_issue_responsibles.daily_issue_id')
+                                    ->where('daily_issues.team_id', Auth::user()->team_id)
+                                    ->where('daily_issues.status', 'pending')
+                                    ->where('daily_issue_responsibles.user_id', Auth::id())
+                                    ->count();
+                            @endphp
                             <li>
-                                <a href="{{ route('daily.issue.my') }}">My Issues</a>
+                                <a href="{{ route('daily.issue.my') }}">My Issues
+                                    @if ($myPendingDailyIssueCount > 0)
+                                        <span class="badge bg-danger float-end">{{ $myPendingDailyIssueCount > 9 ? '9+' : $myPendingDailyIssueCount }}</span>
+                                    @endif
+                                </a>
                             </li>
                             @php
                                 $pendingDailyIssueCount = \App\Models\DailyIssue::where('team_id', Auth::user()->team_id)
@@ -211,9 +223,6 @@
                                         <span class="badge bg-danger float-end">{{ $pendingDailyIssueCount > 9 ? '9+' : $pendingDailyIssueCount }}</span>
                                     @endif
                                 </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('daily.issue.completed') }}">Completed Issues</a>
                             </li>
                         </ul>
                     </div>

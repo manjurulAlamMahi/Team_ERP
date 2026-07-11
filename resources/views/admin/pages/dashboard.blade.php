@@ -288,7 +288,7 @@
                             @endphp
                             <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded border-start border-3" style="border-color:{{ $ic }} !important;background:#fff8f8;">
                                 <div class="flex-grow-1 min-width-0">
-                                    <div class="fs-13 fw-medium" style="color:{{ $ic }}">{{ Str::limit($issue->issue, 45) }}</div>
+                                    <div class="fs-13 fw-medium" style="color:{{ $ic }}">{{ Str::limit($issue->category ?: $issue->issue, 45) }}</div>
                                     <div class="text-muted fs-11">{{ $issue->client_name }} · {{ $issue->profile_name }}</div>
                                 </div>
                             </div>
