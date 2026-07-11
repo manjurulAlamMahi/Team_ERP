@@ -239,7 +239,7 @@ class DailyTaskController extends Controller
             ->get()
             ->map(fn (Client $client) => [
                 'id' => $client->id,
-                'label' => ($client->client_name ?: $client->username) . ' - ' . ($client->profile->name ?? 'N/A'),
+                'label' => $client->username . ' - ' . ($client->profile->name ?? 'N/A'),
                 'profile' => $client->profile->name ?? '',
             ]);
 

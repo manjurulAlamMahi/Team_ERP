@@ -20,7 +20,7 @@
                 @php $profileName = $client->profile->name ?? 'N/A'; @endphp
                 <option value="{{ $client->id }}" data-profile="{{ $profileName }}"
                     {{ (string) $selected === (string) $client->id ? 'selected' : '' }}>
-                    {{ ($client->client_name ?: $client->username) . ' - ' . $profileName }}
+                    {{ $client->username . ' - ' . $profileName }}
                 </option>
             @endforeach
         </select>
