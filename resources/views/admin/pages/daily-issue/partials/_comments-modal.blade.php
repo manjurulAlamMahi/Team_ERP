@@ -74,6 +74,20 @@
         }).join('');
     }
 
+    function bumpCommentBadge(issueId) {
+        var $card = $('#issue-card-' + issueId);
+        $card.addClass('has-comments');
+
+        var $slot = $('#comment-badge-slot-' + issueId);
+        var current = parseInt($slot.find('.comment-badge').text().replace(/\D/g, ''), 10) || 0;
+        var newCount = current + 1;
+
+        $slot.html('<span class="badge comment-badge" role="button" onclick="openComments(' + issueId + ', true)" title="' +
+            newCount + ' comment' + (newCount > 1 ? 's' : '') + '"><i class="ri-chat-3-fill"></i> ' + newCount + '</span>');
+
+        $('#comment-menu-count-' + issueId).html('<span class="badge bg-warning text-dark ms-1">' + newCount + '</span>');
+    }
+
     $(document).on('submit', '#addCommentForm', function(e) {
         e.preventDefault();
         $.ajax({
@@ -83,7 +97,9 @@
             success: function(response) {
                 if (response.status) {
                     document.querySelector('#addCommentForm textarea').value = '';
-                    openComments(document.getElementById('commentIssueId').value, true);
+                    var issueId = document.getElementById('commentIssueId').value;
+                    bumpCommentBadge(issueId);
+                    openComments(issueId, true);
                 } else {
                     Toast.fire({
                         icon: 'error',

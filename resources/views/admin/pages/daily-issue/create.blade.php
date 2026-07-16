@@ -10,7 +10,7 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-alert-line"></i> Create Issue
                 </h5>
-                <form action="{{ route('daily.issue.store') }}" method="POST">
+                <form id="createIssueForm" action="{{ route('daily.issue.store') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
@@ -25,7 +25,7 @@
                     ])
 
                     <div class="mb-3">
-                        <label class="form-label">Remarks</label>
+                        <label class="form-label">Remarks <span class="text-muted small">(Optional)</span></label>
                         <textarea class="form-control @error('issue') is-invalid @enderror" name="issue"
                             rows="4">{{ old('issue') }}</textarea>
                         @error('issue')
@@ -68,3 +68,44 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+    <script>
+        $(document).on('submit', '#createIssueForm', function (e) {
+            e.preventDefault();
+            const $form = $(this);
+            const $btn = $form.find('button[type="submit"]');
+
+            $form.find('.is-invalid').removeClass('is-invalid');
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: $form.serialize(),
+                success: function (response) {
+                    if (response.status) {
+                        Toast.fire({ icon: 'success', title: response.message });
+                        setTimeout(function () {
+                            window.location.href = response.data.redirect;
+                        }, 800);
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.message });
+                        $btn.prop('disabled', false);
+                    }
+                },
+                error: function (xhr) {
+                    const errors = xhr.responseJSON && xhr.responseJSON.errors ? xhr.responseJSON.errors : {};
+                    Object.keys(errors).forEach(function (field) {
+                        $form.find('[name="' + field + '"]').addClass('is-invalid');
+                    });
+                    const message = Object.values(errors).length
+                        ? Object.values(errors).flat().join(' ')
+                        : 'Unable to create issue.';
+                    Toast.fire({ icon: 'error', title: message });
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+    </script>
+@endpush

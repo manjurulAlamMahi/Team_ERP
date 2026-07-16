@@ -35,6 +35,19 @@ class DailyIssueController extends Controller
             ->get();
     }
 
+    /**
+     * Only Leader/Co Leader/Stack Lead can create issues, so those are the only
+     * possible values for the "Assigned By" filter.
+     */
+    private function assignerMembers(int $teamId)
+    {
+        return User::where('team_id', $teamId)
+            ->where('is_request', false)
+            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['Leader', 'Co Leader', 'Stack Lead']))
+            ->orderBy('name')
+            ->get();
+    }
+
     private function currentTeamUser(): User
     {
         /** @var User|null $user */
@@ -80,7 +93,7 @@ class DailyIssueController extends Controller
             'client_id' => $client->id,
             'client_name' => $client->client_name ?: $client->username,
             'profile_name' => $client->profile->name ?? '',
-            'issue' => $request->issue,
+            'issue' => $request->issue ?: null,
             'type' => $request->type,
             'category' => $request->category,
             'status' => 'pending',
@@ -90,7 +103,7 @@ class DailyIssueController extends Controller
 
         $this->notifyResponsibles($issue, $user, User::whereIn('id', $request->responsible_ids)->get());
 
-        return redirect()->route('daily.issue.list')->with('success', 'Issue created successfully.');
+        return $this->success(['redirect' => route('daily.issue.list')], 'Issue created successfully.', 200);
     }
 
     public function edit($id)
@@ -152,59 +165,87 @@ class DailyIssueController extends Controller
     }
 
     /**
-     * "All Issues" — filterable by status (pending/completed).
-     * Pending can be filtered by responsible person and type.
-     * Completed defaults to today and can be filtered by date.
+     * Shared filter/sort logic for "All Issues" and "My Issues".
+     *
+     * Pending: never date-restricted (an issue from a week ago still shows),
+     * sorted Critical > Urgent > High > Normal. Filterable by who assigned it
+     * (created_by) and type, plus responsible person when $allowResponsibleFilter.
+     *
+     * Completed: defaults to "completed today" (by completed_at, not issue_date),
+     * filterable by date/assigned-by/type, plus responsible person when allowed.
      */
-    public function list(Request $request)
+    private function filteredIssues(Request $request, int $teamId, ?int $onlyResponsibleTo, bool $allowResponsibleFilter)
     {
-        $user = $this->currentTeamUser();
         $status = $request->get('status') === 'completed' ? 'completed' : 'pending';
 
         $query = DailyIssue::with(['responsibles', 'creator', 'lastEditor', 'completer'])
-            ->forTeam($user->team_id);
+            ->withCount('comments')
+            ->forTeam($teamId);
+
+        if ($onlyResponsibleTo) {
+            $query->whereHas('responsibles', fn ($q) => $q->where('user_id', $onlyResponsibleTo));
+        }
 
         $date = null;
 
         if ($status === 'completed') {
             $date = $request->filled('date') ? Carbon::parse($request->date) : today();
             $query->completed()->whereDate('completed_at', $date);
-            $query->latest('completed_at');
         } else {
             $query->pending();
-
-            if ($request->filled('responsible_id')) {
-                $query->whereHas('responsibles', fn ($q) => $q->where('user_id', $request->responsible_id));
-            }
-
-            if ($request->filled('type')) {
-                $query->where('type', $request->type);
-            }
-
-            $query->latest();
         }
 
-        $issues = $query->get();
+        if ($request->filled('created_by')) {
+            $query->where('created_by', $request->created_by);
+        }
 
-        $members = $this->responsibleMembers($user->team_id);
-        $types = ['Critical', 'Urgent', 'High', 'Normal'];
-        $date = $date ?? today();
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
 
-        return view('admin.pages.daily-issue.list', compact('issues', 'status', 'members', 'types', 'date'));
+        if ($allowResponsibleFilter && $request->filled('responsible_id')) {
+            $query->whereHas('responsibles', fn ($q) => $q->where('user_id', $request->responsible_id));
+        }
+
+        if ($status === 'completed') {
+            $query->latest('completed_at');
+        } else {
+            $query->orderByRaw("FIELD(type, 'Critical', 'Urgent', 'High', 'Normal')")->latest();
+        }
+
+        return [$query->get(), $status, $date ?? today()];
     }
 
-    public function myIssues()
+    /**
+     * "All Issues" — team-wide, filterable by status (pending/completed).
+     */
+    public function list(Request $request)
     {
         $user = $this->currentTeamUser();
 
-        $issues = DailyIssue::with(['responsibles', 'creator', 'lastEditor'])
-            ->forTeam($user->team_id)
-            ->pending()
-            ->whereHas('responsibles', fn ($q) => $q->where('user_id', $user->id))
-            ->latest()
-            ->get();
+        [$issues, $status, $date] = $this->filteredIssues($request, $user->team_id, null, true);
 
-        return view('admin.pages.daily-issue.my-issues', compact('issues'));
+        $members = $this->responsibleMembers($user->team_id);
+        $creators = $this->assignerMembers($user->team_id);
+        $types = ['Critical', 'Urgent', 'High', 'Normal'];
+
+        return view('admin.pages.daily-issue.list', compact('issues', 'status', 'members', 'creators', 'types', 'date'));
+    }
+
+    /**
+     * "My Issues" — issues where the current user is a responsible person,
+     * filterable by status (pending/completed).
+     */
+    public function myIssues(Request $request)
+    {
+        $user = $this->currentTeamUser();
+
+        [$issues, $status, $date] = $this->filteredIssues($request, $user->team_id, $user->id, false);
+
+        $creators = $this->assignerMembers($user->team_id);
+        $types = ['Critical', 'Urgent', 'High', 'Normal'];
+
+        return view('admin.pages.daily-issue.my-issues', compact('issues', 'status', 'creators', 'types', 'date'));
     }
 
     public function markComplete(Request $request)

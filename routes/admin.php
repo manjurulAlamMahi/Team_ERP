@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\DailyTaskController;
 use App\Http\Controllers\Admin\TodayPlanController;
+use App\Http\Controllers\Admin\TodoController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,16 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
 
         Route::post('/addQuickAccess', 'addQuickAccess')->name('add.quick.access');
         Route::get('/removeQuickAccess/{route}', 'removeQuickAccess')->name('remove.quick.access');
+    });
+
+    // "Fixed" todos: synced to the server so they show up on every device the user logs into.
+    Route::controller(TodoController::class)->group(function () {
+        Route::get('/todo-list/items', 'index')->name('todo.items');
+        Route::post('/todo-list/store', 'store')->name('todo.store');
+        Route::post('/todo-list/toggle', 'toggle')->name('todo.toggle');
+        Route::post('/todo-list/toggle-all', 'toggleAll')->name('todo.toggle.all');
+        Route::post('/todo-list/destroy', 'destroy')->name('todo.destroy');
+        Route::post('/todo-list/clear-all', 'clearAll')->name('todo.clear.all');
     });
 
     Route::controller(ChatController::class)->group(function () {

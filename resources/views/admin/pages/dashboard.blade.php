@@ -459,51 +459,100 @@
 $(document).ready(function() {
     let userID = "{{ Auth::id() }}";
     let storageKey = 'tasks_' + userID;
+    let fixedTasks = [];
+
+    function getLocalTasks() {
+        return JSON.parse(localStorage.getItem(storageKey)) || [];
+    }
+
+    function setLocalTasks(tasks) {
+        localStorage.setItem(storageKey, JSON.stringify(tasks));
+    }
+
+    function buildItem(text, completed, source, key, fixed) {
+        return '<li class="list-group-item border-0 ps-0 py-1 ' + (completed ? 'completed' : '') + '" data-source="' + source + '" data-key="' + key + '">'
+            + '<div class="form-check mb-0">'
+            + '<input type="checkbox" class="form-check-input todo-done" ' + (completed ? 'checked' : '') + '>'
+            + (fixed ? '<i class="ri-pushpin-2-fill text-primary fs-11 ms-1" title="Fixed - synced across your devices"></i>' : '')
+            + '<label class="form-check-label fs-13">' + (completed ? '<s>' + text + '</s>' : text) + '</label>'
+            + '<span style="cursor:pointer;" class="delete-btn text-danger float-end"><i class="ri-eraser-line"></i></span>'
+            + '</div></li>';
+    }
 
     function loadTasks() {
-        let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
         let $list = $('#todo-list');
         $list.empty();
-        tasks.forEach(function(task, index) {
-            let taskHTML = '<li class="list-group-item border-0 ps-0 py-1 ' + (task.completed ? 'completed' : '') + '" data-index="' + index + '">'
-                + '<div class="form-check mb-0">'
-                + '<input type="checkbox" class="form-check-input todo-done" ' + (task.completed ? 'checked' : '') + '>'
-                + '<label class="form-check-label fs-13">' + (task.completed ? '<s>' + task.text + '</s>' : task.text) + '</label>'
-                + '<span style="cursor:pointer;" class="delete-btn text-danger float-end"><i class="ri-eraser-line"></i></span>'
-                + '</div></li>';
-            $list.append(taskHTML);
+        fixedTasks.forEach(function(task) {
+            $list.append(buildItem(task.text, task.completed, 'server', task.id, true));
+        });
+        getLocalTasks().forEach(function(task, index) {
+            $list.append(buildItem(task.text, task.completed, 'local', index, false));
+        });
+    }
+
+    function fetchFixedTasks(callback) {
+        $.get("{{ route('todo.items') }}", function(res) {
+            fixedTasks = (res && res.data) ? res.data : [];
+        }).fail(function() {
+            fixedTasks = [];
+        }).always(function() {
+            if (callback) callback();
         });
     }
 
     $('#todo-form').submit(function(e) {
         e.preventDefault();
         let taskText = $('#todo-input-text').val().trim();
-        if (taskText) {
-            let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-            tasks.push({ text: taskText, completed: false });
-            localStorage.setItem(storageKey, JSON.stringify(tasks));
-            $('#todo-input-text').val('');
+        if (!taskText) return;
+        let tasks = getLocalTasks();
+        tasks.push({ text: taskText, completed: false });
+        setLocalTasks(tasks);
+        $('#todo-input-text').val('');
+        loadTasks();
+    });
+
+    $(document).on('click', '.todo-done', function() {
+        let $li = $(this).closest('li');
+        let source = $li.data('source');
+        let key = $li.data('key');
+
+        if (source === 'server') {
+            $.post("{{ route('todo.toggle') }}", { id: key, _token: '{{ csrf_token() }}' }, function(res) {
+                let task = fixedTasks.find(function(t) { return String(t.id) === String(key); });
+                if (task) task.completed = res.data.completed;
+                loadTasks();
+            }).fail(function() {
+                Toast.fire({ icon: 'error', title: 'Could not update task' });
+            });
+        } else {
+            let tasks = getLocalTasks();
+            tasks[key].completed = !tasks[key].completed;
+            setLocalTasks(tasks);
             loadTasks();
         }
     });
 
-    $(document).on('click', '.todo-done', function() {
-        let taskIndex = $(this).closest('li').data('index');
-        let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-        tasks[taskIndex].completed = !tasks[taskIndex].completed;
-        localStorage.setItem(storageKey, JSON.stringify(tasks));
-        loadTasks();
-    });
-
     $(document).on('click', '.delete-btn', function() {
-        let taskIndex = $(this).closest('li').data('index');
-        let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
-        tasks.splice(taskIndex, 1);
-        localStorage.setItem(storageKey, JSON.stringify(tasks));
-        loadTasks();
+        let $li = $(this).closest('li');
+        let source = $li.data('source');
+        let key = $li.data('key');
+
+        if (source === 'server') {
+            $.post("{{ route('todo.destroy') }}", { id: key, _token: '{{ csrf_token() }}' }, function() {
+                fixedTasks = fixedTasks.filter(function(t) { return String(t.id) !== String(key); });
+                loadTasks();
+            }).fail(function() {
+                Toast.fire({ icon: 'error', title: 'Could not delete task' });
+            });
+        } else {
+            let tasks = getLocalTasks();
+            tasks.splice(key, 1);
+            setLocalTasks(tasks);
+            loadTasks();
+        }
     });
 
-    loadTasks();
+    fetchFixedTasks(loadTasks);
 });
 </script>
 @endpush

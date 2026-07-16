@@ -18,7 +18,7 @@ class StoreIssueRequest extends FormRequest
     {
         return [
             'client_id' => ['required', 'integer', 'exists:clients,id'],
-            'issue' => ['required', 'string', 'max:2000'],
+            'issue' => ['nullable', 'string', 'max:2000'],
             'type' => ['required', 'in:Critical,Urgent,High,Normal'],
             'category' => ['required', 'string', 'max:255'],
             'responsible_ids' => ['required', 'array', 'min:1'],
@@ -47,7 +47,6 @@ class StoreIssueRequest extends FormRequest
     {
         return [
             'client_id.required' => 'Please select a client.',
-            'issue.required' => 'Remarks are required.',
             'type.required' => 'Please select an issue type.',
             'category.required' => 'Please select an issue.',
             'responsible_ids.required' => 'Please select at least one responsible person.',

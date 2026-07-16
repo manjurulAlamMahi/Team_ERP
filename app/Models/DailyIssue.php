@@ -127,10 +127,10 @@ class DailyIssue extends Model
     }
 
     /**
-     * Only assigned responsible persons may post progress comments.
+     * Any team member may post progress comments, not just those assigned.
      */
     public function canCommentBy(User $user): bool
     {
-        return $this->isResponsible($user);
+        return $user->team_id === $this->team_id;
     }
 }
