@@ -96,11 +96,11 @@
                                 <!-- Logo -->
                                 <div class="auth-brand text-center text-lg-start">
                                     <a href="index.html" class="logo-light">
-                                        <span><img src="{{ asset('admin') }}/assets/images/logo-dark.png" alt="dark logo"
+                                        <span><img src="{{ asset($admin->logo) }}" alt="logo"
                                                 height="24"></span>
                                     </a>
                                     <a href="index.html" class="logo-dark">
-                                        <span><img src="{{ asset('admin') }}/assets/images/logo.png" alt="logo"
+                                        <span><img src="{{ asset($admin->logo_dark) }}" alt="dark logo"
                                                 height="24"></span>
                                     </a>
                                 </div>

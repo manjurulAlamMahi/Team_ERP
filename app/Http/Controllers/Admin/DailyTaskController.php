@@ -187,14 +187,17 @@ class DailyTaskController extends Controller
         $actor = $this->leadUser();
         $team  = Team::findOrFail($actor->team_id);
 
-        // Default to "Today's Tasks" when no date range is specified.
+        $status = $request->get('status');
+
+        // Date range only narrows results when explicitly requested. It's shown
+        // in the form defaulted to today, but pending tasks stay date-unrestricted
+        // by default so a leader always sees outstanding work from prior days too.
+        $hasDateFilter = $request->filled('start_date') || $request->filled('end_date');
         $startDate = $request->filled('start_date') ? Carbon::parse($request->start_date) : today();
         $endDate   = $request->filled('end_date') ? Carbon::parse($request->end_date) : today();
 
         $query = DailyTask::with(['user.stack', 'creator', 'remarksByUser'])
             ->forTeam($team->id)
-            ->whereDate('task_date', '>=', $startDate)
-            ->whereDate('task_date', '<=', $endDate)
             ->orderByDesc('task_date')
             ->orderByDesc('created_at');
 
@@ -217,9 +220,33 @@ class DailyTaskController extends Controller
         if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+
+        // Pending tasks are shown regardless of task_date (an unfinished task from
+        // last week must still surface today); a task only becomes date-bound once
+        // it's completed, filtered by completed_at so "today" means "completed today".
+        $query->where(function ($q) use ($status, $hasDateFilter, $startDate, $endDate) {
+            if ($status === 'completed') {
+                $q->where('status', 'completed')
+                    ->whereDate('completed_at', '>=', $startDate)
+                    ->whereDate('completed_at', '<=', $endDate);
+            } elseif ($status === 'pending') {
+                $q->where('status', 'pending');
+                if ($hasDateFilter) {
+                    $q->whereDate('task_date', '>=', $startDate)->whereDate('task_date', '<=', $endDate);
+                }
+            } else {
+                $q->where(function ($pending) use ($hasDateFilter, $startDate, $endDate) {
+                    $pending->where('status', 'pending');
+                    if ($hasDateFilter) {
+                        $pending->whereDate('task_date', '>=', $startDate)->whereDate('task_date', '<=', $endDate);
+                    }
+                })->orWhere(function ($completed) use ($startDate, $endDate) {
+                    $completed->where('status', 'completed')
+                        ->whereDate('completed_at', '>=', $startDate)
+                        ->whereDate('completed_at', '<=', $endDate);
+                });
+            }
+        });
 
         $tasks   = $query->paginate(20)->withQueryString();
         $members = $this->assignableMembers($actor, $team);

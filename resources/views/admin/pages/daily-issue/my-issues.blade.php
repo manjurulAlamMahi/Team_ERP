@@ -162,7 +162,7 @@
                         success: function (response) {
                             if (response.status) {
                                 Toast.fire({ icon: 'success', title: response.message });
-                                setTimeout(() => location.reload(), 900);
+                                setTimeout(() => { window.location.href = "{{ route('daily.issue.my') }}"; }, 900);
                             } else {
                                 Toast.fire({ icon: 'error', title: response.message });
                             }
