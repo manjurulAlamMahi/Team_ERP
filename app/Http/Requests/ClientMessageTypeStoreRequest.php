@@ -21,6 +21,7 @@ class ClientMessageTypeStoreRequest extends FormRequest
             'format' => 'required|string',
             'restriction' => 'required|string',
             'mandatory' => 'required|string',
+            'alert_message' => 'nullable|string|max:1000',
             'status' => 'required|in:active,inactive',
         ];
     }

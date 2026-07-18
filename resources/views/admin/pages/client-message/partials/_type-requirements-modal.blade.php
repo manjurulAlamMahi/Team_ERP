@@ -1,24 +1,35 @@
 @php
+    $defaultAlertMessage = 'Please review the Format, Restriction and Mandatory requirements before submitting this message.';
     $typeSpecs = $types->keyBy('id')->map(fn ($t) => [
         'name' => $t->name,
+        'alertMessage' => $t->alert_message ?: $defaultAlertMessage,
         'format' => $t->format ?: '<span class="text-muted">No format guidance provided.</span>',
         'restriction' => $t->restriction ?: '<span class="text-muted">No restrictions provided.</span>',
         'mandatory' => $t->mandatory ?: '<span class="text-muted">Nothing mandatory specified.</span>',
     ]);
 @endphp
 
-<div id="typeRequirementsAlert" class="alert alert-info d-none align-items-center justify-content-between flex-wrap gap-2 mb-3">
-    <span><i class="ri-information-line me-1"></i> New requirements for this message type:</span>
-    <div class="d-flex gap-2">
-        <button type="button" class="btn btn-sm btn-soft-success" onclick="openTypeRequirementsModal('format')">
-            <i class="ri-shape-line me-1"></i> Format
-        </button>
-        <button type="button" class="btn btn-sm btn-soft-danger" onclick="openTypeRequirementsModal('restriction')">
-            <i class="ri-forbid-line me-1"></i> Restriction
-        </button>
-        <button type="button" class="btn btn-sm btn-soft-primary" onclick="openTypeRequirementsModal('mandatory')">
-            <i class="ri-checkbox-circle-line me-1"></i> Mandatory
-        </button>
+<div id="typeRequirementsAlert" class="alert alert-info d-none mb-3">
+    <div class="row align-items-center g-2">
+        <div class="col-md-6">
+            <i class="ri-information-line me-1"></i>
+            <span id="typeRequirementsAlertMessage"></span>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-sm btn-soft-success" onclick="openTypeRequirementsModal('format')">
+                <i class="ri-shape-line me-1"></i> Format
+            </button>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-sm btn-soft-danger" onclick="openTypeRequirementsModal('restriction')">
+                <i class="ri-forbid-line me-1"></i> Restriction
+            </button>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-sm btn-soft-primary" onclick="openTypeRequirementsModal('mandatory')">
+                <i class="ri-checkbox-circle-line me-1"></i> Mandatory
+            </button>
+        </div>
     </div>
 </div>
 
@@ -50,7 +61,10 @@
         const select = document.getElementById('typeSelect');
         const alertBox = document.getElementById('typeRequirementsAlert');
         if (!select || !alertBox) return;
-        alertBox.classList.toggle('d-none', !select.value);
+
+        const spec = select.value && window.TYPE_SPECS[select.value] ? window.TYPE_SPECS[select.value] : null;
+        alertBox.classList.toggle('d-none', !spec);
+        document.getElementById('typeRequirementsAlertMessage').textContent = spec ? spec.alertMessage : '';
     }
 
     function openTypeRequirementsModal(field) {

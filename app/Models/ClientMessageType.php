@@ -17,6 +17,7 @@ class ClientMessageType extends Model
         'format',
         'restriction',
         'mandatory',
+        'alert_message',
         'status',
     ];
 

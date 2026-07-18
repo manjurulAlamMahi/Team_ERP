@@ -7,8 +7,8 @@
     <div class="card-body">
         <h6 class="text-uppercase bg-light p-2 mb-3"><i class="ri-shield-check-line"></i> Message Sanitizer</h6>
         <p class="text-muted small mb-3">
-            Write your message on the left, then click <strong>Sanitize</strong> to strip Fiverr-restricted words
-            (contact info, payment terms, etc.) before submitting. Only the sanitized version on the right is sent for approval.
+            Write your message on the left — it's sanitized automatically as you type or paste, stripping
+            Fiverr-restricted words (contact info, payment terms, etc.). Only the sanitized version on the right is sent for approval.
         </p>
 
         <div class="row g-3">
@@ -32,15 +32,10 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2">
-            <div class="text-muted small">
-                <span id="sanitizerWordCount">0</span> Words &nbsp;|&nbsp;
-                <span id="sanitizerCharCount">0</span> Characters &nbsp;|&nbsp;
-                <span id="sanitizerFlaggedCount" class="fw-semibold text-danger">0</span> Flagged
-            </div>
-            <button type="button" id="sanitizeBtn" class="btn btn-soft-primary">
-                <i class="ri-magic-line"></i> Sanitize
-            </button>
+        <div class="text-muted small mt-2">
+            <span id="sanitizerWordCount">0</span> Words &nbsp;|&nbsp;
+            <span id="sanitizerCharCount">0</span> Characters &nbsp;|&nbsp;
+            <span id="sanitizerFlaggedCount" class="fw-semibold text-danger">0</span> Flagged
         </div>
     </div>
 </div>
@@ -69,12 +64,11 @@
         return result;
     }
 
-    document.getElementById('sanitizeBtn').addEventListener('click', runFiverrSanitize);
-
-    // Keep the stats bar live as the member types, without forcing a re-sanitize on every keystroke.
+    // Auto-sanitize as the member types or pastes - no button needed.
+    var sanitizeDebounceTimer = null;
     document.getElementById('their_message_raw').addEventListener('input', function () {
-        document.getElementById('sanitizerWordCount').textContent = window.countFiverrWords(this.value);
-        document.getElementById('sanitizerCharCount').textContent = window.countFiverrChars(this.value);
+        clearTimeout(sanitizeDebounceTimer);
+        sanitizeDebounceTimer = setTimeout(runFiverrSanitize, 150);
     });
 
     if (document.getElementById('their_message_raw').value) {

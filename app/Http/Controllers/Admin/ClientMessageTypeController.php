@@ -34,7 +34,7 @@ class ClientMessageTypeController extends Controller
 
     public function store(ClientMessageTypeStoreRequest $request)
     {
-        $data = $request->only(['name', 'short_description', 'format', 'restriction', 'mandatory', 'status']);
+        $data = $request->only(['name', 'short_description', 'format', 'restriction', 'mandatory', 'alert_message', 'status']);
 
         if ($request->hasFile('icon')) {
             $data['icon'] = $this->storeIcon($request->file('icon'));
@@ -57,7 +57,7 @@ class ClientMessageTypeController extends Controller
     public function update(ClientMessageTypeUpdateRequest $request)
     {
         $type = ClientMessageType::findOrFail($request->id);
-        $data = $request->only(['name', 'short_description', 'format', 'restriction', 'mandatory', 'status']);
+        $data = $request->only(['name', 'short_description', 'format', 'restriction', 'mandatory', 'alert_message', 'status']);
 
         if ($request->hasFile('icon')) {
             if ($type->icon && file_exists(public_path($type->icon))) {

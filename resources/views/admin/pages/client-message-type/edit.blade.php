@@ -86,6 +86,18 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label class="col-3 col-form-label">Alert Message</label>
+                        <div class="col-9">
+                            <textarea name="alert_message" class="form-control @error('alert_message') is-invalid @enderror" rows="2"
+                                placeholder="Short heads-up shown above the form once this type is selected (optional)" maxlength="1000">{{ old('alert_message', $type->alert_message) }}</textarea>
+                            <div class="form-text">Shown next to the Format/Restriction/Mandatory buttons on the member's submission form.</div>
+                            @error('alert_message')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <label class="col-3 col-form-label">Status</label>
                         <div class="col-9">
                             <input type="hidden" name="status" value="inactive">

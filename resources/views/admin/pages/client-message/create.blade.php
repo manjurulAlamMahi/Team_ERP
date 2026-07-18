@@ -8,13 +8,7 @@
         @csrf
 
         <div class="row">
-            <div class="col-12">
-                @include('admin.pages.client-message.partials._client-info-field', ['clients' => $clients])
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12">
+            <div class="col-lg-4">
                 <div class="card border mb-3">
                     <div class="card-body">
                         <h6 class="text-uppercase bg-light p-2 mb-3"><i class="ri-file-list-3-line"></i> Message Type</h6>
@@ -33,10 +27,13 @@
                         @enderror
                     </div>
                 </div>
-
-                @include('admin.pages.client-message.partials._type-requirements-modal', ['types' => $types])
+            </div>
+            <div class="col-lg-8">
+                @include('admin.pages.client-message.partials._client-info-field', ['clients' => $clients])
             </div>
         </div>
+
+        @include('admin.pages.client-message.partials._type-requirements-modal', ['types' => $types])
 
         <div id="messageFormSection" class="row" style="display: {{ old('client_message_type_id', $selectedType?->id) ? 'block' : 'none' }};">
             <div class="col-12">
