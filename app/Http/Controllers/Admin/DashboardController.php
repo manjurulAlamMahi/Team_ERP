@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\ClientMessage;
 use App\Models\DailyIssue;
 use App\Models\DailyReminder;
@@ -44,6 +45,7 @@ class DashboardController extends Controller
                 ->unique();
 
             $data['team'] = $team;
+            $data['activeAnnouncements'] = Announcement::where('team_id', $team->id)->active()->latest()->get();
             $data['totalMembers'] = $members->count();
             $data['stackBreakdown'] = $members->groupBy(fn ($m) => $m->stack->name ?? 'Unassigned')->map->count();
             $data['teamOverview'] = $members->map(function (User $member) use ($planRows, $issueUserIds) {

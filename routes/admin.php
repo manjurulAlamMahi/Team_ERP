@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ClientMessageController;
@@ -10,11 +11,13 @@ use App\Http\Controllers\Admin\DailyReminderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FiverrProfileController;
+use App\Http\Controllers\Admin\MemberLeaveController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\LeaderController;
 use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TeamController;
+use App\Http\Controllers\Admin\TeamSheetController;
 use App\Http\Controllers\Admin\DailyTaskController;
 use App\Http\Controllers\Admin\TodayPlanController;
 use App\Http\Controllers\Admin\TodoController;
@@ -219,6 +222,33 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/daily-issue/reverse', 'reverseComplete')->name('daily.issue.reverse');
         Route::post('/daily-issue/comment/store', 'storeComment')->name('daily.issue.comment.store');
         Route::get('/daily-issue/{id}/comments', 'comments')->name('daily.issue.comments');
+    });
+
+    Route::controller(TeamSheetController::class)->group(function () {
+        Route::get('/team-sheet/list', 'list')->name('team.sheet.list');
+        Route::get('/team-sheet/create', 'createForm')->name('team.sheet.create');
+        Route::post('/team-sheet/store', 'store')->name('team.sheet.store');
+        Route::get('/team-sheet/{id}/edit', 'edit')->name('team.sheet.edit');
+        Route::post('/team-sheet/update', 'update')->name('team.sheet.update');
+        Route::post('/team-sheet/destroy', 'destroy')->name('team.sheet.destroy');
+    });
+
+    Route::controller(AnnouncementController::class)->group(function () {
+        Route::get('/announcement/list', 'list')->name('announcement.list');
+        Route::get('/announcement/create', 'createForm')->name('announcement.create');
+        Route::post('/announcement/store', 'store')->name('announcement.store');
+        Route::get('/announcement/{id}/edit', 'edit')->name('announcement.edit');
+        Route::post('/announcement/update', 'update')->name('announcement.update');
+        Route::post('/announcement/destroy', 'destroy')->name('announcement.destroy');
+    });
+
+    Route::controller(MemberLeaveController::class)->group(function () {
+        Route::get('/member-leave/list', 'list')->name('member.leave.list');
+        Route::get('/member-leave/create', 'createForm')->name('member.leave.create');
+        Route::post('/member-leave/store', 'store')->name('member.leave.store');
+        Route::get('/member-leave/{id}/edit', 'edit')->name('member.leave.edit');
+        Route::post('/member-leave/update', 'update')->name('member.leave.update');
+        Route::post('/member-leave/destroy', 'destroy')->name('member.leave.destroy');
     });
 
     Route::controller(ClientController::class)->group(function () {

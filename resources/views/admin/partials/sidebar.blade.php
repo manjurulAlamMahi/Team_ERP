@@ -312,6 +312,39 @@
                         </ul>
                     </div>
                 </li>
+
+                {{-- 5. Team Updates --}}
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarTeamUpdates" aria-expanded="false" aria-controls="sidebarTeamUpdates"
+                        class="side-nav-link {{ Route::is('team.sheet.*') || Route::is('announcement.*') || Route::is('member.leave.*') ? 'active' : '' }}">
+                        <i class="ri-newspaper-line"></i>
+                        <span> Team Updates </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse {{ Route::is('team.sheet.*') || Route::is('announcement.*') || Route::is('member.leave.*') ? 'show' : '' }}" id="sidebarTeamUpdates">
+                        <ul class="side-nav-second-level">
+                            <li>
+                                <a href="{{ route('team.sheet.list') }}" class="{{ Route::is('team.sheet.list') ? 'active' : '' }}">Team Sheets</a>
+                            </li>
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
+                                <li>
+                                    <a href="{{ route('team.sheet.create') }}" class="{{ Route::is('team.sheet.create') ? 'active' : '' }}">Add Sheet</a>
+                                </li>
+                            @endif
+                            <li>
+                                <a href="{{ route('announcement.list') }}" class="{{ Route::is('announcement.list') ? 'active' : '' }}">Announcements</a>
+                            </li>
+                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
+                                <li>
+                                    <a href="{{ route('announcement.create') }}" class="{{ Route::is('announcement.create') ? 'active' : '' }}">New Announcement</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('member.leave.list') }}" class="{{ Route::is('member.leave.*') ? 'active' : '' }}">Leave Log</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
             @endif
 
             {{--

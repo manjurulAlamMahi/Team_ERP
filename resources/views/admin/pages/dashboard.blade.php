@@ -26,6 +26,16 @@
 </div>
 @endif
 
+@foreach (($activeAnnouncements ?? []) as $announcement)
+<div class="alert {{ $announcement->priorityAlertClass() }} d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <span>
+        <i class="ri-megaphone-line me-1"></i>
+        <strong>{{ $announcement->title }}</strong> &mdash; {{ $announcement->description }}
+    </span>
+    <span class="text-nowrap small fw-semibold">Ends {{ $announcement->ends_at->format('d M Y') }}</span>
+</div>
+@endforeach
+
 @if (isset($team))
 
 {{-- ── TEAM MEMBER DASHBOARD ──────────────────────────────── --}}
