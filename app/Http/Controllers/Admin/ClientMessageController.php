@@ -10,6 +10,7 @@ use App\Models\ClientMessageType;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\AdminNotification;
+use App\Services\FiverrSanitizer;
 use App\Traits\AjaxResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -84,7 +85,7 @@ class ClientMessageController extends Controller
             'client_name' => $client->client_name ?: $client->username,
             'profile_name' => $client->profile->name ?? '',
             'last_message_type' => $request->last_message_type,
-            'their_message' => $request->their_message,
+            'their_message' => FiverrSanitizer::sanitize($request->their_message),
             'status' => 'pending',
         ]);
 
@@ -157,7 +158,7 @@ class ClientMessageController extends Controller
             'client_name' => $client->client_name ?: $client->username,
             'profile_name' => $client->profile->name ?? '',
             'last_message_type' => $request->last_message_type,
-            'their_message' => $request->their_message,
+            'their_message' => FiverrSanitizer::sanitize($request->their_message),
         ]);
 
         if ($request->hasFile('last_message_files')) {

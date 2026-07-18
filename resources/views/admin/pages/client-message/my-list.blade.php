@@ -43,7 +43,15 @@
                                 <td>{{ $item->type->name ?? 'N/A' }}</td>
                                 <td>{{ $item->client_name }}</td>
                                 <td>{{ $item->created_at->format('Y-m-d H:i') }}</td>
-                                <td><span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }} rounded-pill text-uppercase">{{ $item->status }}</span></td>
+                                <td>
+                                    <span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }} rounded-pill text-uppercase">{{ $item->status }}</span>
+                                    @if ($item->status === 'rejected' && $item->rejection_reason)
+                                        <a href="javascript:void(0)" class="btn btn-sm btn-soft-danger reason-trigger ms-1" title="View Reason"
+                                            data-reason="{{ $item->rejection_reason }}">
+                                            <i class="ri-information-line"></i>
+                                        </a>
+                                    @endif
+                                </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
                                         <a href="{{ route('client.message.my.show', $item->id) }}" class="btn btn-sm btn-soft-primary" title="View">
@@ -67,6 +75,8 @@
             </div>
         </div>
     </div>
+
+    @include('admin.pages.client-message.partials._reason-modal')
 @endsection
 
 @push('script')

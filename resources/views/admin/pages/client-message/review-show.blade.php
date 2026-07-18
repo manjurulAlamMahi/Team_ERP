@@ -6,61 +6,50 @@
 @section('content')
 
 <script>
-const specContent = {
-    format: @json(strip_tags($clientMessage->type?->format ?? '')),
-    restriction: @json(strip_tags($clientMessage->type?->restriction ?? '')),
-    mandatory: @json(strip_tags($clientMessage->type?->mandatory ?? '')),
-    employeeMessage: @json(strip_tags($clientMessage->their_message ?? ''))
+const TYPE_REQUIREMENTS = {
+    format: @json($clientMessage->type?->format ?: '<span class="text-muted">No format guidance provided.</span>'),
+    restriction: @json($clientMessage->type?->restriction ?: '<span class="text-muted">No restrictions provided.</span>'),
+    mandatory: @json($clientMessage->type?->mandatory ?: '<span class="text-muted">Nothing mandatory specified.</span>'),
 };
 </script>
 
-{{-- Row 1: Message Type + Submitted By --}}
-<div class="row g-3 mb-3">
-    <div class="col-md-6">
-        <div class="card border mb-0 h-100">
-            <div class="card-body d-flex align-items-center gap-3">
-                @if ($clientMessage->type?->icon)
-                    <img src="{{ asset($clientMessage->type->icon) }}" alt="" style="height:48px;width:48px;object-fit:contain;">
-                @else
-                    <i class="ri-file-list-3-line fs-1 text-primary"></i>
-                @endif
-                <div>
-                    <div class="text-muted small text-uppercase fw-semibold mb-1">Message Type</div>
-                    <h5 class="mb-0">{{ $clientMessage->type->name ?? 'N/A' }}</h5>
-                    <span class="badge {{ $clientMessage->status === 'pending' ? 'bg-warning-subtle text-warning' : ($clientMessage->status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger') }} rounded-pill mt-1">
-                        {{ ucfirst($clientMessage->status) }}
-                    </span>
-                </div>
-            </div>
+@if ($clientMessage->status === 'rejected' && $clientMessage->rejection_reason)
+    <div class="alert alert-danger d-flex align-items-start mb-3">
+        <i class="ri-error-warning-line fs-3 me-2"></i>
+        <div>
+            <strong class="d-block">You rejected this message</strong>
+            {{ $clientMessage->rejection_reason }}
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card border mb-0 h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase fw-semibold mb-2"><i class="ri-user-line me-1"></i> Submitted By</div>
-                <div class="row g-2">
-                    <div class="col-4">
-                        <div class="text-muted fs-11">Name</div>
-                        <div class="fw-medium fs-13">{{ $clientMessage->submitter->name ?? 'N/A' }}</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="text-muted fs-11">Employee ID</div>
-                        <div class="fw-medium fs-13">{{ $clientMessage->submitter->employee_id ?? 'N/A' }}</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="text-muted fs-11">Stack</div>
-                        <div class="fw-medium fs-13">{{ $clientMessage->submitter->stack->name ?? 'N/A' }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@endif
 
-{{-- Row 2: Client Info + 3 Check Buttons (col-4) | Employee Message + Attachments + Actions (col-8) --}}
-<div class="row g-3 mb-3">
-    {{-- Col-4: Client info + check buttons --}}
-    <div class="col-lg-4">
+<div class="row g-3">
+    {{-- Col-3: Message Type, Client Info, Client's Last Message, Attachment --}}
+    <div class="col-lg-3">
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    @if ($clientMessage->type?->icon)
+                        <img src="{{ asset($clientMessage->type->icon) }}" alt="" style="height:36px;width:36px;object-fit:contain;">
+                    @else
+                        <i class="ri-file-list-3-line fs-1 text-primary"></i>
+                    @endif
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold">Message Type</div>
+                        <div class="fw-medium">{{ $clientMessage->type->name ?? 'N/A' }}</div>
+                    </div>
+                </div>
+                <span class="badge {{ $clientMessage->status === 'pending' ? 'bg-warning-subtle text-warning' : ($clientMessage->status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger') }} rounded-pill mb-2">
+                    {{ ucfirst($clientMessage->status) }}
+                </span>
+                <div class="text-muted fs-12">
+                    Submitted by <strong>{{ $clientMessage->submitter->name ?? 'N/A' }}</strong>
+                    ({{ $clientMessage->submitter->employee_id ?? 'N/A' }})
+                    {{ $clientMessage->created_at->diffForHumans() }}
+                </div>
+            </div>
+        </div>
+
         <div class="card border mb-3">
             <div class="card-body">
                 <div class="text-muted small text-uppercase fw-semibold mb-2"><i class="ri-user-search-line me-1"></i> Client Info</div>
@@ -68,71 +57,73 @@ const specContent = {
                     <div class="text-muted fs-11">Client Name</div>
                     <div class="fw-medium">{{ $clientMessage->client_name }}</div>
                 </div>
-                <div class="mb-2">
+                <div>
                     <div class="text-muted fs-11">Profile Name</div>
                     <div class="fw-medium">{{ $clientMessage->profile_name }}</div>
-                </div>
-                <div>
-                    <div class="text-muted fs-11 mb-1">Client's Last Message
-                        <span class="badge bg-light text-dark border ms-1">{{ ucfirst($clientMessage->last_message_type ?? 'none') }}</span>
-                    </div>
-                    @php $lastFiles = $clientMessage->attachments->where('type', 'last_message'); @endphp
-                    @forelse ($lastFiles as $file)
-                        <a href="javascript:void(0)" class="preview-trigger d-inline-block me-2 mb-1"
-                            data-url="{{ asset($file->path) }}" data-name="{{ $file->original_name }}">
-                            <img src="{{ asset($file->path) }}" alt="{{ $file->original_name }}" class="rounded border" style="max-height:90px;">
-                        </a>
-                    @empty
-                        <span class="text-muted fs-12">No screenshot attached.</span>
-                    @endforelse
                 </div>
             </div>
         </div>
 
-        {{-- Check buttons --}}
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-2">
+                    <i class="ri-image-2-line me-1"></i> Client's Last Message
+                    <span class="badge bg-light text-dark border ms-1">{{ ucfirst($clientMessage->last_message_type ?? 'none') }}</span>
+                </div>
+                @php $lastFiles = $clientMessage->attachments->where('type', 'last_message'); @endphp
+                @forelse ($lastFiles as $file)
+                    <a href="javascript:void(0)" class="preview-trigger d-inline-block me-2 mb-1"
+                        data-url="{{ asset($file->path) }}" data-name="{{ $file->original_name }}">
+                        <img src="{{ asset($file->path) }}" alt="{{ $file->original_name }}" class="rounded border" style="max-height:90px;">
+                    </a>
+                @empty
+                    <span class="text-muted fs-12">No screenshot attached.</span>
+                @endforelse
+            </div>
+        </div>
+
         <div class="card border mb-0">
             <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-2"><i class="ri-attachment-2 me-1"></i> Attachment</div>
+                @php $outgoingFiles = $clientMessage->attachments->where('type', 'attachment'); @endphp
+                @forelse ($outgoingFiles as $file)
+                    <a href="javascript:void(0)" class="preview-trigger d-block fs-13"
+                        data-url="{{ asset($file->path) }}" data-name="{{ $file->original_name }}">
+                        <i class="ri-file-line me-1"></i> {{ $file->original_name }}
+                    </a>
+                @empty
+                    <span class="text-muted fs-12">No attachment.</span>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    {{-- Col-9: Employee message + Check Requirements + Approve/Reject --}}
+    <div class="col-lg-9">
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-2"><i class="ri-message-3-line me-1"></i> Employee Message</div>
+                <div class="p-3 bg-light-subtle border-start border-primary border-4 rounded fs-5" style="white-space:pre-wrap;">{{ $clientMessage->their_message }}</div>
+            </div>
+        </div>
+
+        <div class="card border mb-3">
+            <div class="card-body">
                 <div class="text-muted small text-uppercase fw-semibold mb-2"><i class="ri-shield-check-line me-1"></i> Check Requirements</div>
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-success btn-sm" onclick="openCheckModal('format')">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-soft-success btn-sm" onclick="openCheckModal('format')">
                         <i class="ri-shape-line me-1"></i> Check Format
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="openCheckModal('restriction')">
+                    <button type="button" class="btn btn-soft-danger btn-sm" onclick="openCheckModal('restriction')">
                         <i class="ri-forbid-line me-1"></i> Check Restriction
                     </button>
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="openCheckModal('mandatory')">
+                    <button type="button" class="btn btn-soft-primary btn-sm" onclick="openCheckModal('mandatory')">
                         <i class="ri-checkbox-circle-line me-1"></i> Check Mandatory
                     </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Col-8: Employee message + attachments + approve/reject --}}
-    <div class="col-lg-8">
-        <div class="card border mb-3">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase fw-semibold mb-2"><i class="ri-message-3-line me-1"></i> Employee Message</div>
-                <div class="p-3 bg-light-subtle border-start border-primary border-4 rounded mb-3 fs-5" style="white-space:pre-wrap;">
-                    {!! $clientMessage->their_message !!}
-                </div>
-
-                @php $outgoingFiles = $clientMessage->attachments->where('type', 'attachment'); @endphp
-                @if ($outgoingFiles->isNotEmpty())
-                    <div class="text-muted fs-12 text-uppercase fw-semibold mb-1">Attachments</div>
-                    @foreach ($outgoingFiles as $file)
-                        <a href="javascript:void(0)" class="preview-trigger d-block fs-13"
-                            data-url="{{ asset($file->path) }}" data-name="{{ $file->original_name }}">
-                            <i class="ri-file-line me-1"></i> {{ $file->original_name }}
-                        </a>
-                    @endforeach
-                @else
-                    <div class="text-muted fs-12">No attachment.</div>
-                @endif
-            </div>
-        </div>
-
-        {{-- Approve / Reject buttons --}}
         @if ($clientMessage->status === 'pending')
             <div class="card border mb-0">
                 <div class="card-body d-flex gap-2">
@@ -148,7 +139,7 @@ const specContent = {
     </div>
 </div>
 
-<div class="mt-2">
+<div class="mt-3">
     <a href="{{ route('client.message.review.list') }}" class="btn btn-light">
         <i class="ri-arrow-left-line"></i> Back to Pending Review
     </a>
@@ -156,26 +147,13 @@ const specContent = {
 
 {{-- Check Modal --}}
 <div class="modal fade" id="checkModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header" id="checkModalHeader">
                 <h5 class="modal-title" id="checkModalTitle"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
-                <div class="row g-0" style="min-height:340px;">
-                    <div class="col-md-5 border-end p-4 bg-light-subtle">
-                        <h6 class="text-uppercase text-muted fw-bold mb-3 fs-12" id="checkModalSpecLabel"></h6>
-                        <div id="checkModalSpecContent" class="fs-14" style="white-space:pre-wrap;"></div>
-                    </div>
-                    <div class="col-md-7 p-4">
-                        <h6 class="text-uppercase text-muted fw-bold mb-3 fs-12">
-                            <i class="ri-message-3-line me-1"></i> Employee's Message
-                        </h6>
-                        <div class="p-3 border rounded bg-white fs-14" style="white-space:pre-wrap;max-height:340px;overflow-y:auto;" id="checkModalMessage"></div>
-                    </div>
-                </div>
-            </div>
+            <div class="modal-body fs-14" id="checkModalContent"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
             </div>
@@ -208,7 +186,7 @@ const specContent = {
                                 </div>
                                 <div class="mb-3">
                                     <div class="text-muted small mb-1">Message</div>
-                                    <div class="p-3 border rounded bg-white fs-14" style="white-space:pre-wrap;max-height:260px;overflow-y:auto;">{{ strip_tags($clientMessage->their_message) }}</div>
+                                    <div class="p-3 border rounded bg-white fs-14" style="white-space:pre-wrap;max-height:260px;overflow-y:auto;">{{ $clientMessage->their_message }}</div>
                                 </div>
                                 @php $lastFiles = $clientMessage->attachments->where('type', 'last_message'); @endphp
                                 @if ($lastFiles->isNotEmpty())
@@ -234,13 +212,13 @@ const specContent = {
                                 </h6>
                                 <p class="text-muted small mb-3">
                                     Explain clearly what the member needs to fix before resubmitting.
-                                    This message will be sent as a notification to the member.
+                                    This message will be sent as a notification to the member and shown on their message list.
                                 </p>
                                 <div class="mb-3">
                                     <label class="form-label fw-medium">Reason <span class="text-danger">*</span></label>
                                     <textarea name="reason" class="form-control" rows="9"
                                         placeholder="e.g. The message format is incorrect. Please follow the required structure and resubmit."
-                                        required></textarea>
+                                        required maxlength="1000"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -266,11 +244,6 @@ const specContent = {
                 restriction: 'Restriction Requirements',
                 mandatory: 'Mandatory Requirements'
             };
-            var labels = {
-                format: 'Format — How this message should be written',
-                restriction: 'Restriction — Things that must NOT be included',
-                mandatory: 'Mandatory — Must be present before approval'
-            };
             var headerClasses = {
                 format: 'bg-success text-white',
                 restriction: 'bg-danger text-white',
@@ -278,9 +251,7 @@ const specContent = {
             };
 
             document.getElementById('checkModalTitle').textContent = titles[type] || type;
-            document.getElementById('checkModalSpecLabel').textContent = labels[type] || type;
-            document.getElementById('checkModalSpecContent').textContent = specContent[type] || 'No information provided.';
-            document.getElementById('checkModalMessage').textContent = specContent.employeeMessage || '';
+            document.getElementById('checkModalContent').innerHTML = TYPE_REQUIREMENTS[type] || 'No information provided.';
 
             var header = document.getElementById('checkModalHeader');
             header.className = 'modal-header ' + (headerClasses[type] || '');

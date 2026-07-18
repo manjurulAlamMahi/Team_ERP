@@ -4,54 +4,56 @@
 @section('quickAccessicon', 'ri-customer-service-2-line')
 
 @section('content')
-    <h5 class="mb-3 text-uppercase bg-light p-2">
-        <i class="ri-customer-service-2-line"></i> Select Message Type
-    </h5>
-
-    @include('admin.pages.client-message.partials._type-cards', [
-        'types' => $types,
-        'selectedTypeId' => old('client_message_type_id', $clientMessage->client_message_type_id),
-    ])
-
     <form action="{{ route('client.message.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="id" value="{{ $clientMessage->id }}">
-        <input type="hidden" id="typeSelect" name="client_message_type_id"
-            value="{{ old('client_message_type_id', $clientMessage->client_message_type_id) }}">
-        @error('client_message_type_id')
-            <div class="alert alert-danger">{{ $message }}</div>
-        @enderror
 
-        <div id="messageFormSection" style="display: {{ old('client_message_type_id', $clientMessage->client_message_type_id) ? 'block' : 'none' }};">
-            <div class="row">
-                <div class="col-lg-6">
-                    @include('admin.pages.client-message.partials._form-fields')
+        <div class="row">
+            <div class="col-12">
+                @include('admin.pages.client-message.partials._client-info-field', ['clients' => $clients, 'clientMessage' => $clientMessage])
+            </div>
+        </div>
 
-                    <div class="text-end mb-3 d-flex justify-content-end gap-2">
-                        <a href="{{ route('client.message.my.list') }}" class="btn btn-soft-secondary">
-                            <i class="ri-close-line"></i> Cancel
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="ri-save-line"></i> Save Changes
-                        </button>
+        <div class="row">
+            <div class="col-12">
+                <div class="card border mb-3">
+                    <div class="card-body">
+                        <h6 class="text-uppercase bg-light p-2 mb-3"><i class="ri-file-list-3-line"></i> Message Type</h6>
+
+                        <select id="typeSelect" name="client_message_type_id"
+                            class="form-select @error('client_message_type_id') is-invalid @enderror" onchange="onTypeSelected()">
+                            <option value="">Select a message type…</option>
+                            @foreach ($types as $t)
+                                <option value="{{ $t->id }}" {{ (string) old('client_message_type_id', $clientMessage->client_message_type_id) === (string) $t->id ? 'selected' : '' }}>
+                                    {{ $t->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('client_message_type_id')
+                            <div class="text-danger small">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card card-body">
-                        <h5 class="mb-3 text-uppercase bg-light p-2">
-                            <i class="ri-information-line"></i> Type Requirements
-                        </h5>
-                        @foreach ($types as $t)
-                            <div class="type-spec" id="spec-{{ $t->id }}"
-                                style="display: {{ old('client_message_type_id', $clientMessage->client_message_type_id) == $t->id ? 'block' : 'none' }}">
-                                @include('admin.pages.client-message.partials._spec', ['type' => $t])
-                            </div>
-                        @endforeach
-                        <div id="spec-empty" class="text-muted"
-                            style="display: {{ old('client_message_type_id', $clientMessage->client_message_type_id) ? 'none' : 'block' }}">
-                            Select a message type above to see its format, restriction and mandatory requirements.
-                        </div>
-                    </div>
+
+                @include('admin.pages.client-message.partials._type-requirements-modal', ['types' => $types])
+            </div>
+        </div>
+
+        <div id="messageFormSection" class="row" style="display: {{ old('client_message_type_id', $clientMessage->client_message_type_id) ? 'block' : 'none' }};">
+            <div class="col-12">
+                @include('admin.pages.client-message.partials._last-message-field', ['clientMessage' => $clientMessage])
+            </div>
+            <div class="col-12">
+                @include('admin.pages.client-message.partials._message-sanitizer-field', ['clientMessage' => $clientMessage])
+            </div>
+            <div class="col-12">
+                <div class="text-end mb-3 d-flex justify-content-end gap-2">
+                    <a href="{{ route('client.message.my.list') }}" class="btn btn-soft-secondary">
+                        <i class="ri-close-line"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="ri-save-line"></i> Save Changes
+                    </button>
                 </div>
             </div>
         </div>
@@ -60,32 +62,22 @@
 
 @push('script')
     <script>
-        function showSpec(id) {
-            document.querySelectorAll('.type-spec').forEach(function(el) {
-                el.style.display = 'none';
-            });
-            var empty = document.getElementById('spec-empty');
-            if (id) {
-                var el = document.getElementById('spec-' + id);
-                if (el) el.style.display = 'block';
-                if (empty) empty.style.display = 'none';
-            } else if (empty) {
-                empty.style.display = 'block';
+        function onTypeSelected() {
+            var select = document.getElementById('typeSelect');
+            var section = document.getElementById('messageFormSection');
+            if (select.value) {
+                section.style.display = 'block';
             }
+            updateTypeRequirementsAlert();
         }
-    </script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/37.1.0/classic/ckeditor.js"></script>
-    <script>
-        let theirMessageEditor;
-        ClassicEditor.create(document.getElementById('their_message')).then(function(editor) {
-            theirMessageEditor = editor;
-        }).catch(function(error) {
-            console.error(error);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateTypeRequirementsAlert();
         });
 
-        document.querySelector('form').addEventListener('submit', function() {
-            if (theirMessageEditor) {
-                document.getElementById('their_message').value = theirMessageEditor.getData();
+        document.querySelector('form').addEventListener('submit', function () {
+            if (typeof runFiverrSanitize === 'function') {
+                runFiverrSanitize();
             }
         });
     </script>
