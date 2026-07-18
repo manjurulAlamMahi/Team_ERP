@@ -32,7 +32,10 @@
                         @enderror
                     </div>
 
-                    <div class="text-end">
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <a href="{{ route('team.sheet.list') }}" class="btn btn-soft-secondary">
+                            <i class="ri-close-line"></i> Cancel
+                        </a>
                         <button type="submit" class="btn btn-success">
                             <i class="ri-send-plane-line"></i> Update Sheet
                         </button>

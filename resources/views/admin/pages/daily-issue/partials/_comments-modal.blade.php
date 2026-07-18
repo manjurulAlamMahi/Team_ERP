@@ -62,7 +62,7 @@
 
         container.innerHTML = comments.map(function(c) {
             const badge = c.type === 'reopen' ?
-                '<span class="badge bg-danger me-1">Reopened</span>' :
+                '<span class="badge bg-danger-subtle text-danger rounded-pill me-1">Reopened</span>' :
                 '';
             const author = c.user ? c.user.name : 'N/A';
             return '<div class="border-bottom pb-2 mb-2">' +

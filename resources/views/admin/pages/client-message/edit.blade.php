@@ -27,7 +27,10 @@
                 <div class="col-lg-6">
                     @include('admin.pages.client-message.partials._form-fields')
 
-                    <div class="text-end mb-3">
+                    <div class="text-end mb-3 d-flex justify-content-end gap-2">
+                        <a href="{{ route('client.message.my.list') }}" class="btn btn-soft-secondary">
+                            <i class="ri-close-line"></i> Cancel
+                        </a>
                         <button type="submit" class="btn btn-success">
                             <i class="ri-save-line"></i> Save Changes
                         </button>

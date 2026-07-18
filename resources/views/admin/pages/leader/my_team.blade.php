@@ -64,7 +64,7 @@
                         </div>
 
                         {{-- Status badge --}}
-                        <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-secondary' }} mb-3">
+                        <span class="badge {{ $user->status === 'active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }} rounded-pill mb-3">
                             {{ ucfirst($user->status) }}
                         </span>
 

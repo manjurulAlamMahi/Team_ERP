@@ -132,14 +132,14 @@
                     <i class="ri-calendar-event-fill"></i> Events List
                 </h5>
 
-                <table class="table table-bordered">
+                <table class="table table-bordered table-centered">
                     <thead>
                         <tr>
                             <th>Event Name</th>
                             <th>Event Start Date</th>
                             <th>Event End Date</th>
                             <th>Event Message</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -149,11 +149,17 @@
                                 <td>{{ Carbon\Carbon::parse($item->start_date)->format('M-d') }}</td>
                                 <td>{{ Carbon\Carbon::parse($item->end_date)->format('M-d') }}</td>
                                 <td>{{ $item->message }}</td>
-                                <td>
-                                    <a href="javascript: void(0);" onclick="editEvent({{ $item->id }})"
-                                        class="text-reset fs-16 px-1"> <i class="ri-edit-line"></i></a>
-                                    <a href="javascript: void(0);" onclick="deleteRow({{ $item->id }})" class="text-reset fs-16 px-1"><i
-                                            class="ri-delete-bin-2-line"></i></a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="javascript: void(0);" onclick="editEvent({{ $item->id }})"
+                                            class="btn btn-sm btn-soft-secondary" title="Edit">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                        <a href="javascript: void(0);" onclick="deleteRow({{ $item->id }})"
+                                            class="btn btn-sm btn-soft-danger" title="Delete">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

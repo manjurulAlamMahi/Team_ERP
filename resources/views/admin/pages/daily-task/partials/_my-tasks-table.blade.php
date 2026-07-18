@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover table-centered align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th style="width:40px"></th>
@@ -23,7 +23,7 @@
                                     {{ $task->status === 'completed' ? 'checked' : '' }}>
                             </td>
                             <td class="text-nowrap">
-                                <span class="badge {{ $task->task_date->isToday() ? 'bg-primary' : ($task->task_date->isYesterday() ? 'bg-secondary' : 'bg-light text-dark border') }}">
+                                <span class="badge rounded-pill {{ $task->task_date->isToday() ? 'bg-primary-subtle text-primary' : ($task->task_date->isYesterday() ? 'bg-secondary-subtle text-secondary' : 'bg-light text-dark border') }}">
                                     {{ $task->formatted_date }}
                                 </span>
                             </td>
@@ -32,7 +32,7 @@
                                 <small class="text-muted">{{ $task->profile_name }}</small>
                             </td>
                             <td>
-                                <span class="badge {{ $task->source === 'self' ? 'bg-info' : 'bg-warning text-dark' }}">
+                                <span class="badge rounded-pill {{ $task->source === 'self' ? 'bg-info-subtle text-info' : 'bg-warning-subtle text-warning' }}">
                                     {{ $task->task_by_label }}
                                 </span>
                             </td>

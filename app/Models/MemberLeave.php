@@ -77,10 +77,10 @@ class MemberLeave extends Model
     public function statusBadgeClass(): string
     {
         return match ($this->status) {
-            'absent' => 'bg-danger',
-            'leave' => 'bg-warning',
-            'home_office' => 'bg-info',
-            default => 'bg-secondary',
+            'absent' => 'bg-danger-subtle text-danger',
+            'leave' => 'bg-warning-subtle text-warning',
+            'home_office' => 'bg-info-subtle text-info',
+            default => 'bg-secondary-subtle text-secondary',
         };
     }
 }

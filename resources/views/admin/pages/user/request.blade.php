@@ -22,7 +22,7 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-group-line"></i> User's Request List
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -31,7 +31,7 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Added By</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
 
@@ -44,16 +44,22 @@
                                 <td>{{ $item->email }}</td>
                                 <td>{{ $item->phone ?? 'N/A' }}</td>
                                 <td>{{ $item->addBy->name }}</td>
-                                <td>
-                                    <a href="{{ route('user.accept',$item->id) }}" class="btn btn-sm btn-success"><i class="ri-check-line"></i></a>
-                                    <a href="javascript: void(0);" onclick="deleteAccount({{ $item->id }})" class="btn btn-sm btn-danger"> <i
-                                        class="ri-delete-bin-2-line"></i></a>
-
-                                    <a href="{{ route('user.profile',$item->username) }}" class="btn btn-sm btn-primary"> <i
-                                            class="ri-user-line"></i></a>
-                                    <a href="{{ route('user.edit',$item->username) }}" class="btn btn-sm btn-info"> <i
-                                            class="ri-settings-3-line"></i></a>
-
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('user.accept', $item->id) }}" class="btn btn-sm btn-soft-success" title="Accept">
+                                            <i class="ri-check-line"></i>
+                                        </a>
+                                        <a href="javascript: void(0);" onclick="deleteAccount({{ $item->id }})"
+                                            class="btn btn-sm btn-soft-danger" title="Delete">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </a>
+                                        <a href="{{ route('user.profile', $item->username) }}" class="btn btn-sm btn-soft-primary" title="View Profile">
+                                            <i class="ri-user-line"></i>
+                                        </a>
+                                        <a href="{{ route('user.edit', $item->username) }}" class="btn btn-sm btn-soft-info" title="Edit">
+                                            <i class="ri-settings-3-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

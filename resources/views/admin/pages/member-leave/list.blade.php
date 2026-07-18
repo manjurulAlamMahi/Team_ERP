@@ -20,7 +20,7 @@
                         <i class="ri-add-line"></i> Add Record
                     </a>
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -29,7 +29,7 @@
                             <th>Date(s)</th>
                             <th>Reason</th>
                             <th>Recorded By</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
 
@@ -38,18 +38,20 @@
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $leave->user->name ?? '-' }}</td>
-                                <td><span class="badge {{ $leave->statusBadgeClass() }}">{{ $leave->statusLabel() }}</span></td>
+                                <td><span class="badge {{ $leave->statusBadgeClass() }} rounded-pill">{{ $leave->statusLabel() }}</span></td>
                                 <td>{{ $leave->dateRangeLabel() }}</td>
                                 <td>{{ $leave->reason }}</td>
                                 <td>{{ $leave->creator->name ?? '-' }}</td>
-                                <td>
-                                    <a href="{{ route('member.leave.edit', $leave->id) }}" class="text-reset fs-16 px-1">
-                                        <i class="ri-edit-line"></i>
-                                    </a>
-                                    <a href="javascript: void(0);" onclick="deleteLeave({{ $leave->id }})"
-                                        class="text-reset fs-16 px-1">
-                                        <i class="ri-delete-bin-2-line"></i>
-                                    </a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('member.leave.edit', $leave->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                        <a href="javascript: void(0);" onclick="deleteLeave({{ $leave->id }})"
+                                            class="btn btn-sm btn-soft-danger" title="Delete">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

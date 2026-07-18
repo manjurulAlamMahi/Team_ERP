@@ -24,7 +24,7 @@
                     <span class="issue-serial d-inline-flex align-items-center justify-content-center bg-light text-muted border">
                         {{ $loop->iteration }}
                     </span>
-                    <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}" title="Issue Type">{{ $issue->type }}</span>
+                    <span class="badge bg-{{ $badgeColor }}-subtle text-{{ $badgeColor }} rounded-pill" style="{{ $badgeStyle }}" title="Issue Type">{{ $issue->type }}</span>
                 </div>
 
                 <div class="dropdown">

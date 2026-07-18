@@ -32,7 +32,7 @@
                         <th>Status</th>
                         <td>
                             <span
-                                class="badge bg-{{ $task->status === 'approved' ? 'success' : ($task->status === 'rejected' ? 'danger' : 'warning') }} text-uppercase">{{ $task->status }}</span>
+                                class="badge {{ $task->status === 'approved' ? 'bg-success-subtle text-success' : ($task->status === 'rejected' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }} rounded-pill text-uppercase">{{ $task->status }}</span>
                         </td>
                     </tr>
                     @if ($task->review_comment)

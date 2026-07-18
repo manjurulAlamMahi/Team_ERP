@@ -25,7 +25,7 @@
                 @if ($checklist->isEmpty())
                     <p class="text-muted mb-0">No tasks yet for today.</p>
                 @else
-                    <table class="table table-striped">
+                    <table class="table table-striped table-centered">
                         <thead>
                             <tr>
                                 <th style="width: 40px;"></th>
@@ -66,7 +66,7 @@
                 <h6 class="text-uppercase bg-light p-2 mb-3">Leader Assigned Plans</h6>
                 @forelse ($leaderAssigned as $task)
                     <div class="border-bottom pb-2 mb-2">
-                        <span class="badge bg-info mb-1">Assigned by Leader</span>
+                        <span class="badge bg-info-subtle text-info rounded-pill mb-1">Assigned by Leader</span>
                         <div><strong>{{ $task->client_name }}</strong> - {{ $task->profile_name }}</div>
                         <div class="text-muted small">{{ $task->details }}</div>
                     </div>
@@ -84,7 +84,7 @@
                             <strong>{{ $task->client_name }}</strong> - {{ $task->profile_name }}
                             <div class="text-muted small">{{ $task->details }}</div>
                         </div>
-                        <a href="javascript:void(0);" onclick="deletePersonalTask({{ $task->id }})" class="text-reset">
+                        <a href="javascript:void(0);" onclick="deletePersonalTask({{ $task->id }})" class="btn btn-sm btn-soft-danger" title="Delete">
                             <i class="ri-delete-bin-2-line"></i>
                         </a>
                     </div>
@@ -103,7 +103,7 @@
                     $statusColor = $task->status === 'rejected' ? 'danger' : 'warning';
                 @endphp
                 <div class="border-bottom pb-2 mb-2">
-                    <span class="badge bg-{{ $statusColor }} text-uppercase">{{ $task->status }}</span>
+                    <span class="badge {{ $statusColor === 'danger' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning' }} rounded-pill text-uppercase">{{ $task->status }}</span>
                     <strong>{{ $task->client_name }}</strong> - {{ $task->profile_name }}
                     <div class="text-muted small">{{ $task->details }}</div>
                     @if ($task->review_comment)

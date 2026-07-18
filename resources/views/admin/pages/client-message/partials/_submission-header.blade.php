@@ -7,7 +7,7 @@
 @endphp
 
 <div class="mb-3 d-flex justify-content-between align-items-center">
-    <span class="badge bg-{{ $statusColor }} text-uppercase fs-6">{{ $clientMessage->status }}</span>
+    <span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }} rounded-pill text-uppercase fs-6">{{ $clientMessage->status }}</span>
     <span class="text-muted small" title="{{ $clientMessage->created_at->format('Y-m-d H:i') }}">
         Submitted {{ $clientMessage->created_at->diffForHumans() }}
     </span>

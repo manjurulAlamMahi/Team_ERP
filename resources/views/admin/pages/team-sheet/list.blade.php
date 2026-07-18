@@ -22,7 +22,7 @@
                         </a>
                     @endif
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -31,7 +31,7 @@
                             <th>Added By</th>
                             <th>Date</th>
                             @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                <th>Action</th>
+                                <th class="text-end">Action</th>
                             @endif
                         </tr>
                     </thead>
@@ -42,21 +42,23 @@
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $sheet->title }}</td>
                                 <td>
-                                    <a href="{{ $sheet->link }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ $sheet->link }}" target="_blank" rel="noopener" class="btn btn-sm btn-soft-primary">
                                         <i class="ri-external-link-line"></i> Open
                                     </a>
                                 </td>
                                 <td>{{ $sheet->creator->name ?? '-' }}</td>
                                 <td>{{ $sheet->created_at->format('d M Y') }}</td>
                                 @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                    <td>
-                                        <a href="{{ route('team.sheet.edit', $sheet->id) }}" class="text-reset fs-16 px-1">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                        <a href="javascript: void(0);" onclick="deleteSheet({{ $sheet->id }})"
-                                            class="text-reset fs-16 px-1">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </a>
+                                    <td class="text-end">
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <a href="{{ route('team.sheet.edit', $sheet->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                            <a href="javascript: void(0);" onclick="deleteSheet({{ $sheet->id }})"
+                                                class="btn btn-sm btn-soft-danger" title="Delete">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 @endif
                             </tr>

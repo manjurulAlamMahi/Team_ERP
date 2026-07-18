@@ -22,7 +22,7 @@
                         </a>
                     @endif
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -32,7 +32,7 @@
                             <th>Ends On</th>
                             <th>Status</th>
                             @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                <th>Action</th>
+                                <th class="text-end">Action</th>
                             @endif
                         </tr>
                     </thead>
@@ -42,25 +42,27 @@
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $announcement->title }}</td>
-                                <td><span class="badge {{ $announcement->priorityBadgeClass() }}">{{ ucfirst($announcement->priority) }}</span></td>
+                                <td><span class="badge {{ $announcement->priorityBadgeClass() }} rounded-pill">{{ ucfirst($announcement->priority) }}</span></td>
                                 <td>{{ $announcement->creator->name ?? '-' }}</td>
                                 <td>{{ $announcement->ends_at->format('d M Y') }}</td>
                                 <td>
                                     @if ($announcement->isActive())
-                                        <span class="badge bg-success">Active</span>
+                                        <span class="badge bg-success-subtle text-success rounded-pill">Active</span>
                                     @else
-                                        <span class="badge bg-secondary">Expired</span>
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill">Expired</span>
                                     @endif
                                 </td>
                                 @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                    <td>
-                                        <a href="{{ route('announcement.edit', $announcement->id) }}" class="text-reset fs-16 px-1">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                        <a href="javascript: void(0);" onclick="deleteAnnouncement({{ $announcement->id }})"
-                                            class="text-reset fs-16 px-1">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </a>
+                                    <td class="text-end">
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <a href="{{ route('announcement.edit', $announcement->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                            <a href="javascript: void(0);" onclick="deleteAnnouncement({{ $announcement->id }})"
+                                                class="btn btn-sm btn-soft-danger" title="Delete">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 @endif
                             </tr>

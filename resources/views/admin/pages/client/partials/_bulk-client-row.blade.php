@@ -27,7 +27,7 @@
         @enderror
     </div>
     <div class="col-md-1 text-end">
-        <button type="button" class="btn btn-danger btn-sm remove-row" title="Remove this row">
+        <button type="button" class="btn btn-soft-danger btn-sm remove-row" title="Remove this row">
             <i class="ri-delete-bin-2-line"></i>
         </button>
     </div>

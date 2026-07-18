@@ -27,7 +27,7 @@ const specContent = {
                 <div>
                     <div class="text-muted small text-uppercase fw-semibold mb-1">Message Type</div>
                     <h5 class="mb-0">{{ $clientMessage->type->name ?? 'N/A' }}</h5>
-                    <span class="badge {{ $clientMessage->status === 'pending' ? 'bg-warning text-dark' : ($clientMessage->status === 'approved' ? 'bg-success' : 'bg-danger') }} mt-1">
+                    <span class="badge {{ $clientMessage->status === 'pending' ? 'bg-warning-subtle text-warning' : ($clientMessage->status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger') }} rounded-pill mt-1">
                         {{ ucfirst($clientMessage->status) }}
                     </span>
                 </div>

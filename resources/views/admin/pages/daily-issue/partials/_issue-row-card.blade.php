@@ -29,7 +29,7 @@
                             {{ $loop->iteration }}
                         </span>
                         <span class="issue-title fw-semibold fs-15">{{ $issue->category ?: 'Issue' }}</span>
-                        <span class="badge bg-{{ $badgeColor }}" style="{{ $badgeStyle }}" title="Issue Type">{{ $issue->type }}</span>
+                        <span class="badge bg-{{ $badgeColor }}-subtle text-{{ $badgeColor }} rounded-pill" style="{{ $badgeStyle }}" title="Issue Type">{{ $issue->type }}</span>
                     </div>
 
                     {{-- Remarks (formerly the free-text "issue") --}}
@@ -49,16 +49,16 @@
                     {{-- Badges row --}}
                     <div class="d-flex flex-wrap gap-2 align-items-center">
                         @if ($issue->responsibles->isNotEmpty())
-                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                            <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">
                                 <i class="ri-user-received-2-line me-1"></i>Responsible Person(s): {{ $issue->responsibles->pluck('name')->join(', ') }}
                             </span>
                         @endif
-                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill">
                             <i class="ri-user-add-line me-1"></i>By: {{ $issue->creator->name ?? 'N/A' }}
                         </span>
 
                         @if ($status === 'completed' && $issue->completer)
-                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
                                 <i class="ri-check-line me-1"></i>{{ $issue->completer->name }}
                                 @if ($issue->completed_at)
                                     · {{ $issue->completed_at->format('h:i A') }}

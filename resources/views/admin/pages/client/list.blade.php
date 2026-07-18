@@ -46,7 +46,7 @@
                     </div>
                 </div>
 
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Client Username</th>
@@ -56,7 +56,7 @@
                             <th>Sales Person WhatsApp</th>
                             <th>Country</th>
                             @if ($isLead)
-                                <th>Action</th>
+                                <th class="text-end">Action</th>
                             @endif
                         </tr>
                     </thead>
@@ -71,12 +71,16 @@
                                 <td>{{ $client->sales_man_whatsapp ?? 'N/A' }}</td>
                                 <td>{{ $client->country ?? 'N/A' }}</td>
                                 @if ($isLead)
-                                    <td>
-                                        <a href="{{ route('client.edit', $client->id) }}" class="text-reset fs-16 px-1"
-                                            title="Edit"> <i class="ri-edit-line"></i></a>
-                                        <a href="javascript:void(0);" onclick="deleteClient({{ $client->id }})"
-                                            class="text-reset fs-16 px-1" title="Delete"> <i
-                                                class="ri-delete-bin-2-line"></i></a>
+                                    <td class="text-end">
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <a href="{{ route('client.edit', $client->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                            <a href="javascript:void(0);" onclick="deleteClient({{ $client->id }})"
+                                                class="btn btn-sm btn-soft-danger" title="Delete">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 @endif
                             </tr>

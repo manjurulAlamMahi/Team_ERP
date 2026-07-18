@@ -17,14 +17,14 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-calendar-todo-line"></i> Pending Plan Review - {{ $team->name }}
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Member</th>
                             <th>Client</th>
                             <th>Profile</th>
                             <th>Submitted</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,10 +34,12 @@
                                 <td>{{ $task->client_name }}</td>
                                 <td>{{ $task->profile_name }}</td>
                                 <td>{{ $task->created_at->format('Y-m-d H:i') }}</td>
-                                <td>
-                                    <a href="{{ route('today.plan.review.show', $task->id) }}" class="text-reset fs-16 px-1">
-                                        <i class="ri-eye-line"></i>
-                                    </a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('today.plan.review.show', $task->id) }}" class="btn btn-sm btn-soft-primary" title="View">
+                                            <i class="ri-eye-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

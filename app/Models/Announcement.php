@@ -61,9 +61,9 @@ class Announcement extends Model
     public function priorityBadgeClass(): string
     {
         return match ($this->priority) {
-            'urgent' => 'bg-danger',
-            'warning' => 'bg-warning',
-            default => 'bg-info',
+            'urgent' => 'bg-danger-subtle text-danger',
+            'warning' => 'bg-warning-subtle text-warning',
+            default => 'bg-info-subtle text-info',
         };
     }
 

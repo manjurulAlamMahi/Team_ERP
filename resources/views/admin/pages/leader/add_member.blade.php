@@ -154,7 +154,10 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-12 text-end">
+                        <div class="col-12 text-end d-flex justify-content-end gap-2">
+                            <a href="{{ route('leader.my.team') }}" class="btn btn-soft-secondary mt-2">
+                                <i class="ri-close-line"></i> Cancel
+                            </a>
                             <button type="submit" class="btn btn-success mt-2">
                                 <i class="ri-save-line"></i> Add Member
                             </button>

@@ -65,9 +65,9 @@
 
                     {{-- Online indicator --}}
                     @if ($user->is_online)
-                        <span class="badge bg-success"><i class="ri-checkbox-blank-circle-fill me-1" style="font-size:.6rem"></i> Online</span>
+                        <span class="badge bg-success-subtle text-success rounded-pill"><i class="ri-checkbox-blank-circle-fill me-1" style="font-size:.6rem"></i> Online</span>
                     @else
-                        <span class="badge bg-secondary"><i class="ri-checkbox-blank-circle-fill me-1" style="font-size:.6rem"></i> Offline</span>
+                        <span class="badge bg-secondary-subtle text-secondary rounded-pill"><i class="ri-checkbox-blank-circle-fill me-1" style="font-size:.6rem"></i> Offline</span>
                     @endif
                 </div>
             </div>
@@ -114,7 +114,7 @@
                                 <tr>
                                     <td>Status</td>
                                     <td>
-                                        <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                        <span class="badge {{ $user->status === 'active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }} rounded-pill">
                                             {{ ucfirst($user->status) }}
                                         </span>
                                     </td>

@@ -17,14 +17,14 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-customer-service-2-line"></i> {{ $team->name }} - Pending Client Messages
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Submitted By</th>
                             <th>Type</th>
                             <th>Client Name</th>
                             <th>Submitted</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,10 +34,12 @@
                                 <td>{{ $item->type->name ?? 'N/A' }}</td>
                                 <td>{{ $item->client_name }}</td>
                                 <td>{{ $item->created_at->format('Y-m-d H:i') }}</td>
-                                <td>
-                                    <a href="{{ route('client.message.review.show', $item->id) }}" class="btn btn-sm btn-primary">
-                                        <i class="ri-eye-line"></i> Review
-                                    </a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('client.message.review.show', $item->id) }}" class="btn btn-sm btn-soft-primary" title="Review">
+                                            <i class="ri-eye-line"></i> Review
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

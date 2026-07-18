@@ -22,7 +22,7 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-group-line"></i> User's List
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -31,7 +31,7 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
 
@@ -52,25 +52,32 @@
                                             @if ($item->status == 'active') checked @endif>
                                         <label class="form-check-label" for="customSwitch1">
                                             @if ($item->status == 'active')
-                                                <span class="badge bg-success">{{ $item->status }}</span>
+                                                <span class="badge bg-success-subtle text-success rounded-pill">{{ $item->status }}</span>
                                             @else
-                                                <span class="badge bg-secondary">{{ $item->status }}</span>
+                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $item->status }}</span>
                                             @endif
                                         </label>
                                     </div>
                                 </td>
-                                <td>
-                                    <a href="{{ route('user.profile', $item->username) }}" class="text-reset fs-16 px-1"> <i
-                                            class="ri-user-line"></i></a>
-                                    <a href="{{ route('user.edit', $item->username) }}" class="text-reset fs-16 px-1"> <i
-                                            class="ri-edit-line"></i></a>
-                                    <a href="javascript: void(0);" onclick="deleteAccount({{ $item->id }})"
-                                        class="text-reset fs-16 px-1"> <i class="ri-delete-bin-2-line"></i></a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('user.profile', $item->username) }}" class="btn btn-sm btn-soft-primary" title="View Profile">
+                                            <i class="ri-user-line"></i>
+                                        </a>
+                                        <a href="{{ route('user.edit', $item->username) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                        <a href="javascript: void(0);" onclick="deleteAccount({{ $item->id }})"
+                                            class="btn btn-sm btn-soft-danger" title="Delete">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </a>
                                         @can('user_assignRole')
-                                        <a href="{{ route('user.assignrole',$item->id) }}"
-                                            class="text-reset fs-16 px-1"> <i class="ri-shield-star-line"></i> Assign Role </a>
+                                            <a href="{{ route('user.assignrole', $item->id) }}"
+                                                class="btn btn-sm btn-soft-info" title="Assign Role">
+                                                <i class="ri-shield-star-line"></i>
+                                            </a>
                                         @endcan
-
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

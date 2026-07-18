@@ -24,7 +24,7 @@
                         </a>
                     @endcan
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -32,7 +32,7 @@
                             <th>Community</th>
                             <th>Members</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,25 +49,27 @@
                                             @if ($team->status == 'active') checked @endif>
                                         <label class="form-check-label">
                                             @if ($team->status == 'active')
-                                                <span class="badge bg-success">{{ $team->status }}</span>
+                                                <span class="badge bg-success-subtle text-success rounded-pill">{{ $team->status }}</span>
                                             @else
-                                                <span class="badge bg-secondary">{{ $team->status }}</span>
+                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $team->status }}</span>
                                             @endif
                                         </label>
                                     </div>
                                 </td>
-                                <td>
-                                    @can('team_edit')
-                                        <a href="{{ route('team.edit', $team->id) }}" class="text-reset fs-16 px-1">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                    @endcan
-                                    @can('team_delete')
-                                        <a href="javascript: void(0);" onclick="deleteTeam({{ $team->id }})"
-                                            class="text-reset fs-16 px-1">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </a>
-                                    @endcan
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        @can('team_edit')
+                                            <a href="{{ route('team.edit', $team->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                        @endcan
+                                        @can('team_delete')
+                                            <a href="javascript: void(0);" onclick="deleteTeam({{ $team->id }})"
+                                                class="btn btn-sm btn-soft-danger" title="Delete">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </a>
+                                        @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

@@ -57,17 +57,17 @@
                                         <i class="ri-time-line me-1"></i>Due at {{ \Carbon\Carbon::parse($reminder->due_time)->format('h:i A') }}
                                     </span>
                                     @if ($reminder->isAssigned())
-                                        <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">
                                             <i class="ri-user-add-line me-1"></i>Assigned by: {{ $reminder->creator->name ?? 'N/A' }}
                                         </span>
                                     @endif
                                     @if ($reminder->user_id !== $authUser->id)
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
                                             <i class="ri-user-line me-1"></i>Assigned to: {{ $reminder->user->name ?? 'N/A' }}
                                         </span>
                                     @endif
                                     @if ($reminder->isAssigned() && $reminder->user_id === $authUser->id && !$reminder->isCompletableBy($authUser))
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle" title="Only your Leader/Co Leader can mark this as completed">
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill" title="Only your Leader/Co Leader can mark this as completed">
                                             <i class="ri-eye-line me-1"></i>View only
                                         </span>
                                     @endif

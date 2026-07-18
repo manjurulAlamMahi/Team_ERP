@@ -17,7 +17,7 @@
                 @if ($tasks->isEmpty())
                     <p class="text-muted mb-0">No tasks for today.</p>
                 @else
-                    <table class="table table-striped">
+                    <table class="table table-striped table-centered">
                         <thead>
                             <tr>
                                 <th style="width: 90px;">Status</th>

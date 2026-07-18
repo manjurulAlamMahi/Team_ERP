@@ -78,7 +78,10 @@
                                 v-model="selectedRole" class="form-check-input" @change="loadPermissionsForRole(role.id)">
                             <label class="form-check-label" :for="'role-' + role.id">@{{ role.name }}</label>
                         </div>
-                        <div class="text-end">
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <a href="{{ route('user.list') }}" class="btn btn-sm btn-soft-secondary">
+                                <i class="ri-close-line"></i> Cancel
+                            </a>
                             <button type="submit" class="btn btn-sm btn-primary">Update Role</button>
                         </div>
                     </form>

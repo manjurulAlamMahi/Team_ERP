@@ -9,7 +9,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Team Member</label>
-                        <select name="user_id" id="assignTaskMemberSelect" class="form-select" required>
+                        <select name="user_id" id="assignTaskMemberSelect" class="form-select select2" required>
                             <option value="">Select Member</option>
                             @foreach ($members as $member)
                                 <option value="{{ $member->id }}">{{ $member->name }}</option>

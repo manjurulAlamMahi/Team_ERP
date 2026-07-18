@@ -20,14 +20,14 @@
                         <i class="ri-add-line"></i> Send Message
                     </a>
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Type</th>
                             <th>Client Name</th>
                             <th>Submitted</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,20 +43,22 @@
                                 <td>{{ $item->type->name ?? 'N/A' }}</td>
                                 <td>{{ $item->client_name }}</td>
                                 <td>{{ $item->created_at->format('Y-m-d H:i') }}</td>
-                                <td><span class="badge bg-{{ $statusColor }} text-uppercase">{{ $item->status }}</span></td>
-                                <td>
-                                    <a href="{{ route('client.message.my.show', $item->id) }}" class="text-reset fs-16 px-1">
-                                        <i class="ri-eye-line"></i>
-                                    </a>
-                                    @if ($item->status === 'pending')
-                                        <a href="{{ route('client.message.edit', $item->id) }}" class="text-reset fs-16 px-1">
-                                            <i class="ri-edit-line"></i>
+                                <td><span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }} rounded-pill text-uppercase">{{ $item->status }}</span></td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('client.message.my.show', $item->id) }}" class="btn btn-sm btn-soft-primary" title="View">
+                                            <i class="ri-eye-line"></i>
                                         </a>
-                                        <a href="javascript: void(0);" onclick="deleteMessage({{ $item->id }})"
-                                            class="text-reset fs-16 px-1">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </a>
-                                    @endif
+                                        @if ($item->status === 'pending')
+                                            <a href="{{ route('client.message.edit', $item->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                            <a href="javascript: void(0);" onclick="deleteMessage({{ $item->id }})"
+                                                class="btn btn-sm btn-soft-danger" title="Delete">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

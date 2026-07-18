@@ -17,7 +17,7 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-calendar-todo-line"></i> Plan Review History - {{ $team->name }}
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Member</th>
@@ -35,7 +35,7 @@
                                 <td>{{ $task->client_name }}</td>
                                 <td>{{ $task->profile_name }}</td>
                                 <td><span
-                                        class="badge bg-{{ $task->status === 'approved' ? 'success' : 'danger' }} text-uppercase">{{ $task->status }}</span>
+                                        class="badge {{ $task->status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} rounded-pill text-uppercase">{{ $task->status }}</span>
                                 </td>
                                 <td>{{ $task->reviewer->name ?? 'N/A' }}</td>
                                 <td>{{ $task->reviewed_at?->format('Y-m-d H:i') }}</td>

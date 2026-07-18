@@ -35,26 +35,28 @@
                         <i class="ri-list-check"></i> Roles List
                     </h5>
                     <div class="my-2">
-                        <table class="table table-striped">
+                        <table class="table table-striped table-centered">
                             <thead>
                                 <tr>
                                     <th>Name</th>
                                     <th><i class="ri-map-pin-user-line"></i></th>
-                                    <th>Action</th>
+                                    <th class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="role in roles" :key="role.id">
                                     <td>@{{ role.name }}</td>
                                     <td>@{{ role.users_count }} Users</td>
-                                    <td>
-                                        <a v-if="role.name !== 'User'" href="javascript: void(0);" @click="editRow(role)"
-                                            class="text-reset fs-16 px-1">
-                                            <i class="ri-edit-line"></i></a>
-                                        <a v-if="role.name !== 'User'" href="javascript: void(0);"
-                                            @click="deleteRow(role.id)" class="text-reset fs-16 px-1"><i
-                                                class="ri-delete-bin-2-line"></i></a>
-                                        <div v-if="role.name === 'User'" class="text-primary small">Default Role</div>
+                                    <td class="text-end">
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <a v-if="role.name !== 'User'" href="javascript: void(0);" @click="editRow(role)"
+                                                class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i></a>
+                                            <a v-if="role.name !== 'User'" href="javascript: void(0);"
+                                                @click="deleteRow(role.id)" class="btn btn-sm btn-soft-danger" title="Delete"><i
+                                                    class="ri-delete-bin-2-line"></i></a>
+                                            <div v-if="role.name === 'User'" class="text-primary small">Default Role</div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr v-if="roles.length === 0">

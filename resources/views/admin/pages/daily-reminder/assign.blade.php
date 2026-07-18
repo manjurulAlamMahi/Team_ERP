@@ -15,7 +15,7 @@
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Team Member</label>
-                        <select class="form-select @error('user_id') is-invalid @enderror" name="user_id">
+                        <select class="form-select select2 @error('user_id') is-invalid @enderror" name="user_id">
                             <option value="">Select Member</option>
                             @foreach ($members as $member)
                                 <option value="{{ $member->id }}" {{ old('user_id') == $member->id ? 'selected' : '' }}>
@@ -56,7 +56,10 @@
                         </div>
                     </div>
 
-                    <div class="text-end">
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <a href="{{ route('daily.reminder.my.list') }}" class="btn btn-soft-secondary">
+                            <i class="ri-close-line"></i> Cancel
+                        </a>
                         <button type="submit" class="btn btn-success">
                             <i class="ri-send-plane-line"></i> Assign Reminder
                         </button>
@@ -66,3 +69,17 @@
         </div>
     </div>
 @endsection
+
+@push('style')
+    <link href="{{ asset('admin') }}/assets/vendor/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin') }}/assets/css/select2-theme.css" rel="stylesheet" type="text/css" />
+@endpush
+
+@push('script')
+    <script src="{{ asset('admin') }}/assets/vendor/select2/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({ width: '100%' });
+        });
+    </script>
+@endpush

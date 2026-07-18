@@ -14,7 +14,7 @@
             required>{{ old('items.' . $index . '.details', $item['details'] ?? '') }}</textarea>
     </div>
     <div class="col-md-1 text-end">
-        <button type="button" class="btn btn-danger btn-sm remove-row" title="Remove this plan">
+        <button type="button" class="btn btn-soft-danger btn-sm remove-row" title="Remove this plan">
             <i class="ri-delete-bin-2-line"></i>
         </button>
     </div>

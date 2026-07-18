@@ -32,7 +32,10 @@
                         @enderror
                     </div>
 
-                    <div class="text-end">
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <a href="{{ route('today.plan.my.plans') }}" class="btn btn-soft-secondary">
+                            <i class="ri-close-line"></i> Cancel
+                        </a>
                         <button type="submit" class="btn btn-success">
                             <i class="ri-save-line"></i> Save Changes
                         </button>

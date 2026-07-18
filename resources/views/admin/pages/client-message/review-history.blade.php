@@ -17,7 +17,7 @@
                 <h5 class="mb-3 text-uppercase bg-light p-2">
                     <i class="ri-customer-service-2-line"></i> {{ $team->name }} - Review History
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Submitted By</th>
@@ -26,7 +26,7 @@
                             <th>Status</th>
                             <th>Reviewed By</th>
                             <th>Reviewed At</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -38,13 +38,15 @@
                                 <td>{{ $item->submitter->name ?? 'N/A' }}</td>
                                 <td>{{ $item->type->name ?? 'N/A' }}</td>
                                 <td>{{ $item->client_name }}</td>
-                                <td><span class="badge bg-{{ $statusColor }} text-uppercase">{{ $item->status }}</span></td>
+                                <td><span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }} rounded-pill text-uppercase">{{ $item->status }}</span></td>
                                 <td>{{ $item->reviewer->name ?? 'N/A' }}</td>
                                 <td>{{ $item->reviewed_at?->format('Y-m-d H:i') }}</td>
-                                <td>
-                                    <a href="{{ route('client.message.review.show', $item->id) }}" class="text-reset fs-16 px-1">
-                                        <i class="ri-eye-line"></i>
-                                    </a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('client.message.review.show', $item->id) }}" class="btn btn-sm btn-soft-primary" title="View">
+                                            <i class="ri-eye-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

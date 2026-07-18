@@ -41,11 +41,13 @@
                             @error('expected_complete_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ route('daily.task.my') }}" class="btn btn-soft-secondary">
+                                <i class="ri-close-line"></i> Cancel
+                            </a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="ri-save-line me-1"></i> Add Task
                             </button>
-                            <a href="{{ route('daily.task.my') }}" class="btn btn-light">Cancel</a>
                         </div>
                     </form>
                 </div>

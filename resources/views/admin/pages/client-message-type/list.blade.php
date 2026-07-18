@@ -24,7 +24,7 @@
                         </a>
                     @endcan
                 </h5>
-                <table id="fixed-header-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <table id="fixed-header-datatable" class="table table-striped table-centered dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th>Sl</th>
@@ -35,7 +35,7 @@
                             <th>Mandatory</th>
                             <th>Messages</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
 
@@ -62,25 +62,27 @@
                                             @if ($item->status == 'active') checked @endif>
                                         <label class="form-check-label">
                                             @if ($item->status == 'active')
-                                                <span class="badge bg-success">{{ $item->status }}</span>
+                                                <span class="badge bg-success-subtle text-success rounded-pill">{{ $item->status }}</span>
                                             @else
-                                                <span class="badge bg-secondary">{{ $item->status }}</span>
+                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $item->status }}</span>
                                             @endif
                                         </label>
                                     </div>
                                 </td>
-                                <td>
-                                    @can('client_message_type_edit')
-                                        <a href="{{ route('client.message.type.edit', $item->id) }}" class="text-reset fs-16 px-1">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                    @endcan
-                                    @can('client_message_type_delete')
-                                        <a href="javascript: void(0);" onclick="deleteType({{ $item->id }})"
-                                            class="text-reset fs-16 px-1">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </a>
-                                    @endcan
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        @can('client_message_type_edit')
+                                            <a href="{{ route('client.message.type.edit', $item->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                        @endcan
+                                        @can('client_message_type_delete')
+                                            <a href="javascript: void(0);" onclick="deleteType({{ $item->id }})"
+                                                class="btn btn-sm btn-soft-danger" title="Delete">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </a>
+                                        @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

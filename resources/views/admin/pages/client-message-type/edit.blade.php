@@ -101,7 +101,10 @@
                     </div>
 
                     <div class="row" style="align-items: end">
-                        <div class="text-end">
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <a href="{{ route('client.message.type.list') }}" class="btn btn-soft-secondary mt-2">
+                                <i class="ri-close-line"></i> Cancel
+                            </a>
                             <button type="submit" class="btn btn-success mt-2">
                                 <i class="ri-save-line"></i> Update
                             </button>

@@ -15,7 +15,7 @@
                         <i class="ri-add-line"></i> Assign Task
                     </button>
                 </h5>
-                <table class="table table-striped">
+                <table class="table table-striped table-centered">
                     <thead>
                         <tr>
                             <th>Member</th>
@@ -25,7 +25,7 @@
                             <th>Personal</th>
                             <th>Completed</th>
                             <th>Not Done</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -38,11 +38,13 @@
                                 <td>{{ $summary['personal'] }}</td>
                                 <td>{{ $summary['completed'] }}</td>
                                 <td>{{ $summary['pending_completion'] }}</td>
-                                <td>
-                                    <a href="{{ route('today.plan.member.detail', $summary['user']->id) }}"
-                                        class="text-reset fs-16 px-1">
-                                        <i class="ri-eye-line"></i>
-                                    </a>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a href="{{ route('today.plan.member.detail', $summary['user']->id) }}"
+                                            class="btn btn-sm btn-soft-primary" title="View">
+                                            <i class="ri-eye-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -58,6 +60,7 @@
 @push('script')
     <script>
         initClientSelectField('assignPlanClient', '#assignTaskModal');
+        $('#assignTaskMemberSelect').select2({ width: '100%', dropdownParent: $('#assignTaskModal') });
 
         $(document).on('submit', '#assignTaskForm', function(e) {
             e.preventDefault();
