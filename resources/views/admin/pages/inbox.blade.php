@@ -226,7 +226,7 @@
                     searchQuery: "",
                     users: [],
                     contact_users: [],
-                    conversationWithID: null,
+                    conversationWithID: {{ request()->query('user') ? (int) request()->query('user') : 'null' }},
                     conversationWith: null,
                     conversationMessages: [],
                     message: null,

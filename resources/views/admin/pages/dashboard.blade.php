@@ -13,6 +13,16 @@
         transform: translateY(-4px);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
     }
+    .team-logo-frame {
+        width: 64px; height: 64px; border-radius: 12px; object-fit: cover;
+        background: #f0f2f8; flex-shrink: 0;
+    }
+    .team-logo-placeholder {
+        width: 64px; height: 64px; border-radius: 12px; background: #eef1fb;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sheet-row-link { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px; }
+    .sheet-row-link:hover { color: #0ab39c; }
 </style>
 @endpush
 
@@ -26,223 +36,196 @@
 </div>
 @endif
 
-@foreach (($activeAnnouncements ?? []) as $announcement)
-<div class="alert {{ $announcement->priorityAlertClass() }} d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-    <span>
-        <i class="ri-megaphone-line me-1"></i>
-        <strong>{{ $announcement->title }}</strong> &mdash; {{ $announcement->description }}
-    </span>
-    <span class="text-nowrap small fw-semibold">Ends {{ $announcement->ends_at->format('d M Y') }}</span>
-</div>
-@endforeach
-
 @if (isset($team))
+    @php
+        $isLead = Auth::user()->hasAnyRole(['Leader', 'Co Leader']);
+    @endphp
 
-{{-- ── TEAM MEMBER DASHBOARD ──────────────────────────────── --}}
+{{-- ── TEAM MEMBER / LEADER DASHBOARD ─────────────────────── --}}
 <div class="row g-3">
 
-    {{-- ── COL 8 ─────────────────────────────────────────── --}}
-    <div class="col-lg-9">
+    {{-- ── COL 6: GOOD MORNING COLUMN ────────────────────── --}}
+    <div class="col-lg-6">
 
-        {{-- Top row: Greeting + Todo + Quick Access (fixed height, scroll) --}}
-        <div class="row g-3 mb-3">
-
-            {{-- Greeting --}}
-            <div class="col-6">
-                <div class="card mb-0 h-100">
-                    <div class="card-body row align-items-center">
-                        <div class="col-lg-6">
-                            @if (Auth::user()->email_verified_at == null)
-                                <div class="alert alert-warning py-1 px-2 fs-12 mb-2">
-                                    <strong>Email not verified.</strong>
-                                    <a href="{{ route('email.verify') }}" class="text-warning-emphasis fw-medium">Verify now</a>
-                                </div>
-                            @endif
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                @if ($greetings == 'Good Morning!')
-                                    <img width="50" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
-                                @elseif ($greetings == 'Good Afternoon!')
-                                    <img width="50" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
-                                @else
-                                    <img width="50" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
+        {{-- Greeting --}}
+        <div class="card mb-3">
+            <div class="card-body row align-items-center">
+                <div class="col-lg-6">
+                    @if (Auth::user()->email_verified_at == null)
+                        <div class="alert alert-warning py-1 px-2 fs-12 mb-2">
+                            <strong>Email not verified.</strong>
+                            <a href="{{ route('email.verify') }}" class="text-warning-emphasis fw-medium">Verify now</a>
+                        </div>
+                    @endif
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        @if ($greetings == 'Good Morning!')
+                            <img width="50" src="{{ asset('admin/assets/images/greetings/004-sunrise.png') }}" alt="">
+                        @elseif ($greetings == 'Good Afternoon!')
+                            <img width="50" src="{{ asset('admin/assets/images/greetings/002-sunsets.png') }}" alt="">
+                        @else
+                            <img width="50" src="{{ asset('admin/assets/images/greetings/003-cloudy-night.png') }}" alt="">
+                        @endif
+                        <div>
+                            <h5 class="text-primary mb-0">{{ $greetings }}</h5>
+                            <p class="fs-13 mb-0">{{ Auth::user()->name }} — {{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</p>
+                        </div>
+                    </div>
+                    @if (!empty($eventMessages))
+                        @foreach ($eventMessages as $event)
+                            <div class="alert alert-info py-1 px-2 fs-12 mb-1">🎉 {{ $event->message }}</div>
+                        @endforeach
+                    @endif
+                    @if (!empty($upcomingEvents) && $upcomingEvents->isNotEmpty())
+                        @foreach ($upcomingEvents as $event)
+                            <p class="fs-12 text-muted mb-0">
+                                📅 <strong>{{ $event->name }}</strong>
+                                @if ($event->name !== 'Birthday')
+                                    on {{ \Carbon\Carbon::parse($event->start_date)->format('M d') }}
                                 @endif
-                                <div>
-                                    <h5 class="text-primary mb-0">{{ $greetings }}</h5>
-                                    <p class="fs-13 mb-0">{{ Auth::user()->name }} — {{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}</p>
-                                </div>
-                            </div>
-                            @if (!empty($eventMessages))
-                                @foreach ($eventMessages as $event)
-                                    <div class="alert alert-info py-1 px-2 fs-12 mb-1">🎉 {{ $event->message }}</div>
-                                @endforeach
-                            @endif
-                            @if (!empty($upcomingEvents) && $upcomingEvents->isNotEmpty())
-                                @foreach ($upcomingEvents as $event)
-                                    <p class="fs-12 text-muted mb-0">
-                                        📅 <strong>{{ $event->name }}</strong>
-                                        @if ($event->name !== 'Birthday')
-                                            on {{ \Carbon\Carbon::parse($event->start_date)->format('M d') }}
-                                        @endif
-                                    </p>
-                                @endforeach
-                            @endif
-                        </div>
-                        <div class="col-lg-6">
-                            <img class="w-100" src="{{ asset('admin/assets/images/admin.png') }}" alt="">
-                        </div>
-                    </div>
+                            </p>
+                        @endforeach
+                    @endif
                 </div>
-            </div>
-
-            {{-- Todo List --}}
-            <div class="col-3">
-                <div class="card mb-0 d-flex flex-column" style="height:200px;">
-                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                        <span class="fw-semibold fs-13">Todo List</span>
-                        <a href="{{ route('todo.list') }}" class="text-muted fs-11"><i class="ri-external-link-line"></i></a>
-                    </div>
-                    <div class="card-body py-2 px-3 flex-grow-1" style="overflow-y:auto;" id="dash-todo-scroll">
-                        <form id="todo-form" class="mb-2">
-                            <div class="input-group input-group-sm">
-                                <input type="text" id="todo-input-text" class="form-control form-control-sm" placeholder="Add todo...">
-                                <button class="btn btn-sm btn-primary" type="submit">+</button>
-                            </div>
-                        </form>
-                        <ul class="list-unstyled mb-0" id="todo-list"></ul>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Quick Access --}}
-            <div class="col-3">
-                <div class="card mb-0 d-flex flex-column" style="height:200px;">
-                    <div class="card-header py-2">
-                        <span class="fw-semibold fs-13">Quick Access</span>
-                    </div>
-                    <div class="card-body py-2 px-3 flex-grow-1" style="overflow-y:auto;">
-                        @forelse ($menuItems as $item)
-                            <div class="d-flex align-items-center gap-2 py-1 border-bottom">
-                                <i class="{{ $item->icon }} fs-14 text-muted flex-shrink-0"></i>
-                                <a href="{{ $item->url }}" class="text-body fs-13 flex-grow-1 text-truncate">{{ $item->name }}</a>
-                                <a href="{{ route('remove.quick.access', $item->route) }}" class="text-danger fs-11">✕</a>
-                            </div>
-                        @empty
-                            <div class="text-muted text-center py-3 fs-13">
-                                <i class="ri-search-2-line d-block mb-1"></i> No links added
-                            </div>
-                        @endforelse
-                    </div>
+                <div class="col-lg-6">
+                    <img class="w-100" src="{{ asset('admin/assets/images/admin.png') }}" alt="">
                 </div>
             </div>
         </div>
 
-        {{-- Stat Cards row --}}
-        <div class="row g-3">
-            {{-- Team Info --}}
-            <div class="col-3">
-                <div class="card widget-icon-box text-bg-purple mb-0 h-100" style="transition:transform 0.18s ease,box-shadow 0.18s ease;cursor:default;">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Team</h5>
-                                <h3 class="my-2 text-white">{{ $team->name }}</h3>
-                                <p class="mb-0 text-white text-opacity-75 fs-13">{{ $totalMembers }} Active Members</p>
-                            </div>
-                            <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
-                                <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
-                                    <i class="ri-team-line"></i>
-                                </span>
+        {{-- Stat / action cards --}}
+        <div class="row g-3 mb-3">
+            @if ($isLead)
+                <div class="col-4">
+                    <a href="{{ route('daily.task.assign') }}" class="stat-card-link">
+                        <div class="card widget-icon-box text-bg-success mb-0 h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Assign Tasks</h5>
+                                        <h3 class="my-2 text-white">{{ $teamPendingTaskCount ?? 0 }}</h3>
+                                        <p class="mb-0 text-white text-opacity-75 fs-13">Pending today</p>
+                                    </div>
+                                    <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                            <i class="ri-task-line"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
-            </div>
-
-            {{-- Tasks --}}
-            <div class="col-3">
-                <a href="{{ route('daily.task.my') }}" class="stat-card-link">
-                    <div class="card widget-icon-box text-bg-success mb-0 h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Tasks Left</h5>
-                                    <h3 class="my-2 text-white">{{ ($myTodayTasks ?? collect())->count() }}</h3>
-                                    <p class="mb-0 text-white text-opacity-75 fs-13">Pending today</p>
-                                </div>
-                                <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
-                                    <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
-                                        <i class="ri-task-line"></i>
-                                    </span>
+                <div class="col-4">
+                    <a href="{{ route('daily.issue.create') }}" class="stat-card-link">
+                        <div class="card widget-icon-box mb-0 h-100 {{ ($openIssueCount ?? 0) > 0 ? 'text-bg-danger' : 'text-bg-info' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Add Issue</h5>
+                                        <h3 class="my-2 text-white">{{ $openIssueCount ?? 0 }}</h3>
+                                        <p class="mb-0 text-white text-opacity-75 fs-13">Open in team</p>
+                                    </div>
+                                    <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                            <i class="ri-alert-line"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-
-            {{-- Issues --}}
-            <div class="col-3">
-                <a href="{{ route('daily.issue.my') }}" class="stat-card-link">
-                    <div class="card widget-icon-box mb-0 h-100 {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-bg-danger' : 'text-bg-info' }}">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">Issues</h5>
-                                    <h3 class="my-2 text-white">{{ ($myPendingIssues ?? collect())->count() }}</h3>
-                                    <p class="mb-0 text-white text-opacity-75 fs-13">Assigned to me</p>
-                                </div>
-                                <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
-                                    <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
-                                        <i class="ri-alert-line"></i>
-                                    </span>
+                    </a>
+                </div>
+                <div class="col-4">
+                    <a href="{{ route('client.message.review.list') }}" class="stat-card-link">
+                        <div class="card widget-icon-box mb-0 h-100 {{ ($pendingClientMessageCount ?? 0) > 0 ? 'text-bg-warning' : 'text-bg-primary' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-uppercase fs-13 mt-0 {{ ($pendingClientMessageCount ?? 0) > 0 ? 'text-dark' : 'text-white text-opacity-75' }}">Check Message</h5>
+                                        <h3 class="my-2 {{ ($pendingClientMessageCount ?? 0) > 0 ? 'text-dark' : 'text-white' }}">{{ $pendingClientMessageCount ?? 0 }}</h3>
+                                        <p class="mb-0 fs-13 {{ ($pendingClientMessageCount ?? 0) > 0 ? 'text-dark opacity-75' : 'text-white text-opacity-75' }}">{{ ($pendingClientMessageCount ?? 0) > 0 ? 'Pending review' : 'All clear' }}</p>
+                                    </div>
+                                    <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-white bg-opacity-25 {{ ($pendingClientMessageCount ?? 0) > 0 ? 'text-dark' : 'text-white' }} rounded-3 fs-3">
+                                            <i class="ri-mail-send-line"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-
-            {{-- Client Messages --}}
-            <div class="col-3">
-                @php
-                    $msgCount = ($myPendingClientMessages ?? 0) > 0
-                        ? ($myPendingClientMessages ?? 0)
-                        : ($pendingClientMessageCount ?? 0);
-                    $msgRoute = ($myPendingClientMessages ?? 0) > 0
-                        ? route('client.message.my.list')
-                        : route('client.message.review.list');
-                @endphp
-                <a href="{{ $msgRoute }}" class="stat-card-link">
-                    <div class="card widget-icon-box mb-0 h-100 {{ $msgCount > 0 ? 'text-bg-warning' : 'text-bg-primary' }}">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="text-uppercase fs-13 mt-0 {{ $msgCount > 0 ? 'text-dark' : 'text-white text-opacity-75' }}">Messages</h5>
-                                    <h3 class="my-2 {{ $msgCount > 0 ? 'text-dark' : 'text-white' }}">{{ $msgCount }}</h3>
-                                    <p class="mb-0 fs-13 {{ $msgCount > 0 ? 'text-dark opacity-75' : 'text-white text-opacity-75' }}">{{ $msgCount > 0 ? 'Pending review' : 'All clear' }}</p>
-                                </div>
-                                <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
-                                    <span class="avatar-title bg-white bg-opacity-25 {{ $msgCount > 0 ? 'text-dark' : 'text-white' }} rounded-3 fs-3">
-                                        <i class="ri-mail-send-line"></i>
-                                    </span>
+                    </a>
+                </div>
+            @else
+                <div class="col-4">
+                    <a href="{{ route('daily.task.my') }}" class="stat-card-link">
+                        <div class="card widget-icon-box text-bg-success mb-0 h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">My Tasks</h5>
+                                        <h3 class="my-2 text-white">{{ ($myTodayTasks ?? collect())->count() }}</h3>
+                                        <p class="mb-0 text-white text-opacity-75 fs-13">Pending today</p>
+                                    </div>
+                                    <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                            <i class="ri-task-line"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
+                <div class="col-4">
+                    <a href="{{ route('daily.issue.my') }}" class="stat-card-link">
+                        <div class="card widget-icon-box mb-0 h-100 {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-bg-danger' : 'text-bg-info' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-uppercase fs-13 mt-0 text-white text-opacity-75">My Issue</h5>
+                                        <h3 class="my-2 text-white">{{ ($myPendingIssues ?? collect())->count() }}</h3>
+                                        <p class="mb-0 text-white text-opacity-75 fs-13">Assigned to me</p>
+                                    </div>
+                                    <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-white bg-opacity-25 text-white rounded-3 fs-3">
+                                            <i class="ri-alert-line"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-4">
+                    <a href="{{ route('client.message.my.list') }}" class="stat-card-link">
+                        <div class="card widget-icon-box mb-0 h-100 {{ ($myPendingClientMessages ?? 0) > 0 ? 'text-bg-warning' : 'text-bg-primary' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-uppercase fs-13 mt-0 {{ ($myPendingClientMessages ?? 0) > 0 ? 'text-dark' : 'text-white text-opacity-75' }}">Pending Message</h5>
+                                        <h3 class="my-2 {{ ($myPendingClientMessages ?? 0) > 0 ? 'text-dark' : 'text-white' }}">{{ $myPendingClientMessages ?? 0 }}</h3>
+                                        <p class="mb-0 fs-13 {{ ($myPendingClientMessages ?? 0) > 0 ? 'text-dark opacity-75' : 'text-white text-opacity-75' }}">{{ ($myPendingClientMessages ?? 0) > 0 ? 'Awaiting approval' : 'All clear' }}</p>
+                                    </div>
+                                    <div class="widget-icon-box-avatar avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-white bg-opacity-25 {{ ($myPendingClientMessages ?? 0) > 0 ? 'text-dark' : 'text-white' }} rounded-3 fs-3">
+                                            <i class="ri-mail-send-line"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endif
         </div>
 
-    </div>{{-- end col-8 --}}
-
-    {{-- ── COL 4: Today's Reminders ─────────────────────── --}}
-    <div class="col-lg-3">
-        <div class="card h-100 mb-0">
+        {{-- Reminders --}}
+        <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center py-2">
                 <span class="fw-semibold"><i class="ri-alarm-line me-1 text-primary"></i> Today's Reminders</span>
                 <span class="text-muted fs-12">{{ now()->format('d M') }}</span>
             </div>
-            <div class="card-body p-0" style="overflow-y:auto;max-height:460px;">
+            <div class="card-body p-0" style="overflow-y:auto;max-height:340px;">
 
                 {{-- Daily Reminders --}}
                 @if (($myReminders ?? collect())->isNotEmpty())
@@ -320,7 +303,7 @@
                                 <a href="{{ route('client.message.my.list') }}" class="fs-12 text-warning fw-medium">View →</a>
                             </div>
                         @endif
-                        @if (($pendingClientMessageCount ?? 0) > 0 && Auth::user()->hasAnyRole(['Leader','Co Leader']))
+                        @if (($pendingClientMessageCount ?? 0) > 0 && $isLead)
                             <div class="p-2 rounded" style="background:#fff3cd;">
                                 <div class="fs-13"><strong>{{ $pendingClientMessageCount }}</strong> message(s) waiting your review.</div>
                                 <a href="{{ route('client.message.review.list') }}" class="fs-12 text-warning fw-medium">Review Now →</a>
@@ -345,9 +328,185 @@
 
             </div>
         </div>
-    </div>
+
+        {{-- Todo List --}}
+        <div class="card mb-0">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold fs-13">Todo List</span>
+                <a href="{{ route('todo.list') }}" class="text-muted fs-11"><i class="ri-external-link-line"></i></a>
+            </div>
+            <div class="card-body py-2 px-3" style="max-height:220px;overflow-y:auto;" id="dash-todo-scroll">
+                <form id="todo-form" class="mb-2">
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="todo-input-text" class="form-control form-control-sm" placeholder="Add todo...">
+                        <button class="btn btn-sm btn-primary" type="submit">+</button>
+                    </div>
+                </form>
+                <ul class="list-unstyled mb-0" id="todo-list"></ul>
+            </div>
+        </div>
+
+    </div>{{-- end col-6: Good Morning column --}}
+
+    {{-- ── COL 6: TEAM COLUMN ────────────────────────────── --}}
+    <div class="col-lg-6">
+
+        {{-- Team Name & Logo --}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    @if ($team->logo)
+                        <img src="{{ asset($team->logo) }}" alt="{{ $team->name }}" class="team-logo-frame">
+                    @else
+                        <div class="team-logo-placeholder">
+                            <i class="ri-team-line fs-3 text-primary"></i>
+                        </div>
+                    @endif
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1">{{ $team->name }}</h4>
+                        <p class="text-muted fs-13 mb-0">{{ $totalMembers }} Active Members</p>
+                    </div>
+                    @if ($isLead)
+                        <button type="button" class="btn btn-sm btn-soft-secondary" data-bs-toggle="modal" data-bs-target="#teamProfileModal" title="Edit team name & logo">
+                            <i class="ri-pencil-line"></i>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Leader Name & Avatar --}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-2">Team Leader</div>
+                @if ($teamLeader)
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="{{ asset($teamLeader->avatar) }}" alt="{{ $teamLeader->name }}" class="rounded-circle" style="width:48px;height:48px;object-fit:cover;">
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">{{ $teamLeader->name }}</div>
+                            <div class="text-muted fs-12">{{ $teamLeader->designation ?: 'Leader' }}</div>
+                        </div>
+                        @if ($teamLeader->id === Auth::id())
+                            <span class="badge bg-info-subtle text-info rounded-pill">That's you</span>
+                        @else
+                            <a href="{{ route('dashboard.inbox') }}?user={{ $teamLeader->id }}" class="btn btn-sm btn-soft-primary">
+                                <i class="ri-send-plane-line me-1"></i> Send Message
+                            </a>
+                        @endif
+                    </div>
+                @else
+                    <div class="text-muted fs-13">No leader assigned to this team yet.</div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Team Announcement --}}
+        <div class="card mb-3">
+            <div class="card-header py-2">
+                <span class="fw-semibold fs-13"><i class="ri-megaphone-line me-1 text-primary"></i> Team Announcement</span>
+            </div>
+            <div class="card-body" style="max-height:220px;overflow-y:auto;">
+                @forelse ($activeAnnouncements ?? [] as $announcement)
+                    <div class="alert {{ $announcement->priorityAlertClass() }} d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                        <span>
+                            <strong>{{ $announcement->title }}</strong> &mdash; {{ $announcement->description }}
+                        </span>
+                        <span class="text-nowrap small fw-semibold">Ends {{ $announcement->ends_at->format('d M Y') }}</span>
+                    </div>
+                @empty
+                    <div class="text-muted text-center py-3 fs-13">
+                        <i class="ri-megaphone-line d-block mb-1 fs-3"></i> No active announcements.
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Team Sheets --}}
+        <div class="card mb-3">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold fs-13"><i class="ri-file-excel-2-line me-1 text-success"></i> Team Sheets</span>
+                @if (($teamSheetTotal ?? 0) > ($teamSheets ?? collect())->count())
+                    <a href="{{ route('team.sheet.list') }}" class="fs-12 text-muted">View All →</a>
+                @endif
+            </div>
+            <div class="card-body" style="max-height:200px;overflow-y:auto;">
+                @forelse ($teamSheets ?? [] as $sheet)
+                    <a href="{{ $sheet->link }}" target="_blank" rel="noopener" class="sheet-row-link py-1">
+                        <i class="ri-file-excel-2-line text-success"></i>
+                        <span class="fs-13">{{ $sheet->title }}</span>
+                    </a>
+                @empty
+                    <div class="text-muted text-center py-3 fs-13">No sheets added yet.</div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Role-specific footer --}}
+        @if ($isLead)
+            <div class="card mb-3">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-medium"><i class="ri-megaphone-line me-1 text-primary"></i> Make A Announcement</div>
+                        <div class="text-muted fs-12">Notify your team about something important.</div>
+                    </div>
+                    <a href="{{ route('announcement.create') }}" class="btn btn-sm btn-soft-primary">Create</a>
+                </div>
+            </div>
+            <div class="card mb-0">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-medium"><i class="ri-calendar-close-line me-1 text-danger"></i> Leave Log</div>
+                        <div class="text-muted fs-12">See who's absent, on leave, or WFH.</div>
+                    </div>
+                    <a href="{{ route('member.leave.list') }}" class="btn btn-sm btn-soft-secondary">Open</a>
+                </div>
+            </div>
+        @else
+            <div class="card mb-0">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-medium"><i class="ri-calendar-close-line me-1 text-danger"></i> Ask For Leave</div>
+                        <div class="text-muted fs-12">Log an absence, leave, or home office day.</div>
+                    </div>
+                    <a href="{{ route('member.leave.ask') }}" class="btn btn-sm btn-soft-primary">Ask</a>
+                </div>
+            </div>
+        @endif
+
+    </div>{{-- end col-6: Team column --}}
 
 </div>{{-- end main row --}}
+
+@if ($isLead)
+    <div class="modal fade" id="teamProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('leader.team.profile.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="ri-team-line me-1"></i> Edit Team Profile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Team Name</label>
+                            <input type="text" class="form-control" name="name" value="{{ $team->name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Team Logo</label>
+                            <input type="file" class="form-control" name="logo" accept="image/*">
+                            <div class="form-text">PNG/JPG, up to 2MB. Leave empty to keep the current logo.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success"><i class="ri-save-line me-1"></i> Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
 
 @else
 {{-- ── ADMIN / NON-TEAM DASHBOARD ─────────────────────────── --}}
@@ -401,23 +560,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 mb-3">
-                <div class="card h-100">
-                    <div class="card-header"><h4 class="header-title">Quick Access</h4></div>
-                    <div class="card-body py-0 mb-3" data-simplebar style="max-height:250px;">
-                        @forelse ($menuItems as $item)
-                            <div class="row py-1 align-items-center">
-                                <div class="col-auto"><i class="{{ $item->icon }} fs-18"></i></div>
-                                <div class="col ps-0"><a href="{{ $item->url }}" class="text-body">{{ $item->name }}</a></div>
-                                <div class="col-auto"><a href="{{ route('remove.quick.access', $item->route) }}" class="text-danger fw-bold">Remove</a></div>
-                            </div>
-                        @empty
-                            <div class="row py-1"><div class="col ps-0"><a href="#" class="text-body">No Links Found</a></div></div>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 mb-3">
+            <div class="col-12 mb-3">
                 <div class="card h-100">
                     <div class="card-header"><h4 class="header-title">Todo List</h4></div>
                     <div class="todoapp">

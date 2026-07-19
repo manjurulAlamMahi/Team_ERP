@@ -107,6 +107,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::post('/leader/member-info', 'updateMemberInfo')->name('leader.member.info');
         Route::post('/leader/member-role', 'updateMemberRole')->name('leader.member.role');
         Route::post('/leader/member-password', 'updateMemberPassword')->name('leader.member.password');
+        Route::post('/leader/team-profile', 'updateTeamProfile')->name('leader.team.profile.update');
     });
 
     Route::controller(ClientMessageTypeController::class)->group(function () {
@@ -246,6 +247,8 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::get('/member-leave/list', 'list')->name('member.leave.list');
         Route::get('/member-leave/create', 'createForm')->name('member.leave.create');
         Route::post('/member-leave/store', 'store')->name('member.leave.store');
+        Route::get('/member-leave/ask', 'askForm')->name('member.leave.ask');
+        Route::post('/member-leave/ask/store', 'storeSelf')->name('member.leave.ask.store');
         Route::get('/member-leave/{id}/edit', 'edit')->name('member.leave.edit');
         Route::post('/member-leave/update', 'update')->name('member.leave.update');
         Route::post('/member-leave/destroy', 'destroy')->name('member.leave.destroy');

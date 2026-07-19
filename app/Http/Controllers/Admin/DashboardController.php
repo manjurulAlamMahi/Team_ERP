@@ -10,6 +10,7 @@ use App\Models\DailyReminder;
 use App\Models\DailyTask;
 use App\Models\QuickAccessMenu;
 use App\Models\Team;
+use App\Models\TeamSheet;
 use App\Models\TodayPlanTask;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -46,6 +47,12 @@ class DashboardController extends Controller
 
             $data['team'] = $team;
             $data['activeAnnouncements'] = Announcement::where('team_id', $team->id)->active()->latest()->get();
+            $data['teamLeader'] = User::where('team_id', $team->id)
+                ->whereHas('roles', fn ($q) => $q->where('name', 'Leader'))
+                ->first();
+            $data['teamSheets'] = TeamSheet::forTeam($team->id)->latest()->take(5)->get();
+            $data['teamSheetTotal'] = TeamSheet::forTeam($team->id)->count();
+            $data['teamPendingTaskCount'] = DailyTask::forTeam($team->id)->forDate(today())->pending()->count();
             $data['totalMembers'] = $members->count();
             $data['stackBreakdown'] = $members->groupBy(fn ($m) => $m->stack->name ?? 'Unassigned')->map->count();
             $data['teamOverview'] = $members->map(function (User $member) use ($planRows, $issueUserIds) {
@@ -125,18 +132,20 @@ class DashboardController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->with('error', 'Failed!');
         }
-        $data = $request->all();
+
+        if (QuickAccessMenu::where('user_id', Auth::id())->where('route', $request->route)->exists()) {
+            return redirect()->back()->with('error', 'This page is already in your Quick Access.');
+        }
+
+        $data = $request->only(['icon', 'route', 'url', 'name']);
         $data['user_id'] = Auth::id();
-        // Store the new quick access menu
         QuickAccessMenu::create($data);
 
-        // Redirect or return a response
         return redirect()->back()->with('success', 'Added to quick menu successfully');
     }
     public function removeQuickAccess($route)
     {
-        // Store the new quick access menu
-        $r = QuickAccessMenu::where('route', $route)->delete();
+        $r = QuickAccessMenu::where('user_id', Auth::id())->where('route', $route)->delete();
 
         if($r){
             return redirect()->back()->with('success', 'Removed from quick menu successfully');

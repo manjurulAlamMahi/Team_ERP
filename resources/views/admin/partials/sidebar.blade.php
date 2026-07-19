@@ -53,6 +53,22 @@
         <!--- Sidemenu -->
         <ul class="side-nav">
 
+            {{-- Quick Access: hidden entirely when the user has none saved --}}
+            @php
+                $quickAccessItems = \App\Models\QuickAccessMenu::where('user_id', Auth::id())->latest()->get();
+            @endphp
+            @if ($quickAccessItems->isNotEmpty())
+                <li class="side-nav-title mt-1">Quick Access</li>
+                @foreach ($quickAccessItems as $qa)
+                    <li class="side-nav-item">
+                        <a href="{{ $qa->url }}" class="side-nav-link">
+                            <i class="{{ $qa->icon ?: 'ri-star-line' }}"></i>
+                            <span> {{ $qa->name }} </span>
+                        </a>
+                    </li>
+                @endforeach
+            @endif
+
             <li class="side-nav-title mt-1"> Main</li>
 
             <li class="side-nav-item">
@@ -150,44 +166,61 @@
             @endcanany
 
             @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead', 'Member', 'Probation']))
-                <li class="side-nav-title mt-2">Teams</li>
+                @php
+                    $isLead = Auth::user()->hasAnyRole(['Leader', 'Co Leader']);
+                    $isTaskLead = Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']);
+                @endphp
 
-                {{-- 0. Our Clients --}}
+                <li class="side-nav-title mt-2">{{ $isLead ? 'Team Activity' : 'My Work' }}</li>
+
+                {{-- 0. Client Messages: Review (Leader/Co Leader) or Send (Stack Lead/Member/Probation) --}}
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarOurClients" aria-expanded="false" aria-controls="sidebarOurClients"
-                        class="side-nav-link {{ Route::is('client.*') ? 'active' : '' }}">
-                        <i class="ri-team-line"></i>
-                        <span> Our Clients </span>
+                    <a data-bs-toggle="collapse" href="#sidebarClientMessages" aria-expanded="false" aria-controls="sidebarClientMessages"
+                        class="side-nav-link {{ Route::is('client.message.*') ? 'active' : '' }}">
+                        <i class="ri-customer-service-2-line"></i>
+                        <span> {{ $isLead ? 'Review Client Message' : 'Send Client Message' }} </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse {{ Route::is('client.*') ? 'show' : '' }}" id="sidebarOurClients">
+                    <div class="collapse {{ Route::is('client.message.*') ? 'show' : '' }}" id="sidebarClientMessages">
                         <ul class="side-nav-second-level">
-                            <li>
-                                <a href="{{ route('client.list') }}">Client Lists</a>
-                            </li>
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+                            @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
                                 <li>
-                                    <a href="{{ route('client.create') }}">Add New</a>
+                                    <a href="{{ route('client.message.create') }}">Send Message</a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('client.bulk.create') }}">Add Multiple</a>
+                                    <a href="{{ route('client.message.my.list') }}">My Messages</a>
+                                </li>
+                            @endif
+                            @if ($isLead)
+                                @php
+                                    $pendingClientMessageCount = \App\Models\ClientMessage::where('team_id', Auth::user()->team_id)->where('status', 'pending')->count();
+                                @endphp
+                                <li>
+                                    <a href="{{ route('client.message.review.list') }}">Pending Review
+                                        @if ($pendingClientMessageCount > 0)
+                                            <span class="badge bg-danger float-end">{{ $pendingClientMessageCount > 9 ? '9+' : $pendingClientMessageCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('client.message.review.history') }}">Review History</a>
                                 </li>
                             @endif
                         </ul>
                     </div>
                 </li>
 
-                {{-- 1. Daily Issue --}}
+                {{-- 1. Daily Issue: "My Daily Issue" (w/ Add, for Leader/Co Leader/Stack Lead) or "Daily Issue" --}}
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarDailyIssue" aria-expanded="false" aria-controls="sidebarDailyIssue"
                         class="side-nav-link {{ Route::is('daily.issue.*') ? 'active' : '' }}">
                         <i class="ri-alert-line"></i>
-                        <span> Daily Issue </span>
+                        <span> {{ $isTaskLead ? 'My Daily Issue' : 'Daily Issue' }} </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse {{ Route::is('daily.issue.*') ? 'show' : '' }}" id="sidebarDailyIssue">
                         <ul class="side-nav-second-level">
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+                            @if ($isTaskLead)
                                 <li>
                                     <a href="{{ route('daily.issue.create') }}">Add Issue</a>
                                 </li>
@@ -223,12 +256,12 @@
                     </div>
                 </li>
 
-                {{-- 2. Daily Task --}}
+                {{-- 2. Daily Task: "My Task" (Leader/Co Leader/Stack Lead) or "Team Task" --}}
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarDailyTask" aria-expanded="false" aria-controls="sidebarDailyTask"
                         class="side-nav-link {{ Route::is('daily.task.*') ? 'active' : '' }}">
                         <i class="ri-task-line"></i>
-                        <span> Daily Task </span>
+                        <span> {{ $isTaskLead ? 'My Task' : 'Team Task' }} </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse {{ Route::is('daily.task.*') ? 'show' : '' }}" id="sidebarDailyTask">
@@ -239,7 +272,7 @@
                             <li>
                                 <a href="{{ route('daily.task.my') }}" class="{{ Route::is('daily.task.my') ? 'active' : '' }}">My Tasks</a>
                             </li>
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader', 'Stack Lead']))
+                            @if ($isTaskLead)
                                 <li>
                                     <a href="{{ route('daily.task.assign') }}" class="{{ Route::is('daily.task.assign') ? 'active' : '' }}">Assign Task</a>
                                 </li>
@@ -251,56 +284,51 @@
                     </div>
                 </li>
 
-                {{-- 3. Client Messages --}}
+                <li class="side-nav-title mt-2">My Team</li>
+
+                {{-- Team Stats --}}
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarClientMessages" aria-expanded="false" aria-controls="sidebarClientMessages"
-                        class="side-nav-link {{ Route::is('client.message.*') ? 'active' : '' }}">
-                        <i class="ri-customer-service-2-line"></i>
-                        <span> Client Messages </span>
+                    <a href="{{ route('leader.team.stats') }}" class="side-nav-link {{ Route::is('leader.team.stats') ? 'active' : '' }}">
+                        <i class="ri-bar-chart-2-line"></i>
+                        <span> Team Stats </span>
+                    </a>
+                </li>
+
+                {{-- Team Clients (Dropdown) --}}
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarOurClients" aria-expanded="false" aria-controls="sidebarOurClients"
+                        class="side-nav-link {{ Route::is('client.*') ? 'active' : '' }}">
+                        <i class="ri-team-line"></i>
+                        <span> Team Clients </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse {{ Route::is('client.message.*') ? 'show' : '' }}" id="sidebarClientMessages">
+                    <div class="collapse {{ Route::is('client.*') ? 'show' : '' }}" id="sidebarOurClients">
                         <ul class="side-nav-second-level">
-                            @if (Auth::user()->hasAnyRole(['Stack Lead', 'Member', 'Probation']))
+                            <li>
+                                <a href="{{ route('client.list') }}">Client Lists</a>
+                            </li>
+                            @if ($isTaskLead)
                                 <li>
-                                    <a href="{{ route('client.message.create') }}">Send Message</a>
+                                    <a href="{{ route('client.create') }}">Add New</a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('client.message.my.list') }}">My Messages</a>
-                                </li>
-                            @endif
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                @php
-                                    $pendingClientMessageCount = \App\Models\ClientMessage::where('team_id', Auth::user()->team_id)->where('status', 'pending')->count();
-                                @endphp
-                                <li>
-                                    <a href="{{ route('client.message.review.list') }}">Pending Review
-                                        @if ($pendingClientMessageCount > 0)
-                                            <span class="badge bg-danger float-end">{{ $pendingClientMessageCount > 9 ? '9+' : $pendingClientMessageCount }}</span>
-                                        @endif
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('client.message.review.history') }}">Review History</a>
+                                    <a href="{{ route('client.bulk.create') }}">Add Multiple</a>
                                 </li>
                             @endif
                         </ul>
                     </div>
                 </li>
 
-                {{-- 4. Manage Team --}}
+                {{-- Team Members (Dropdown) --}}
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarManageTeam" aria-expanded="false" aria-controls="sidebarManageTeam"
-                        class="side-nav-link {{ Route::is('leader.*') ? 'active' : '' }}">
-                        <i class="ri-team-line"></i>
-                        <span> Manage Team </span>
+                        class="side-nav-link {{ Route::is('leader.my.team') || Route::is('leader.add.member') ? 'active' : '' }}">
+                        <i class="ri-group-line"></i>
+                        <span> Team Members </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse {{ Route::is('leader.*') ? 'show' : '' }}" id="sidebarManageTeam">
+                    <div class="collapse {{ Route::is('leader.my.team') || Route::is('leader.add.member') ? 'show' : '' }}" id="sidebarManageTeam">
                         <ul class="side-nav-second-level">
-                            <li>
-                                <a href="{{ route('leader.team.stats') }}">Team Stats</a>
-                            </li>
                             <li>
                                 <a href="{{ route('leader.my.team') }}">My Team</a>
                             </li>
@@ -313,38 +341,73 @@
                     </div>
                 </li>
 
-                {{-- 5. Team Updates --}}
+                {{-- Team Sheets --}}
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarTeamUpdates" aria-expanded="false" aria-controls="sidebarTeamUpdates"
-                        class="side-nav-link {{ Route::is('team.sheet.*') || Route::is('announcement.*') || Route::is('member.leave.*') ? 'active' : '' }}">
-                        <i class="ri-newspaper-line"></i>
-                        <span> Team Updates </span>
+                    <a data-bs-toggle="collapse" href="#sidebarTeamSheets" aria-expanded="false" aria-controls="sidebarTeamSheets"
+                        class="side-nav-link {{ Route::is('team.sheet.*') ? 'active' : '' }}">
+                        <i class="ri-file-excel-2-line"></i>
+                        <span> Team Sheets </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse {{ Route::is('team.sheet.*') || Route::is('announcement.*') || Route::is('member.leave.*') ? 'show' : '' }}" id="sidebarTeamUpdates">
+                    <div class="collapse {{ Route::is('team.sheet.*') ? 'show' : '' }}" id="sidebarTeamSheets">
                         <ul class="side-nav-second-level">
                             <li>
                                 <a href="{{ route('team.sheet.list') }}" class="{{ Route::is('team.sheet.list') ? 'active' : '' }}">Team Sheets</a>
                             </li>
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
+                            @if ($isLead)
                                 <li>
                                     <a href="{{ route('team.sheet.create') }}" class="{{ Route::is('team.sheet.create') ? 'active' : '' }}">Add Sheet</a>
-                                </li>
-                            @endif
-                            <li>
-                                <a href="{{ route('announcement.list') }}" class="{{ Route::is('announcement.list') ? 'active' : '' }}">Announcements</a>
-                            </li>
-                            @if (Auth::user()->hasAnyRole(['Leader', 'Co Leader']))
-                                <li>
-                                    <a href="{{ route('announcement.create') }}" class="{{ Route::is('announcement.create') ? 'active' : '' }}">New Announcement</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('member.leave.list') }}" class="{{ Route::is('member.leave.*') ? 'active' : '' }}">Leave Log</a>
                                 </li>
                             @endif
                         </ul>
                     </div>
                 </li>
+
+                {{-- Announcements: "Make A Announcement" dropdown (Leader/Co Leader) or plain view-only link --}}
+                @if ($isLead)
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarAnnouncements" aria-expanded="false" aria-controls="sidebarAnnouncements"
+                            class="side-nav-link {{ Route::is('announcement.*') ? 'active' : '' }}">
+                            <i class="ri-megaphone-line"></i>
+                            <span> Make A Announcement </span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse {{ Route::is('announcement.*') ? 'show' : '' }}" id="sidebarAnnouncements">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="{{ route('announcement.list') }}" class="{{ Route::is('announcement.list') ? 'active' : '' }}">Announcements</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('announcement.create') }}" class="{{ Route::is('announcement.create') ? 'active' : '' }}">New Announcement</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                @else
+                    <li class="side-nav-item">
+                        <a href="{{ route('announcement.list') }}" class="side-nav-link {{ Route::is('announcement.list') ? 'active' : '' }}">
+                            <i class="ri-megaphone-line"></i>
+                            <span> Announcements </span>
+                        </a>
+                    </li>
+                @endif
+
+                {{-- Leave: "Leave Log" (Leader/Co Leader manage) or "Ask For Leave" (self-service) --}}
+                @if ($isLead)
+                    <li class="side-nav-item">
+                        <a href="{{ route('member.leave.list') }}" class="side-nav-link {{ Route::is('member.leave.list') || Route::is('member.leave.edit') ? 'active' : '' }}">
+                            <i class="ri-calendar-close-line"></i>
+                            <span> Leave Log </span>
+                        </a>
+                    </li>
+                @else
+                    <li class="side-nav-item">
+                        <a href="{{ route('member.leave.ask') }}" class="side-nav-link {{ Route::is('member.leave.ask') ? 'active' : '' }}">
+                            <i class="ri-calendar-close-line"></i>
+                            <span> Ask For Leave </span>
+                        </a>
+                    </li>
+                @endif
             @endif
 
             {{--

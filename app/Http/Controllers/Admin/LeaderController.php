@@ -46,6 +46,18 @@ class LeaderController extends Controller
         return Team::findOrFail($user->team_id);
     }
 
+    /**
+     * Leader/Co Leader may update the team's own name/logo - same permission
+     * level already used for Team Sheets/Announcements/Leave Log management.
+     */
+    private function teamManagerTeam(): Team
+    {
+        $user = $this->currentTeamUser();
+        abort_unless($user->hasAnyRole(['Leader', 'Co Leader']), 403);
+
+        return Team::findOrFail($user->team_id);
+    }
+
     public function teamStats()
     {
         $team = $this->memberTeam();
@@ -250,5 +262,33 @@ class LeaderController extends Controller
         DB::table('sessions')->where('user_id', $user->id)->delete();
 
         return $this->success($user, 'Member password updated successfully', 200);
+    }
+
+    public function updateTeamProfile(Request $request)
+    {
+        $team = $this->teamManagerTeam();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:2048'],
+        ]);
+
+        $data = ['name' => $request->name];
+
+        if ($request->hasFile('logo')) {
+            if ($team->logo && file_exists(public_path($team->logo))) {
+                unlink(public_path($team->logo));
+            }
+
+            $directory = 'teams/logos';
+            $filename = time() . '_' . uniqid() . '.' . $request->file('logo')->getClientOriginalExtension();
+            $request->file('logo')->move(public_path($directory), $filename);
+
+            $data['logo'] = $directory . '/' . $filename;
+        }
+
+        $team->update($data);
+
+        return redirect()->route('dashboard')->with('success', 'Team profile updated successfully.');
     }
 }

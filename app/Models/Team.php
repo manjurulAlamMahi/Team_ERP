@@ -12,6 +12,7 @@ class Team extends Model
     protected $fillable = [
         'community_id',
         'name',
+        'logo',
         'started_at',
         'description',
         'status',
