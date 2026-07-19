@@ -457,7 +457,7 @@
                 <div class="row match-height">
                     <div class="col-lg-6">
                         {{-- Team Name & Logo --}}
-                        <div class="card mb-3">
+                        <div class="card mb-3 h-100">
                             <div class="card-body">
                                 <div class="d-flex align-items-center gap-3">
                                     @if ($team->logo)
@@ -485,7 +485,7 @@
                     </div>
                     <div class="col-lg-6">
                         {{-- Leader Name & Avatar --}}
-                        <div class="card mb-3">
+                        <div class="card mb-3 h-100">
                             <div class="card-body">
                                 <div class="text-muted small text-uppercase fw-semibold mb-2">Team Leader</div>
                                 @if ($teamLeader)
