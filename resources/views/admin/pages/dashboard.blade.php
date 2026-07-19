@@ -136,7 +136,7 @@
                         {{-- Stat / action cards --}}
                         <div class="row g-3 mb-3">
                             @if ($isLead)
-                                <div class="col-4">
+                                <div class="col-12">
                                     <a href="{{ route('daily.task.assign') }}" class="stat-card-link">
                                         <div class="card widget-icon-box text-bg-success mb-0 h-100">
                                             <div class="card-body">
@@ -159,7 +159,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-12 my-3">
                                     <a href="{{ route('daily.issue.create') }}" class="stat-card-link">
                                         <div
                                             class="card widget-icon-box mb-0 h-100 {{ ($openIssueCount ?? 0) > 0 ? 'text-bg-danger' : 'text-bg-info' }}">
@@ -183,7 +183,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-12">
                                     <a href="{{ route('client.message.review.list') }}" class="stat-card-link">
                                         <div
                                             class="card widget-icon-box mb-0 h-100 {{ ($pendingClientMessageCount ?? 0) > 0 ? 'text-bg-warning' : 'text-bg-primary' }}">
@@ -213,7 +213,7 @@
                                     </a>
                                 </div>
                             @else
-                                <div class="col-4">
+                                <div class="col-12">
                                     <a href="{{ route('daily.task.my') }}" class="stat-card-link">
                                         <div class="card widget-icon-box text-bg-success mb-0 h-100">
                                             <div class="card-body">
@@ -238,7 +238,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-12 my-3">
                                     <a href="{{ route('daily.issue.my') }}" class="stat-card-link">
                                         <div
                                             class="card widget-icon-box mb-0 h-100 {{ ($myPendingIssues ?? collect())->isNotEmpty() ? 'text-bg-danger' : 'text-bg-info' }}">
@@ -264,7 +264,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-12">
                                     <a href="{{ route('client.message.my.list') }}" class="stat-card-link">
                                         <div
                                             class="card widget-icon-box mb-0 h-100 {{ ($myPendingClientMessages ?? 0) > 0 ? 'text-bg-warning' : 'text-bg-primary' }}">
