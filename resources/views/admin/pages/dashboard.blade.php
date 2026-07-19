@@ -130,11 +130,31 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Todo List --}}
+                        <div class="card mb-0">
+                            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold fs-13">Todo List</span>
+                                <a href="{{ route('todo.list') }}" class="text-muted fs-11"><i
+                                        class="ri-external-link-line"></i></a>
+                            </div>
+                            <div class="card-body py-2 px-3" style="max-height:220px;overflow-y:auto;"
+                                id="dash-todo-scroll">
+                                <form id="todo-form" class="mb-2">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="todo-input-text" class="form-control form-control-sm"
+                                            placeholder="Add todo...">
+                                        <button class="btn btn-sm btn-primary" type="submit">+</button>
+                                    </div>
+                                </form>
+                                <ul class="list-unstyled mb-0" id="todo-list"></ul>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-lg-4">
                         {{-- Stat / action cards --}}
-                        <div class="row g-3 mb-3">
+                        <div class="row">
                             @if ($isLead)
                                 <div class="col-12">
                                     <a href="{{ route('daily.task.assign') }}" class="stat-card-link">
@@ -436,24 +456,7 @@
                     </div>
                 </div>
 
-                {{-- Todo List --}}
-                <div class="card mb-0">
-                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                        <span class="fw-semibold fs-13">Todo List</span>
-                        <a href="{{ route('todo.list') }}" class="text-muted fs-11"><i
-                                class="ri-external-link-line"></i></a>
-                    </div>
-                    <div class="card-body py-2 px-3" style="max-height:220px;overflow-y:auto;" id="dash-todo-scroll">
-                        <form id="todo-form" class="mb-2">
-                            <div class="input-group input-group-sm">
-                                <input type="text" id="todo-input-text" class="form-control form-control-sm"
-                                    placeholder="Add todo...">
-                                <button class="btn btn-sm btn-primary" type="submit">+</button>
-                            </div>
-                        </form>
-                        <ul class="list-unstyled mb-0" id="todo-list"></ul>
-                    </div>
-                </div>
+
 
             </div>{{-- end col-6: Good Morning column --}}
 
