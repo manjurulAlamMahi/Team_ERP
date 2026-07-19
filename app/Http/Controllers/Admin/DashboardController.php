@@ -50,7 +50,7 @@ class DashboardController extends Controller
             $data['teamLeader'] = User::where('team_id', $team->id)
                 ->whereHas('roles', fn ($q) => $q->where('name', 'Leader'))
                 ->first();
-            $data['teamSheets'] = TeamSheet::forTeam($team->id)->latest()->take(5)->get();
+            $data['teamSheets'] = TeamSheet::forTeam($team->id)->take(5)->get();
             $data['teamSheetTotal'] = TeamSheet::forTeam($team->id)->count();
             $data['teamPendingTaskCount'] = DailyTask::forTeam($team->id)->forDate(today())->pending()->count();
             $data['totalMembers'] = $members->count();
