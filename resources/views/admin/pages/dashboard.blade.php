@@ -126,7 +126,13 @@
                                         @endforeach
                                     @endif
                                 </div>
-                                <div class="col-lg-6"></div>
+                                <div class="col-lg-6">
+                                    <div class="text-center">
+                                        <img width="100"
+                                            src="{{ asset('admin/assets/images/greetings/001-waving-hand.png') }}"
+                                            alt="">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
