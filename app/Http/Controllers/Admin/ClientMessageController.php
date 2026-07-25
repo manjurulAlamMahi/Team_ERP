@@ -215,7 +215,7 @@ class ClientMessageController extends Controller
         $messages = ClientMessage::with(['type', 'submitter', 'reviewer'])
             ->forTeam($team->id)
             ->whereIn('status', ['approved', 'rejected'])
-            ->latest()
+            ->latest('reviewed_at')
             ->get();
 
         return view('admin.pages.client-message.review-history', compact('team', 'messages'));

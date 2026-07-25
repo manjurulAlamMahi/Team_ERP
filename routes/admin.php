@@ -45,8 +45,10 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
     Route::controller(TodoController::class)->group(function () {
         Route::get('/todo-list/items', 'index')->name('todo.items');
         Route::post('/todo-list/store', 'store')->name('todo.store');
+        Route::post('/todo-list/update', 'update')->name('todo.update');
         Route::post('/todo-list/toggle', 'toggle')->name('todo.toggle');
         Route::post('/todo-list/toggle-all', 'toggleAll')->name('todo.toggle.all');
+        Route::post('/todo-list/reorder', 'reorder')->name('todo.reorder');
         Route::post('/todo-list/destroy', 'destroy')->name('todo.destroy');
         Route::post('/todo-list/clear-all', 'clearAll')->name('todo.clear.all');
     });

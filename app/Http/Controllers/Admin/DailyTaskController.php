@@ -220,6 +220,9 @@ class DailyTaskController extends Controller
         if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
 
         // Pending tasks are shown regardless of task_date (an unfinished task from
         // last week must still surface today); a task only becomes date-bound once
@@ -250,8 +253,9 @@ class DailyTaskController extends Controller
 
         $tasks   = $query->paginate(20)->withQueryString();
         $members = $this->assignableMembers($actor, $team);
+        $clients = Client::forTeam($team->id)->orderBy('username')->get();
 
-        return view('admin.pages.daily-task.all-tasks', compact('tasks', 'members', 'actor', 'team', 'startDate', 'endDate'));
+        return view('admin.pages.daily-task.all-tasks', compact('tasks', 'members', 'actor', 'team', 'startDate', 'endDate', 'clients'));
     }
 
     public function edit(Request $request)

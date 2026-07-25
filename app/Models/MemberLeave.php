@@ -70,6 +70,7 @@ class MemberLeave extends Model
             'absent' => 'Absent',
             'leave' => 'Leave',
             'home_office' => 'Home Office',
+            'sick' => 'Sick',
             default => $this->status,
         };
     }
@@ -80,6 +81,7 @@ class MemberLeave extends Model
             'absent' => 'bg-danger-subtle text-danger',
             'leave' => 'bg-warning-subtle text-warning',
             'home_office' => 'bg-info-subtle text-info',
+            'sick' => 'bg-primary-subtle text-primary',
             default => 'bg-secondary-subtle text-secondary',
         };
     }

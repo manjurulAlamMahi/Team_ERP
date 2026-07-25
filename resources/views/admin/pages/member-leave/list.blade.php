@@ -44,6 +44,14 @@
                                 <td>{{ $leave->creator->name ?? '-' }}</td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
+                                        <a href="javascript: void(0);" class="btn btn-sm btn-soft-primary copy-leave-btn" title="Copy"
+                                            data-date="{{ $leave->start_date->isSameDay($leave->end_date) ? $leave->start_date->format('d F Y') : $leave->start_date->format('d F Y') . ' - ' . $leave->end_date->format('d F Y') }}"
+                                            data-name="{{ $leave->user->name ?? '-' }}"
+                                            data-empid="{{ $leave->user->employee_id ?? '-' }}"
+                                            data-type="{{ $leave->statusLabel() }}"
+                                            data-reason="{{ $leave->reason }}">
+                                            <i class="ri-file-copy-2-line"></i>
+                                        </a>
                                         <a href="{{ route('member.leave.edit', $leave->id) }}" class="btn btn-sm btn-soft-secondary" title="Edit">
                                             <i class="ri-edit-line"></i>
                                         </a>
@@ -71,6 +79,50 @@
     <script src="{{ asset('admin') }}/assets/js/pages/demo.datatable-init.js"></script>
 
     <script>
+        function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            }
+
+            return new Promise(function(resolve, reject) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    resolve();
+                } catch (err) {
+                    reject(err);
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            });
+        }
+
+        $(document).on('click', '.copy-leave-btn', function() {
+            const $btn = $(this);
+            const text = $btn.data('date') + '\n' +
+                $btn.data('name') + ' - ' + $btn.data('empid') + '\n' +
+                $btn.data('type') + '\n' +
+                'Reason : ' + $btn.data('reason');
+
+            copyTextToClipboard(text).then(function() {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Copied to clipboard',
+                });
+            }).catch(function() {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Could not copy to clipboard',
+                });
+            });
+        });
+
         async function deleteLeave(id) {
             const result = await Swal.fire({
                 icon: 'warning',
