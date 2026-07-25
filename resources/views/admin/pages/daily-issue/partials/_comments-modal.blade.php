@@ -26,6 +26,7 @@
     </div>
 </div>
 
+@push('script')
 <script>
     function escapeHtml(str) {
         return $('<div>').text(str === null || str === undefined ? '' : str).html();
@@ -119,3 +120,4 @@
         });
     });
 </script>
+@endpush

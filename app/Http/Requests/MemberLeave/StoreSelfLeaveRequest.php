@@ -14,7 +14,7 @@ class StoreSelfLeaveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'in:absent,leave,home_office'],
+            'status' => ['required', 'in:absent,leave,home_office,sick'],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'reason' => ['required', 'string', 'max:2000'],
@@ -24,7 +24,7 @@ class StoreSelfLeaveRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'status.in' => 'Status must be Absent, Leave or Home Office.',
+            'status.in' => 'Status must be Absent, Leave, Home Office or Sick.',
             'start_date.required' => 'Start date is required.',
             'end_date.after_or_equal' => 'End date cannot be before the start date.',
             'reason.required' => 'Please provide a reason.',

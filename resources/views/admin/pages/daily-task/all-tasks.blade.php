@@ -43,6 +43,17 @@
                         </select>
                     </div>
                     <div class="col-sm-auto">
+                        <label class="form-label mb-1 fs-12 text-muted">Client</label>
+                        <select name="client_id" class="form-select form-select-sm">
+                            <option value="">All Clients</option>
+                            @foreach ($clients as $client)
+                                <option value="{{ $client->id }}" {{ (string) request('client_id') === (string) $client->id ? 'selected' : '' }}>
+                                    {{ $client->username }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-sm-auto">
                         <label class="form-label mb-1 fs-12 text-muted">Start Date</label>
                         <input type="date" name="start_date" class="form-select form-select-sm" value="{{ $startDate->format('Y-m-d') }}">
                     </div>

@@ -91,7 +91,7 @@ class DailyIssueController extends Controller
             'created_by' => $user->id,
             'issue_date' => today(),
             'client_id' => $client->id,
-            'client_name' => $client->client_name ?: $client->username,
+            'client_name' => $client->username,
             'profile_name' => $client->profile->name ?? '',
             'issue' => $request->issue ?: null,
             'type' => $request->type,
@@ -132,7 +132,7 @@ class DailyIssueController extends Controller
 
         $issue->update([
             'client_id' => $client->id,
-            'client_name' => $client->client_name ?: $client->username,
+            'client_name' => $client->username,
             'profile_name' => $client->profile->name ?? '',
             'issue' => $request->issue,
             'type' => $request->type,
@@ -203,6 +203,10 @@ class DailyIssueController extends Controller
             $query->where('type', $request->type);
         }
 
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
+
         if ($allowResponsibleFilter && $request->filled('responsible_id')) {
             $query->whereHas('responsibles', fn ($q) => $q->where('user_id', $request->responsible_id));
         }
@@ -228,8 +232,9 @@ class DailyIssueController extends Controller
         $members = $this->responsibleMembers($user->team_id);
         $creators = $this->assignerMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
+        $clients = Client::forTeam($user->team_id)->orderBy('username')->get();
 
-        return view('admin.pages.daily-issue.list', compact('issues', 'status', 'members', 'creators', 'types', 'date'));
+        return view('admin.pages.daily-issue.list', compact('issues', 'status', 'members', 'creators', 'types', 'date', 'clients'));
     }
 
     /**
@@ -244,8 +249,9 @@ class DailyIssueController extends Controller
 
         $creators = $this->assignerMembers($user->team_id);
         $types = ['Critical', 'Urgent', 'High', 'Normal'];
+        $clients = Client::forTeam($user->team_id)->orderBy('username')->get();
 
-        return view('admin.pages.daily-issue.my-issues', compact('issues', 'status', 'creators', 'types', 'date'));
+        return view('admin.pages.daily-issue.my-issues', compact('issues', 'status', 'creators', 'types', 'date', 'clients'));
     }
 
     public function markComplete(Request $request)

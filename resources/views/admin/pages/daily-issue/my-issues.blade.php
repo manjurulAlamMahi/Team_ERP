@@ -58,6 +58,17 @@
                 </select>
             </div>
             <div class="col-auto">
+                <label class="form-label mb-1 small text-muted">Client</label>
+                <select name="client_id" class="form-select form-select-sm">
+                    <option value="">All</option>
+                    @foreach ($clients as $client)
+                        <option value="{{ $client->id }}" {{ (string) request('client_id') === (string) $client->id ? 'selected' : '' }}>
+                            {{ $client->username }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-auto">
                 <button type="submit" class="btn btn-sm btn-primary">Apply</button>
                 <a href="{{ route('daily.issue.my', $status === 'completed' ? ['status' => 'completed'] : []) }}" class="btn btn-sm btn-light">Reset</a>
             </div>

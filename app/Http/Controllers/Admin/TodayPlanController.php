@@ -254,7 +254,7 @@ class TodayPlanController extends Controller
             ->forTeam($team->id)
             ->where('source', 'planned')
             ->whereIn('status', ['approved', 'rejected'])
-            ->latest()
+            ->latest('reviewed_at')
             ->get();
 
         return view('admin.pages.today-plan.review-history', compact('team', 'tasks'));

@@ -29,7 +29,7 @@
                     <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select class="form-select @error('status') is-invalid @enderror" name="status">
-                            @foreach (['absent' => 'Absent', 'leave' => 'Leave', 'home_office' => 'Home Office'] as $value => $label)
+                            @foreach (['absent' => 'Absent', 'leave' => 'Leave', 'home_office' => 'Home Office', 'sick' => 'Sick'] as $value => $label)
                                 <option value="{{ $value }}" {{ old('status', $leave->status) == $value ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
