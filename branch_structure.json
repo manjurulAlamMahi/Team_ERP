@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "main",
+    "origin",
+    "security/remove-malware"
+  ],
+  "parent": {
+    "main": null,
+    "origin": "main",
+    "security/remove-malware": "main"
+  },
+  "order": [
+    "main",
+    "origin",
+    "security/remove-malware"
+  ]
+}
